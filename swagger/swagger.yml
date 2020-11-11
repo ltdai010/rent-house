@@ -1,0 +1,145 @@
+swagger: "2.0"
+info:
+  title: beego Test API
+  description: beego has a very cool tools to autogenerate documents for your API
+  version: 1.0.0
+  termsOfService: http://beego.me/
+  contact:
+    email: astaxie@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /v1
+paths:
+  /user/:
+    get:
+      tags:
+      - user
+      description: get all Users
+      operationId: UserController.GetAll
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+    post:
+      tags:
+      - user
+      description: create users
+      operationId: UserController.CreateUser
+      parameters:
+      - in: body
+        name: body
+        description: body for user content
+        required: true
+        schema:
+          $ref: '#/definitions/request.PostUser'
+      responses:
+        "200":
+          description: '{int} models.UserID'
+        "403":
+          description: body is empty
+  /user/{uid}:
+    get:
+      tags:
+      - user
+      description: get user by uid
+      operationId: UserController.Get
+      parameters:
+      - in: path
+        name: uid
+        description: The key for staticblock
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+        "403":
+          description: :uid is empty
+    put:
+      tags:
+      - user
+      description: update the user
+      operationId: UserController.Update
+      parameters:
+      - in: path
+        name: uid
+        description: The uid you want to update
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for user content
+        required: true
+        schema:
+          $ref: '#/definitions/request.PutUser'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+        "403":
+          description: :uid is not int
+    delete:
+      tags:
+      - user
+      description: delete the user
+      operationId: UserController.Delete
+      parameters:
+      - in: path
+        name: uid
+        description: The uid you want to delete
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: uid is empty
+definitions:
+  models.User:
+    title: User
+    type: object
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      phone_number:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+  request.PostUser:
+    title: PostUser
+    type: object
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      phone_number:
+        type: string
+      username:
+        type: string
+  request.PutUser:
+    title: PutUser
+    type: object
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      phone_number:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+tags:
+- name: user
+  description: |
+    Operations about Users
