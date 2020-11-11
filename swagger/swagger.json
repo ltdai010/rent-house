@@ -15,28 +15,13 @@
     },
     "basePath": "/v1",
     "paths": {
-        "/user/": {
-            "get": {
-                "tags": [
-                    "user"
-                ],
-                "description": "get all Users",
-                "operationId": "UserController.GetAll",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    }
-                }
-            },
+        "/admin/create-owner": {
             "post": {
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "description": "create users",
-                "operationId": "UserController.CreateUser",
+                "operationId": "AdminController.CreateUser",
                 "parameters": [
                     {
                         "in": "body",
@@ -44,7 +29,7 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.PostUser"
+                            "$ref": "#/definitions/models.Owner"
                         }
                     }
                 ],
@@ -58,17 +43,17 @@
                 }
             }
         },
-        "/user/{uid}": {
+        "/comment/{comment-id}": {
             "get": {
                 "tags": [
-                    "user"
+                    "comment"
                 ],
                 "description": "get user by uid",
-                "operationId": "UserController.Get",
+                "operationId": "CommentController.Get",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "uid",
+                        "name": "comment-id",
                         "description": "The key for staticblock",
                         "required": true,
                         "type": "string"
@@ -78,24 +63,24 @@
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.Comment"
                         }
                     },
                     "403": {
-                        "description": ":uid is empty"
+                        "description": ":comment-id is empty"
                     }
                 }
             },
             "put": {
                 "tags": [
-                    "user"
+                    "comment"
                 ],
                 "description": "update the user",
-                "operationId": "UserController.Update",
+                "operationId": "CommentController.Update",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "uid",
+                        "name": "comment-id",
                         "description": "The uid you want to update",
                         "required": true,
                         "type": "string"
@@ -106,7 +91,7 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.PutUser"
+                            "$ref": "#/definitions/models.Comment"
                         }
                     }
                 ],
@@ -118,20 +103,295 @@
                         }
                     },
                     "403": {
-                        "description": ":uid is not int"
+                        "description": ":comment-id is not int"
                     }
                 }
             },
             "delete": {
                 "tags": [
-                    "user"
+                    "comment"
                 ],
                 "description": "delete the user",
-                "operationId": "UserController.Delete",
+                "operationId": "CommentController.Delete",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "uid",
+                        "name": "comment-id",
+                        "description": "The uid you want to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "comment-id is empty"
+                    }
+                }
+            }
+        },
+        "/house/": {
+            "get": {
+                "tags": [
+                    "house"
+                ],
+                "description": "get all renters",
+                "operationId": "HouseController.GetAll",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    }
+                }
+            }
+        },
+        "/house/{house-id}": {
+            "get": {
+                "tags": [
+                    "house"
+                ],
+                "description": "get user by uid",
+                "operationId": "HouseController.Get",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "house-id",
+                        "description": "The key for staticblock",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    },
+                    "403": {
+                        "description": ":house-id is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "house"
+                ],
+                "description": "update the user",
+                "operationId": "HouseController.Update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "house-id",
+                        "description": "The uid you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "403": {
+                        "description": ":house-id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "house"
+                ],
+                "description": "delete the user",
+                "operationId": "HouseController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "house-id",
+                        "description": "The uid you want to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "house-id is empty"
+                    }
+                }
+            }
+        },
+        "/house/{house-id}/add-comment": {
+            "post": {
+                "tags": [
+                    "house"
+                ],
+                "description": "create users",
+                "operationId": "HouseController.AddComment",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "house-id",
+                        "description": "the house id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/renter/": {
+            "get": {
+                "tags": [
+                    "renter"
+                ],
+                "description": "get all renters",
+                "operationId": "RenterController.GetAll",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    }
+                }
+            }
+        },
+        "/renter/sign-up": {
+            "post": {
+                "tags": [
+                    "renter"
+                ],
+                "description": "create users",
+                "operationId": "RenterController.CreateRenter",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{int} models.UserID"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/renter/{renter-id}": {
+            "get": {
+                "tags": [
+                    "renter"
+                ],
+                "description": "get user by uid",
+                "operationId": "RenterController.Get",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "renter-id",
+                        "description": "The key for staticblock",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    },
+                    "403": {
+                        "description": ":renter-id is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "renter"
+                ],
+                "description": "update the user",
+                "operationId": "RenterController.Update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "renter-id",
+                        "description": "The uid you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "403": {
+                        "description": ":renter-id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "renter"
+                ],
+                "description": "delete the user",
+                "operationId": "RenterController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "renter-id",
                         "description": "The uid you want to delete",
                         "required": true,
                         "type": "string"
@@ -149,71 +409,209 @@
         }
     },
     "definitions": {
+        "models.Address": {
+            "title": "Address",
+            "type": "object",
+            "properties": {
+                "district": {
+                    "type": "string"
+                },
+                "province": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Comment": {
+            "title": "Comment",
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "header": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "string"
+                },
+                "post_time": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "star": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.House": {
+            "title": "House",
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "address": {
+                    "$ref": "#/definitions/models.Address"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "expired_time": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "header": {
+                    "type": "string"
+                },
+                "house_type": {
+                    "$ref": "#/definitions/models.HouseType"
+                },
+                "image_link": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "infrastructure": {
+                    "$ref": "#/definitions/models.Infrastructure"
+                },
+                "near_by": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "post_time": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "price": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "price_per_year": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "with_owner": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.HouseType": {
+            "title": "HouseType",
+            "format": "int64",
+            "type": "integer"
+        },
+        "models.Infrastructure": {
+            "title": "Infrastructure",
+            "type": "object",
+            "properties": {
+                "air_condition": {
+                    "type": "boolean"
+                },
+                "balcony": {
+                    "type": "boolean"
+                },
+                "electric_price": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "heater": {
+                    "type": "boolean"
+                },
+                "other": {
+                    "type": "string"
+                },
+                "private_bathroom": {
+                    "type": "boolean"
+                },
+                "water_price": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Owner": {
+            "title": "Owner",
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "address": {
+                    "$ref": "#/definitions/models.Address"
+                },
+                "owner_name": {
+                    "type": "string"
+                },
+                "profile": {
+                    "$ref": "#/definitions/models.Profile"
+                }
+            }
+        },
+        "models.Profile": {
+            "title": "Profile",
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id_card": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Renter": {
+            "title": "Renter",
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "list_favourite": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "renter_name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.User": {
             "title": "User",
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "phone_number": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "request.PostUser": {
-            "title": "PostUser",
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "phone_number": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "request.PutUser": {
-            "title": "PutUser",
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "phone_number": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         }
     },
     "tags": [
         {
-            "name": "user",
-            "description": "Operations about Users\n"
+            "name": "house",
+            "description": "Operations about house\n"
+        },
+        {
+            "name": "renter",
+            "description": "Operations about Owner\n"
         }
     ]
 }

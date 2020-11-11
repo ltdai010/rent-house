@@ -4,12 +4,15 @@ import (
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
 	"rent-house/consts"
+	"rent-house/restapi/response"
 )
 
 type Comment struct {
 	Content   string `json:"content"`
 	Header    string `json:"header"`
+	PostID	  string `json:"post_id"`
 	PostTime  int64  `json:"post_time"`
+	Star	  int	 `json:"star"`
 	Activate  bool	 `json:"activate"`
 }
 
@@ -63,11 +66,11 @@ func (this *Comment) GetFromKey(key string) (*Comment, error) {
 	return this, err
 }
 
-func (this *Comment) GetAll() ([]*Comment, error) {
+func (this *Comment) GetAll() ([]*response.Comment, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listComment := []*Comment{}
+	listComment := []*response.Comment{}
 	for {
-		var q Comment
+		var q response.Comment
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
@@ -76,8 +79,32 @@ func (this *Comment) GetAll() ([]*Comment, error) {
 		if err != nil {
 			return nil, err
 		}
+		q.CommentID = doc.Ref.ID
 		listComment = append(listComment, &q)
 	}
 	return listComment, nil
 }
 
+func (this *Comment) GetAllCommentInPost(id string) ([]*response.Comment, error) {
+	listdoc := client.Collection(this.GetCollectionKey()).Where("post_id", "==", id).Documents(ctx)
+	listComment := []*response.Comment{}
+	for {
+		var q response.Comment
+		doc, err := listdoc.Next()
+		if err == iterator.Done {
+			break
+		}
+		err = doc.DataTo(&q)
+		if err != nil {
+			return nil, err
+		}
+		q.CommentID = doc.Ref.ID
+		listComment = append(listComment, &q)
+	}
+	return listComment, nil
+}
+
+func (this *Comment) UpdateItem(id string) error {
+	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, this)
+	return err
+}

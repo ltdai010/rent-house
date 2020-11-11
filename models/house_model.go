@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
 	"rent-house/consts"
+	"rent-house/restapi/response"
 )
 
 type House struct {
@@ -18,6 +19,9 @@ type House struct {
 	ImageLink      []string       `json:"image_link"`
 	Header         string         `json:"header"`
 	Content        string         `json:"content"`
+	PostTime	   int64  		  `json:"post_time"`
+	Activate	   bool  		  `json:"activate"`
+	ExpiredTime	   int64  		  `json:"expired_time"`
 }
 
 type HouseSearch struct {
@@ -107,11 +111,11 @@ func (this *House) GetFromKey(key string) (*House, error) {
 	return this, err
 }
 
-func (this *House) GetAll() ([]*House, error) {
+func (this *House) GetAll() ([]*response.House, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listHouse := []*House{}
+	listHouse := []*response.House{}
 	for {
-		var q House
+		var q response.House
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
@@ -120,7 +124,13 @@ func (this *House) GetAll() ([]*House, error) {
 		if err != nil {
 			return nil, err
 		}
+		q.HouseID = doc.Ref.ID
 		listHouse = append(listHouse, &q)
 	}
 	return listHouse, nil
+}
+
+func (this *House) UpdateItem(id string) error {
+	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, this)
+	return err
 }

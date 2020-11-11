@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
 	"rent-house/consts"
+	"rent-house/restapi/response"
 )
 
 type Owner struct {
@@ -55,6 +56,11 @@ func (this *Owner) PutItem() error {
 	return err
 }
 
+func (this *Owner) UpdateItem(id string) error {
+	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, this)
+	return err
+}
+
 func (this *Owner) Delete(id string) error {
 	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
 	return err
@@ -69,11 +75,11 @@ func (this *Owner) GetFromKey(key string) (*Owner, error) {
 	return this, err
 }
 
-func (this *Owner) GetAll() ([]*Owner, error) {
+func (this *Owner) GetAll() ([]*response.Owner, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listOwner := []*Owner{}
+	listOwner := []*response.Owner{}
 	for {
-		var q Owner
+		var q response.Owner
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
@@ -82,6 +88,7 @@ func (this *Owner) GetAll() ([]*Owner, error) {
 		if err != nil {
 			return nil, err
 		}
+		q.OwnerID = doc.Ref.ID
 		listOwner = append(listOwner, &q)
 	}
 	return listOwner, nil

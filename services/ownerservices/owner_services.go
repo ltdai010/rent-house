@@ -1,57 +1,34 @@
 package ownerservices
 
 import (
-	"fmt"
-	"rent-house/consts"
 	"rent-house/models"
-	"rent-house/restapi/request"
+	"rent-house/restapi/response"
 )
 
-func AddUser(user *request.PostOwner) error {
-	if err != nil {
-		return err
-	}
-	u := &models.User{
-		UserID:      fmt.Sprintf(consts.ID_FORMAT, i),
-		Username:    user.Username,
-		PhoneNumber: user.PhoneNumber,
-		Email:       user.Email,
-		Address:     user.Address,
-	}
-	err = u.PutItem(u.UserID)
-	return err
+func AddOwner(o *models.Owner) error {
+	return o.PutItem()
 }
 
-func GetUser(userID string) (*models.User, error) {
-	u := &models.User{}
-	u, err := u.GetFromKey(userID)
+func GetOwner(ownerID string) (*models.Owner, error) {
+	u := &models.Owner{}
+	u, err := u.GetFromKey(ownerID)
 	return u, err
 }
 
-func GetAllUser() ([]models.User, int64, error) {
-	u := &models.User{}
-	list, leng, err := u.GetAll()
-	return list, leng, err
+func GetAllOwner() ([]*response.Owner, error) {
+	u := &models.Owner{}
+	return u.GetAll()
 }
 
-func UpdateUser(user *request.PutUser) error {
-	u := &models.User{}
-	u, err := u.GetFromKey(user.UserID)
+func UpdateUser(id string, o *models.Owner) error {
+	return o.UpdateItem(id)
+}
+
+func DeleteOwner(ownerID string) error {
+	u := &models.Owner{}
+	u, err := u.GetFromKey(ownerID)
 	if err != nil {
 		return err
 	}
-	u.Username = user.Username
-	u.Address = user.Address
-	u.Email = user.Email
-	u.PhoneNumber = user.PhoneNumber
-	return u.PutItem(user.UserID)
-}
-
-func DeleteUser(userID string) error {
-	u := &models.User{}
-	u, err := u.GetFromKey(userID)
-	if err != nil {
-		return err
-	}
-	return u.Delete()
+	return u.Delete(ownerID)
 }

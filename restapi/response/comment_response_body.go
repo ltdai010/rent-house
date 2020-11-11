@@ -1,6 +1,6 @@
 package response
 
-type CommentResponse struct {
+type Comment struct {
 	CommentID string `json:"comment_id"`
 	Content   string `json:"content"`
 	Header    string `json:"header"`

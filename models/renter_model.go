@@ -2,12 +2,15 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
+	"errors"
 	"google.golang.org/api/iterator"
 	"rent-house/consts"
+	"rent-house/restapi/response"
 )
 
 type Renter struct {
 	RenterName 		string 		`json:"renter_name"`
+	Password		string		`json:"password"`
 	PhoneNumber		string 		`json:"phone_number"`
 	Email			string 		`json:"email"`
 	ListFavourite	[]string	`json:"list_favourite"`
@@ -45,8 +48,12 @@ func (this *Renter) GetPaginate(page int, count int) ([]*Renter, error) {
 }
 
 func (this *Renter) PutItem() error {
-	_, _, err := client.Collection(this.GetCollectionKey()).Add(ctx, this)
-	return err
+	_, err := client.Collection(this.GetCollectionKey()).Doc(this.RenterName).Get(ctx)
+	if err != nil {
+		_, err = client.Collection(this.GetCollectionKey()).Doc(this.RenterName).Set(ctx, this)
+		return err
+	}
+	return errors.New("already exist")
 }
 
 func (this *Renter) Delete(id string) error {
@@ -63,11 +70,11 @@ func (this *Renter) GetFromKey(key string) (*Renter, error) {
 	return this, err
 }
 
-func (this *Renter) GetAll() ([]*Renter, error) {
+func (this *Renter) GetAll() ([]*response.Renter, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listRenter := []*Renter{}
+	listRenter := []*response.Renter{}
 	for {
-		var q Renter
+		var q response.Renter
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
@@ -76,7 +83,13 @@ func (this *Renter) GetAll() ([]*Renter, error) {
 		if err != nil {
 			return nil, err
 		}
+		q.RenterID = doc.Ref.ID
 		listRenter = append(listRenter, &q)
 	}
 	return listRenter, nil
+}
+
+func (this *Renter) UpdateItem(id string) error {
+	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, this)
+	return err
 }
