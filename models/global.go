@@ -43,7 +43,7 @@ func initCloudStore() {
 }
 
 func initSearch()  {
-	clientSearch = search.NewClient(beego.AppConfig.String("algolia::app_id"), beego.AppConfig.String("alogolia::key"))
+	clientSearch = search.NewClient(beego.AppConfig.String("algolia::app_id"), beego.AppConfig.String("algolia::key"))
 	searchIndex = clientSearch.InitIndex("house")
 }
 

@@ -10,7 +10,7 @@ import (
 type Comment struct {
 	Content   string `json:"content"`
 	Header    string `json:"header"`
-	PostID	  string `json:"post_id"`
+	HouseID	  string `json:"house_id"`
 	PostTime  int64  `json:"post_time"`
 	Star	  int	 `json:"star"`
 	Activate  bool	 `json:"activate"`
@@ -24,36 +24,39 @@ func (g *Comment) GetCollection() *firestore.CollectionRef {
 	return client.Collection(g.GetCollectionKey())
 }
 
-func (this *Comment) GetPaginate(page int, count int) ([]*Comment, error) {
-	listComment := []*Comment{}
-	listDoc, err := this.GetCollection().Limit(count).Documents(ctx).GetAll()
+func (this *Comment) GetPaginate(page int, count int) ([]*response.Comment, error) {
+	listComment := []*response.Comment{}
+	listDoc, err := this.GetCollection().StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
-	for i := 0; i < page; i++ {
-		if len(listDoc) < count {
-			return nil, nil
-		}
-		listDoc, err = this.GetCollection().StartAfter(listDoc[len(listDoc) - 1]).Limit(count).Documents(ctx).GetAll()
-		if err != nil {
-			return nil, err
-		}
-	}
 	for _, i := range listDoc {
-		var q Comment
+		var q response.Comment
 		err = i.DataTo(&q)
+		q.CommentID = i.Ref.ID
 		listComment = append(listComment, &q)
 	}
 	return listComment, nil
 }
 
 func (this *Comment) PutItem() error {
-	_, _, err := client.Collection(this.GetCollectionKey()).Add(ctx, this)
+	res, _, err := client.Collection(this.GetCollectionKey()).Add(ctx, *this)
+	if err != nil {
+		return err
+	}
+	_, err = client.Collection(consts.COMMENT_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
+		"CommentID" : res.ID,
+	})
 	return err
 }
 
 func (this *Comment) Delete(id string) error {
 	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	return err
+}
+
+func (this *Comment) DeleteWaitList(id string) error {
+	_, err := client.Collection(consts.COMMENT_WAIT_LIST).Doc(id).Delete(ctx)
 	return err
 }
 
@@ -86,7 +89,7 @@ func (this *Comment) GetAll() ([]*response.Comment, error) {
 }
 
 func (this *Comment) GetAllCommentInPost(id string) ([]*response.Comment, error) {
-	listdoc := client.Collection(this.GetCollectionKey()).Where("post_id", "==", id).Documents(ctx)
+	listdoc := client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx)
 	listComment := []*response.Comment{}
 	for {
 		var q response.Comment
@@ -104,7 +107,55 @@ func (this *Comment) GetAllCommentInPost(id string) ([]*response.Comment, error)
 	return listComment, nil
 }
 
+func (this *Comment) GetAllWaitList() ([]string, error) {
+	listdoc := client.Collection(consts.COMMENT_WAIT_LIST).Documents(ctx)
+	listOwner := []string{}
+	for {
+		doc, err := listdoc.Next()
+		if err == iterator.Done {
+			break
+		}
+		i, err := doc.DataAt("CommentID")
+		if err != nil {
+			return nil, err
+		}
+		listOwner = append(listOwner, i.(string))
+	}
+	return listOwner, nil
+}
+
+func (this *Comment) GetPaginateWaitList(page int, count int) ([]string, error) {
+	listOwner := []string{}
+	listDoc, err := client.Collection(consts.COMMENT_WAIT_LIST).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, i := range listDoc {
+		s, err := i.DataAt("CommentID")
+		if err != nil {
+			return nil, err
+		}
+		listOwner = append(listOwner, s.(string))
+	}
+	return listOwner, nil
+}
+
+func (this *Comment) GetPaginateCommentInPost(id string, page int, count int) ([]*response.Comment, error) {
+	listDoc, err := this.GetCollection().Where("PostID", "==", id).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listComment := []*response.Comment{}
+	if err != nil {
+		return nil, err
+	}
+	for _, i := range listDoc {
+		var q response.Comment
+		err = i.DataTo(&q)
+		q.CommentID = i.Ref.ID
+		listComment = append(listComment, &q)
+	}
+	return listComment, nil
+}
+
 func (this *Comment) UpdateItem(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, this)
+	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
 	return err
 }

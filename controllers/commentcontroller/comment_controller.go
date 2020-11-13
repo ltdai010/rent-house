@@ -17,7 +17,7 @@ type CommentController struct {
 // @Param	comment-id		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Comment
 // @Failure 403 :comment-id is empty
-// @router /:comment-id [get]
+// @router /:comment-id/ [get]
 func (u *CommentController) Get() {
 	id := u.Ctx.Input.Param(":comment-id")
 	if id != "" {
@@ -37,7 +37,7 @@ func (u *CommentController) Get() {
 // @Param	body		body 	models.Comment	true		"body for user content"
 // @Success 200 {object} models.User
 // @Failure 403 :comment-id is not int
-// @router /:comment-id [put]
+// @router /:comment-id/ [put]
 func (u *CommentController) Update() {
 	id := u.Ctx.Input.Param(":comment-id")
 	if id != "" {
@@ -62,7 +62,7 @@ func (u *CommentController) Update() {
 // @Param	comment-id		path 	string	true		"The uid you want to delete"
 // @Success 200 {string} delete success!
 // @Failure 403 comment-id is empty
-// @router /:comment-id [delete]
+// @router /:comment-id/ [delete]
 func (u *CommentController) Delete() {
 	id := u.GetString(":comment-id")
 	err := commentservices.DeleteComment(id)

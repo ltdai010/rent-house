@@ -2,18 +2,31 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
-	"errors"
 	"google.golang.org/api/iterator"
 	"rent-house/consts"
 	"rent-house/restapi/response"
 )
 
 type Renter struct {
-	RenterName 		string 		`json:"renter_name"`
-	Password		string		`json:"password"`
-	PhoneNumber		string 		`json:"phone_number"`
-	Email			string 		`json:"email"`
-	ListFavourite	[]string	`json:"list_favourite"`
+	RenterName 		string 			`json:"renter_name"`
+	RenterFullName 		string 		`json:"renter_full_name"`
+	Password		string			`json:"password"`
+	PhoneNumber		string 			`json:"phone_number"`
+	Email			string 			`json:"email"`
+	ListFavourite	[]string		`json:"list_favourite"`
+}
+
+type RenterLogin struct {
+	RenterName	string	`json:"renter_name"`
+	Password	string	`json:"password"`
+}
+
+func (this RenterLogin) GetPassword() string {
+	return this.Password
+}
+
+func (this RenterLogin) GetUsername() string {
+	return this.RenterName
 }
 
 func (g *Renter) GetCollectionKey() string {
@@ -26,18 +39,9 @@ func (g *Renter) GetCollection() *firestore.CollectionRef {
 
 func (this *Renter) GetPaginate(page int, count int) ([]*Renter, error) {
 	listRenter := []*Renter{}
-	listDoc, err := this.GetCollection().Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().StartAt(page*count).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
-	}
-	for i := 0; i < page; i++ {
-		if len(listDoc) < count {
-			return nil, nil
-		}
-		listDoc, err = this.GetCollection().StartAfter(listDoc[len(listDoc) - 1]).Limit(count).Documents(ctx).GetAll()
-		if err != nil {
-			return nil, err
-		}
 	}
 	for _, i := range listDoc {
 		var q Renter
@@ -48,12 +52,8 @@ func (this *Renter) GetPaginate(page int, count int) ([]*Renter, error) {
 }
 
 func (this *Renter) PutItem() error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(this.RenterName).Get(ctx)
-	if err != nil {
-		_, err = client.Collection(this.GetCollectionKey()).Doc(this.RenterName).Set(ctx, this)
-		return err
-	}
-	return errors.New("already exist")
+	_, err := client.Collection(this.GetCollectionKey()).Doc(this.RenterName).Set(ctx, *this)
+	return err
 }
 
 func (this *Renter) Delete(id string) error {
@@ -90,6 +90,6 @@ func (this *Renter) GetAll() ([]*response.Renter, error) {
 }
 
 func (this *Renter) UpdateItem(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, this)
+	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
 	return err
 }

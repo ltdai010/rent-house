@@ -29,30 +29,6 @@ type HouseSearch struct {
 	House
 }
 
-type Address struct {
-	Province string `json:"province"`
-	District string `json:"district"`
-	Street   string `json:"street"`
-}
-
-type Infrastructure struct {
-	PrivateBathroom bool   `json:"private_bathroom"`
-	Heater          bool   `json:"heater"`
-	AirCondition    bool   `json:"air_condition"`
-	Balcony         bool   `json:"balcony"`
-	ElectricPrice   int    `json:"electric_price"`
-	WaterPrice      int    `json:"water_price"`
-	Other           string `json:"other"`
-}
-
-type HouseType int
-
-const (
-	Room = iota
-	MiniApartment
-	FullHouse
-	Apartment
-)
 
 func (g *House) GetCollectionKey() string {
 	return consts.HOUSE
@@ -64,18 +40,9 @@ func (g *House) GetCollection() *firestore.CollectionRef {
 
 func (this *House) GetPaginate(page int, count int) ([]*House, error) {
 	listHouse := []*House{}
-	listDoc, err := this.GetCollection().Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
-	}
-	for i := 0; i < page; i++ {
-		if len(listDoc) < count {
-			return nil, nil
-		}
-		listDoc, err = this.GetCollection().StartAfter(listDoc[len(listDoc)-1]).Limit(count).Documents(ctx).GetAll()
-		if err != nil {
-			return nil, err
-		}
 	}
 	for _, i := range listDoc {
 		var q House
@@ -86,19 +53,56 @@ func (this *House) GetPaginate(page int, count int) ([]*House, error) {
 }
 
 func (this *House) PutItem() error {
-	res, _, err := client.Collection(this.GetCollectionKey()).Add(ctx, this)
+	//add to collection
+	res, _, err := client.Collection(this.GetCollectionKey()).Add(ctx, *this)
 	if err != nil {
 		return err
 	}
+	//add to search
 	_, err = searchIndex.SaveObject(HouseSearch{
 		ObjectID: res.ID,
 		House:    *this,
 	})
+	if err != nil {
+		return err
+	}
+	_, err = client.Collection(consts.HOUSE_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
+		"HouseID" : res.ID,
+	})
+	return err
+}
+
+func (this *House) AddToWaitList(time PostTime) error {
+	//add to wait list
+	_, err := this.GetCollection().Doc(time.HouseID).Set(ctx, time)
+	return err
+}
+
+func (this *House) Public(time PostTime) error {
+	//get item
+	doc, err := this.GetCollection().Doc(time.HouseID).Get(ctx)
+	if err != nil {
+		return err
+	}
+	h := House{}
+	err = doc.DataTo(&h)
+	if err != nil {
+		return err
+	}
+	h.PostTime = time.PostTime
+	h.ExpiredTime = time.ExpireTime
+	h.Activate = true
+	_, err = this.GetCollection().Doc(time.HouseID).Set(ctx, h)
 	return err
 }
 
 func (this *House) Delete(id string) error {
 	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	return err
+}
+
+func (this *House) DeleteWaitList(id string) error {
+	_, err := client.Collection(consts.HOUSE_WAIT_LIST).Doc(id).Delete(ctx)
 	return err
 }
 
@@ -130,7 +134,74 @@ func (this *House) GetAll() ([]*response.House, error) {
 	return listHouse, nil
 }
 
+func (this *House) GetAllHouseOfOwner(id string) ([]*response.House, error) {
+	listdoc := client.Collection(this.GetCollectionKey()).Where("OwnerID", "==", id).Documents(ctx)
+	listHouse := []*response.House{}
+	for {
+		var q response.House
+		doc, err := listdoc.Next()
+		if err == iterator.Done {
+			break
+		}
+		err = doc.DataTo(&q)
+		if err != nil {
+			return nil, err
+		}
+		q.HouseID = doc.Ref.ID
+		listHouse = append(listHouse, &q)
+	}
+	return listHouse, nil
+}
+
+func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]*response.House, error) {
+	listDoc, err := this.GetCollection().Where("OwnerID", "==", id).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listComment := []*response.House{}
+	if err != nil {
+		return nil, err
+	}
+	for _, i := range listDoc {
+		var q response.House
+		err = i.DataTo(&q)
+		q.HouseID = i.Ref.ID
+		listComment = append(listComment, &q)
+	}
+	return listComment, nil
+}
+
+func (this *House) GetAllWaitList() ([]string, error) {
+	listdoc := client.Collection(consts.HOUSE_WAIT_LIST).Documents(ctx)
+	listOwner := []string{}
+	for {
+		doc, err := listdoc.Next()
+		if err == iterator.Done {
+			break
+		}
+		i, err := doc.DataAt("HouseID")
+		if err != nil {
+			return nil, err
+		}
+		listOwner = append(listOwner, i.(string))
+	}
+	return listOwner, nil
+}
+
+func (this *House) GetPaginateWaitList(page int, count int) ([]string, error) {
+	listOwner := []string{}
+	listDoc, err := client.Collection(consts.HOUSE_WAIT_LIST).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, i := range listDoc {
+		s, err := i.DataAt("HouseID")
+		if err != nil {
+			return nil, err
+		}
+		listOwner = append(listOwner, s.(string))
+	}
+	return listOwner, nil
+}
+
 func (this *House) UpdateItem(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, this)
+	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
 	return err
 }

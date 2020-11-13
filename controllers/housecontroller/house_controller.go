@@ -35,7 +35,7 @@ func (u *HouseController) GetAll() {
 // @Param	house-id		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Renter
 // @Failure 403 :house-id is empty
-// @router /:house-id [get]
+// @router /:house-id/ [get]
 func (u *HouseController) Get() {
 	id := u.Ctx.Input.Param(":house-id")
 	if id != "" {
@@ -78,7 +78,7 @@ func (u *HouseController) AddComment() {
 // @Param	body		body 	models.Renter	true		"body for user content"
 // @Success 200 {object} models.User
 // @Failure 403 :house-id is not int
-// @router /:house-id [put]
+// @router /:house-id/ [put]
 func (u *HouseController) Update() {
 	id := u.Ctx.Input.Param(":house-id")
 	if id != "" {
@@ -103,7 +103,7 @@ func (u *HouseController) Update() {
 // @Param	house-id		path 	string	true		"The uid you want to delete"
 // @Success 200 {string} delete success!
 // @Failure 403 house-id is empty
-// @router /:house-id [delete]
+// @router /:house-id/ [delete]
 func (u *HouseController) Delete() {
 	id := u.GetString(":house-id")
 	err := houseservices.DeleteHouse(id)
@@ -112,5 +112,49 @@ func (u *HouseController) Delete() {
 		return
 	}
 	u.Data["json"] = "delete success!"
+	u.ServeJSON()
+}
+
+// @Title GetAllComment
+// @Description get all renters
+// @Param	house-id	path	string	true	"the house-id
+// @Success 200 {object} models.Renter
+// @router /:house-id/comments/ [get]
+func (u *HouseController) GetAllComment() {
+	id := u.Ctx.Input.Param(":house-id")
+	users, err := commentservices.GetAllCommentOfHouse(id)
+	if err != nil {
+		u.Ctx.WriteString(err.Error())
+		return
+	}
+	u.Data["json"] = users
+	u.ServeJSON()
+}
+
+// @Title GetPageComment
+// @Description get page comment
+// @Param	house-id	path	string	true	"the house-id"
+// @Param	page		query	int		true	"the page"
+// @Param	count		query	int		true	"the count"
+// @Success 200 {object} models.Comment
+// @router /:house-id/page-comments/ [get]
+func (u *HouseController) GetPageComment() {
+	id := u.Ctx.Input.Param(":house-id")
+	page, err := u.GetInt("page")
+	if err != nil {
+		u.Ctx.WriteString(err.Error())
+		return
+	}
+	count, err := u.GetInt("count")
+	if err != nil {
+		u.Ctx.WriteString(err.Error())
+		return
+	}
+	users, err := commentservices.GetPageCommentOfHouse(id, page, count)
+	if err != nil {
+		u.Ctx.WriteString(err.Error())
+		return
+	}
+	u.Data["json"] = users
 	u.ServeJSON()
 }

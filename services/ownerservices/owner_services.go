@@ -1,12 +1,39 @@
 package ownerservices
 
 import (
+	"errors"
+	"rent-house/middlewares"
 	"rent-house/models"
 	"rent-house/restapi/response"
 )
 
 func AddOwner(o *models.Owner) error {
+	o.Activate = false
 	return o.PutItem()
+}
+
+func ActiveOwner(ownerID string) error {
+	owner := &models.Owner{}
+	owner, err := owner.GetFromKey(ownerID)
+	if err != nil {
+		return err
+	}
+	owner.Activate = true
+	err = owner.UpdateItem(ownerID)
+	if err != nil {
+		return err
+	}
+	return owner.DeleteWaitList(ownerID)
+}
+
+func GetAllWaitOwner() ([]string, error) {
+	h := &models.Owner{}
+	return h.GetAllWaitList()
+}
+
+func GetPageWaitOwner(page int, count int) ([]string, error) {
+	h := &models.Owner{}
+	return h.GetPaginateWaitList(page, count)
 }
 
 func GetOwner(ownerID string) (*models.Owner, error) {
@@ -31,4 +58,16 @@ func DeleteOwner(ownerID string) error {
 		return err
 	}
 	return u.Delete(ownerID)
+}
+
+func LoginOwner(login models.OwnerLogin) (string, error) {
+	owner := &models.Owner{}
+	owner, err := owner.GetFromKey(login.OwnerName)
+	if err != nil {
+		return "", err
+	}
+	if login.Password == owner.Password {
+		return middlewares.CreateToken(login)
+	}
+	return "", errors.New("not authorized")
 }

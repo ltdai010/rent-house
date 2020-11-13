@@ -1,12 +1,18 @@
 package renterservices
 
 import (
+	"errors"
+	"rent-house/middlewares"
 	"rent-house/models"
 	"rent-house/restapi/response"
 )
 
 func AddRenter(o *models.Renter) error {
-	return o.PutItem()
+	_, err := o.GetFromKey(o.RenterName)
+	if err != nil {
+		err = o.PutItem()
+	}
+	return errors.New("already exist")
 }
 
 func GetRenter(id string) (*models.Renter, error) {
@@ -31,4 +37,16 @@ func DeleteRenter(id string) error {
 		return err
 	}
 	return u.Delete(id)
+}
+
+func LoginRenter(login models.RenterLogin) (string, error) {
+	renter := &models.Renter{}
+	renter, err := renter.GetFromKey(login.RenterName)
+	if err != nil {
+		return "", err
+	}
+	if login.Password == renter.Password {
+		return middlewares.CreateToken(login)
+	}
+	return "", errors.New("not authorized")
 }

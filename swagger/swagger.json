@@ -15,27 +15,32 @@
     },
     "basePath": "/v1",
     "paths": {
-        "/admin/create-owner": {
+        "/admin/active-comment/": {
             "post": {
                 "tags": [
                     "admin"
                 ],
                 "description": "create users",
-                "operationId": "AdminController.CreateUser",
+                "operationId": "AdminController.ActivateComment",
                 "parameters": [
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for user content",
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Owner"
-                        }
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "commentID",
+                        "description": "houseID",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{int} models.UserID"
+                        "description": "{string} success"
                     },
                     "403": {
                         "description": "body is empty"
@@ -43,7 +48,229 @@
                 }
             }
         },
-        "/comment/{comment-id}": {
+        "/admin/active-house/": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "create users",
+                "operationId": "AdminController.ActivateHouse",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "houseID",
+                        "description": "houseID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/admin/active-owner/": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "create users",
+                "operationId": "AdminController.ActivateOwner",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "ownerID",
+                        "description": "ownerID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/admin/page-wait-comments/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get page comment",
+                "operationId": "AdminController.GetPageWaitComment",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "the count",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/page-wait-houses/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get page comment",
+                "operationId": "AdminController.GetPageWaitHouse",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "the count",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/page-wait-owners/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get page comment",
+                "operationId": "AdminController.GetPageWaitOwner",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "the count",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Owner"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/wait-comments/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get all wait comments",
+                "operationId": "AdminController.GetAllWaitComment",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/wait-houses/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get all renters",
+                "operationId": "AdminController.GetAllWaitHouse",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/wait-owners/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get all wait owners",
+                "operationId": "AdminController.GetAllWaitOwner",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Owner"
+                        }
+                    }
+                }
+            }
+        },
+        "/comment/{comment-id}/": {
             "get": {
                 "tags": [
                     "comment"
@@ -149,7 +376,7 @@
                 }
             }
         },
-        "/house/{house-id}": {
+        "/house/{house-id}/": {
             "get": {
                 "tags": [
                     "house"
@@ -273,6 +500,332 @@
                 }
             }
         },
+        "/house/{house-id}/comments/": {
+            "get": {
+                "tags": [
+                    "house"
+                ],
+                "description": "get all renters",
+                "operationId": "HouseController.GetAllComment",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "house-id",
+                        "description": "the house-id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    }
+                }
+            }
+        },
+        "/house/{house-id}/page-comments/": {
+            "get": {
+                "tags": [
+                    "house"
+                ],
+                "description": "get page comment",
+                "operationId": "HouseController.GetPageComment",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "house-id",
+                        "description": "the house-id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "the count",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Comment"
+                        }
+                    }
+                }
+            }
+        },
+        "/owner/": {
+            "get": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "get all Users",
+                "operationId": "OwnerController.GetAll",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/owner/create-house/": {
+            "post": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "create users",
+                "operationId": "OwnerController.CreateHouse",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{int} models.House"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/owner/login/": {
+            "post": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "create users",
+                "operationId": "OwnerController.CreateRenter",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "login",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.OwnerLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} token"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/owner/sign-up/": {
+            "post": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "create users",
+                "operationId": "OwnerController.CreateOwner",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Owner"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{int} models.UserID"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/owner/{owner-id}/": {
+            "get": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "get user by uid",
+                "operationId": "OwnerController.Get",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "uid",
+                        "description": "The key for staticblock",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "403": {
+                        "description": ":uid is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "update the user",
+                "operationId": "OwnerController.Update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "uid",
+                        "description": "The uid you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Owner"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "403": {
+                        "description": ":uid is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "delete the user",
+                "operationId": "OwnerController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "uid",
+                        "description": "The uid you want to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "uid is empty"
+                    }
+                }
+            }
+        },
+        "/owner/{owner-id}/houses/": {
+            "get": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "get all renters",
+                "operationId": "OwnerController.GetAllHouse",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "owner-id",
+                        "description": "the house-id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Renter"
+                        }
+                    }
+                }
+            }
+        },
+        "/owner/{owner-id}/page-houses/": {
+            "get": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "get page house",
+                "operationId": "OwnerController.GetPageHouse",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "owner-id",
+                        "description": "the house-id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "the count",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    }
+                }
+            }
+        },
         "/renter/": {
             "get": {
                 "tags": [
@@ -290,7 +843,35 @@
                 }
             }
         },
-        "/renter/sign-up": {
+        "/renter/login/": {
+            "post": {
+                "tags": [
+                    "renter"
+                ],
+                "description": "create users",
+                "operationId": "RenterController.CreateRenter",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "login",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RenterLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{int} models.UserID"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/renter/sign-up/": {
             "post": {
                 "tags": [
                     "renter"
@@ -318,7 +899,7 @@
                 }
             }
         },
-        "/renter/{renter-id}": {
+        "/renter/{renter-id}/": {
             "get": {
                 "tags": [
                     "renter"
@@ -437,7 +1018,7 @@
                 "header": {
                     "type": "string"
                 },
-                "post_id": {
+                "house_id": {
                     "type": "string"
                 },
                 "post_time": {
@@ -552,11 +1133,29 @@
                 "address": {
                     "$ref": "#/definitions/models.Address"
                 },
+                "owner_full_name": {
+                    "type": "string"
+                },
                 "owner_name": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "profile": {
                     "$ref": "#/definitions/models.Profile"
+                }
+            }
+        },
+        "models.OwnerLogin": {
+            "title": "OwnerLogin",
+            "type": "object",
+            "properties": {
+                "owner_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         },
@@ -594,6 +1193,21 @@
                 "phone_number": {
                     "type": "string"
                 },
+                "renter_full_name": {
+                    "type": "string"
+                },
+                "renter_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RenterLogin": {
+            "title": "RenterLogin",
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
                 "renter_name": {
                     "type": "string"
                 }
@@ -605,6 +1219,10 @@
         }
     },
     "tags": [
+        {
+            "name": "owner",
+            "description": "Operations about Owner\n"
+        },
         {
             "name": "house",
             "description": "Operations about house\n"

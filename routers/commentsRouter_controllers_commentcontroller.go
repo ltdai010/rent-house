@@ -10,7 +10,7 @@ func init() {
     beego.GlobalControllerRouter["rent-house/controllers/commentcontroller:CommentController"] = append(beego.GlobalControllerRouter["rent-house/controllers/commentcontroller:CommentController"],
         beego.ControllerComments{
             Method: "Get",
-            Router: "/:comment-id",
+            Router: "/:comment-id/",
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,
@@ -19,7 +19,7 @@ func init() {
     beego.GlobalControllerRouter["rent-house/controllers/commentcontroller:CommentController"] = append(beego.GlobalControllerRouter["rent-house/controllers/commentcontroller:CommentController"],
         beego.ControllerComments{
             Method: "Update",
-            Router: "/:comment-id",
+            Router: "/:comment-id/",
             AllowHTTPMethods: []string{"put"},
             MethodParams: param.Make(),
             Filters: nil,
@@ -28,7 +28,7 @@ func init() {
     beego.GlobalControllerRouter["rent-house/controllers/commentcontroller:CommentController"] = append(beego.GlobalControllerRouter["rent-house/controllers/commentcontroller:CommentController"],
         beego.ControllerComments{
             Method: "Delete",
-            Router: "/:comment-id",
+            Router: "/:comment-id/",
             AllowHTTPMethods: []string{"delete"},
             MethodParams: param.Make(),
             Filters: nil,
