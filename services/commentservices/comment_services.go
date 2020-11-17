@@ -5,14 +5,15 @@ import (
 	"rent-house/restapi/response"
 )
 
-func AddComment(ob *models.Comment) error {
+func AddComment(houseID string, ob *models.Comment) error {
+	ob.HouseID = houseID
 	ob.Activate = false
 	return ob.PutItem()
 }
 
 func ActiveComment(id string) error {
 	comment := &models.Comment{}
-	comment, err := comment.GetFromKey(id)
+	err := comment.GetFromKey(id)
 	if err != nil {
 		return err
 	}
@@ -36,7 +37,7 @@ func GetPageWaitComment(page int, count int) ([]string, error) {
 
 func GetComment(id string) (*models.Comment, error) {
 	o := &models.Comment{}
-	o, err := o.GetFromKey(id)
+	err := o.GetFromKey(id)
 	return o, err
 }
 
@@ -61,7 +62,7 @@ func UpdateComment(id string, ob *models.Comment) error {
 
 func DeleteComment(id string) error {
 	u := &models.Comment{}
-	u, err := u.GetFromKey(id)
+	err := u.GetFromKey(id)
 	if err != nil {
 		return err
 	}

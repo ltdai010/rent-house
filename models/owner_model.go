@@ -16,18 +16,7 @@ type Owner struct {
 	Activate  		bool	 	`json:"activate"`
 }
 
-type OwnerLogin struct {
-	OwnerName 		string  	`json:"owner_name"`
-	Password		string		`json:"password"`
-}
 
-func (this OwnerLogin) GetPassword() string {
-	return this.Password
-}
-
-func (this OwnerLogin) GetUsername() string {
-	return this.OwnerName
-}
 
 func (g *Owner) GetCollectionKey() string {
 	return consts.OWNER
@@ -77,13 +66,13 @@ func (this *Owner) DeleteWaitList(id string) error {
 	return err
 }
 
-func (this *Owner) GetFromKey(key string) (*Owner, error) {
+func (this *Owner) GetFromKey(key string) error {
 	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = doc.DataTo(this)
-	return this, err
+	return err
 }
 
 func (this *Owner) GetAllWaitList() ([]string, error) {
@@ -94,7 +83,7 @@ func (this *Owner) GetAllWaitList() ([]string, error) {
 		if err == iterator.Done {
 			break
 		}
-		i, err := doc.DataAt("OwnerID")
+		i, err := doc.DataAt("OwnerName")
 		if err != nil {
 			return nil, err
 		}
@@ -110,7 +99,7 @@ func (this *Owner) GetPaginateWaitList(page int, count int) ([]string, error) {
 		return nil, err
 	}
 	for _, i := range listDoc {
-		s, err := i.DataAt("OwnerID")
+		s, err := i.DataAt("OwnerName")
 		if err != nil {
 			return nil, err
 		}

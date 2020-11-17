@@ -10,6 +10,7 @@ package routers
 import (
 	"github.com/astaxie/beego"
 	"rent-house/controllers/admincontroler"
+	"rent-house/controllers/chatcontroller"
 	"rent-house/controllers/commentcontroller"
 	"rent-house/controllers/housecontroller"
 	ownercontroller "rent-house/controllers/ownercontroller"
@@ -17,7 +18,7 @@ import (
 )
 
 func init() {
-	ns := beego.NewNamespace("/v1",
+	ns := beego.NewNamespace("/v1/rent-house",
 		beego.NSNamespace("/owner",
 			beego.NSInclude(
 				&ownercontroller.OwnerController{},
@@ -41,6 +42,11 @@ func init() {
 		beego.NSNamespace("/admin",
 			beego.NSInclude(
 				&admincontroler.AdminController{},
+			),
+		),
+		beego.NSNamespace("/chat",
+			beego.NSInclude(
+				&chatcontroller.WebsocketController{},
 			),
 		),
 	)

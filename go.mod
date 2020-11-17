@@ -9,6 +9,7 @@ require (
 	github.com/algolia/algoliasearch-client-go/v3 v3.13.0
 	github.com/astaxie/beego v1.12.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gorilla/websocket v1.4.2
 	github.com/smartystreets/goconvey v1.6.4
 	google.golang.org/api v0.35.0
 )

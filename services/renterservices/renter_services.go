@@ -8,16 +8,17 @@ import (
 )
 
 func AddRenter(o *models.Renter) error {
-	_, err := o.GetFromKey(o.RenterName)
+	err := o.GetFromKey(o.RenterName)
 	if err != nil {
 		err = o.PutItem()
+		return nil
 	}
 	return errors.New("already exist")
 }
 
 func GetRenter(id string) (*models.Renter, error) {
 	o := &models.Renter{}
-	o, err := o.GetFromKey(id)
+	err := o.GetFromKey(id)
 	return o, err
 }
 
@@ -32,21 +33,21 @@ func UpdateRenter(id string, ob *models.Renter) error {
 
 func DeleteRenter(id string) error {
 	u := &models.Renter{}
-	u, err := u.GetFromKey(id)
+	err := u.GetFromKey(id)
 	if err != nil {
 		return err
 	}
 	return u.Delete(id)
 }
 
-func LoginRenter(login models.RenterLogin) (string, error) {
+func LoginRenter(login models.Login) (string, error) {
 	renter := &models.Renter{}
-	renter, err := renter.GetFromKey(login.RenterName)
+	err := renter.GetFromKey(login.Username)
 	if err != nil {
 		return "", err
 	}
 	if login.Password == renter.Password {
-		return middlewares.CreateToken(login)
+		return middlewares.CreateToken(login.Username)
 	}
 	return "", errors.New("not authorized")
 }

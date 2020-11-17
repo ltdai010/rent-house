@@ -36,12 +36,12 @@ func (u *RenterController) Post() {
 
 // @Title CreateRenter
 // @Description create users
-// @Param	login		body 	models.RenterLogin	true		"body for user content"
-// @Success 200 {int} models.UserID
+// @Param	login		body 	models.Login	true		"body for user content"
+// @Success 200 {string} success
 // @Failure 403 body is empty
 // @router /login/ [post]
 func (u *RenterController) Login() {
-	var ob models.RenterLogin
+	var ob models.Login
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
 	if err != nil {
 		u.Ctx.WriteString(err.Error())
@@ -72,12 +72,13 @@ func (u *RenterController) GetAll() {
 
 // @Title Get
 // @Description get user by uid
-// @Param	renter-id		path 	string	true		"The key for staticblock"
+// @Param	token			header	string	true		"token"
+// @Param	renterID		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Renter
-// @Failure 403 :renter-id is empty
-// @router /:renter-id/ [get]
+// @Failure 403 :renterID is empty
+// @router /:renterID/ [get]
 func (u *RenterController) Get() {
-	id := u.Ctx.Input.Param(":renter-id")
+	id := u.Ctx.Input.Param(":renterID")
 	if id != "" {
 		user, err := renterservices.GetRenter(id)
 		if err != nil {
@@ -91,13 +92,14 @@ func (u *RenterController) Get() {
 
 // @Title Update
 // @Description update the user
-// @Param	renter-id		path 	string	true		"The uid you want to update"
+// @Param	token		header		string	true		"The token"
+// @Param	renterID	path 	string	true		"The uid you want to update"
 // @Param	body		body 	models.Renter	true		"body for user content"
 // @Success 200 {object} models.User
-// @Failure 403 :renter-id is not int
-// @router /:renter-id/ [put]
+// @Failure 403 :renterID is not int
+// @router /:renterID/ [put]
 func (u *RenterController) Put() {
-	id := u.Ctx.Input.Param(":renter-id")
+	id := u.Ctx.Input.Param(":renterID")
 	if id != "" {
 		var ob models.Renter
 		err :=json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
@@ -117,12 +119,12 @@ func (u *RenterController) Put() {
 
 // @Title Delete
 // @Description delete the user
-// @Param	renter-id		path 	string	true		"The uid you want to delete"
+// @Param	renterID		path 	string	true		"The uid you want to delete"
 // @Success 200 {string} delete success!
-// @Failure 403 uid is empty
-// @router /:renter-id/ [delete]
+// @Failure 403 renterID is empty
+// @router /:renterID/ [delete]
 func (u *RenterController) Delete() {
-	id := u.GetString(":renter-id")
+	id := u.GetString(":renterID")
 	err := renterservices.DeleteRenter(id)
 	if err != nil {
 		u.Ctx.WriteString(err.Error())

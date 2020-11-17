@@ -13,7 +13,7 @@
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     },
-    "basePath": "/v1",
+    "basePath": "/v1/rent-house",
     "paths": {
         "/admin/active-comment/": {
             "post": {
@@ -123,6 +123,13 @@
                 "operationId": "AdminController.GetPageWaitComment",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "query",
                         "name": "page",
                         "description": "the page",
@@ -157,6 +164,13 @@
                 "description": "get page comment",
                 "operationId": "AdminController.GetPageWaitHouse",
                 "parameters": [
+                    {
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
                     {
                         "in": "query",
                         "name": "page",
@@ -193,6 +207,13 @@
                 "operationId": "AdminController.GetPageWaitOwner",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "query",
                         "name": "page",
                         "description": "the page",
@@ -226,6 +247,15 @@
                 ],
                 "description": "get all wait comments",
                 "operationId": "AdminController.GetAllWaitComment",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -243,6 +273,15 @@
                 ],
                 "description": "get all renters",
                 "operationId": "AdminController.GetAllWaitHouse",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -260,6 +299,15 @@
                 ],
                 "description": "get all wait owners",
                 "operationId": "AdminController.GetAllWaitOwner",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "key",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -270,7 +318,16 @@
                 }
             }
         },
-        "/comment/{comment-id}/": {
+        "/chat/": {
+            "get": {
+                "tags": [
+                    "chat"
+                ],
+                "description": "WebSocket",
+                "operationId": "WebsocketController.WebSocket"
+            }
+        },
+        "/comment/{commentID}/": {
             "get": {
                 "tags": [
                     "comment"
@@ -279,8 +336,15 @@
                 "operationId": "CommentController.Get",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "comment-id",
+                        "name": "commentID",
                         "description": "The key for staticblock",
                         "required": true,
                         "type": "string"
@@ -294,7 +358,7 @@
                         }
                     },
                     "403": {
-                        "description": ":comment-id is empty"
+                        "description": ":commentID is empty"
                     }
                 }
             },
@@ -306,8 +370,15 @@
                 "operationId": "CommentController.Update",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "comment-id",
+                        "name": "commentID",
                         "description": "The uid you want to update",
                         "required": true,
                         "type": "string"
@@ -330,7 +401,7 @@
                         }
                     },
                     "403": {
-                        "description": ":comment-id is not int"
+                        "description": ":commentID is not int"
                     }
                 }
             },
@@ -342,8 +413,15 @@
                 "operationId": "CommentController.Delete",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "comment-id",
+                        "name": "commentID",
                         "description": "The uid you want to delete",
                         "required": true,
                         "type": "string"
@@ -354,7 +432,7 @@
                         "description": "{string} delete success!"
                     },
                     "403": {
-                        "description": "comment-id is empty"
+                        "description": "commentID is empty"
                     }
                 }
             }
@@ -365,7 +443,7 @@
                     "house"
                 ],
                 "description": "get all renters",
-                "operationId": "HouseController.GetAll",
+                "operationId": "HouseController.GetAllActivateHouse",
                 "responses": {
                     "200": {
                         "description": "",
@@ -376,7 +454,42 @@
                 }
             }
         },
-        "/house/{house-id}/": {
+        "/house/page": {
+            "get": {
+                "tags": [
+                    "house"
+                ],
+                "description": "get page houses",
+                "operationId": "HouseController.GetPageActivateHouse",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "count",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    }
+                }
+            }
+        },
+        "/house/{houseID}/": {
             "get": {
                 "tags": [
                     "house"
@@ -386,7 +499,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "house-id",
+                        "name": "houseID",
                         "description": "The key for staticblock",
                         "required": true,
                         "type": "string"
@@ -400,7 +513,7 @@
                         }
                     },
                     "403": {
-                        "description": ":house-id is empty"
+                        "description": ":houseID is empty"
                     }
                 }
             },
@@ -412,8 +525,15 @@
                 "operationId": "HouseController.Update",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "house-id",
+                        "name": "houseID",
                         "description": "The uid you want to update",
                         "required": true,
                         "type": "string"
@@ -436,7 +556,7 @@
                         }
                     },
                     "403": {
-                        "description": ":house-id is not int"
+                        "description": ":houseID is not int"
                     }
                 }
             },
@@ -448,8 +568,15 @@
                 "operationId": "HouseController.Delete",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "house-id",
+                        "name": "houseID",
                         "description": "The uid you want to delete",
                         "required": true,
                         "type": "string"
@@ -460,12 +587,12 @@
                         "description": "{string} delete success!"
                     },
                     "403": {
-                        "description": "house-id is empty"
+                        "description": "houseID is empty"
                     }
                 }
             }
         },
-        "/house/{house-id}/add-comment": {
+        "/house/{houseID}/add-comment/": {
             "post": {
                 "tags": [
                     "house"
@@ -473,6 +600,13 @@
                 "description": "create users",
                 "operationId": "HouseController.AddComment",
                 "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
                     {
                         "in": "body",
                         "name": "body",
@@ -484,7 +618,7 @@
                     },
                     {
                         "in": "path",
-                        "name": "house-id",
+                        "name": "houseID",
                         "description": "the house id",
                         "required": true,
                         "type": "string"
@@ -500,7 +634,7 @@
                 }
             }
         },
-        "/house/{house-id}/comments/": {
+        "/house/{houseID}/comments/": {
             "get": {
                 "tags": [
                     "house"
@@ -510,7 +644,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "house-id",
+                        "name": "houseID",
                         "description": "the house-id",
                         "required": true,
                         "type": "string"
@@ -526,7 +660,7 @@
                 }
             }
         },
-        "/house/{house-id}/page-comments/": {
+        "/house/{houseID}/page-comments/": {
             "get": {
                 "tags": [
                     "house"
@@ -536,8 +670,8 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "house-id",
-                        "description": "the house-id",
+                        "name": "houseID",
+                        "description": "the houseID",
                         "required": true,
                         "type": "string"
                     },
@@ -573,7 +707,7 @@
                 "tags": [
                     "owner"
                 ],
-                "description": "get all Users",
+                "description": "get all owners",
                 "operationId": "OwnerController.GetAll",
                 "responses": {
                     "200": {
@@ -581,34 +715,6 @@
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
-                    }
-                }
-            }
-        },
-        "/owner/create-house/": {
-            "post": {
-                "tags": [
-                    "owner"
-                ],
-                "description": "create users",
-                "operationId": "OwnerController.CreateHouse",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for user content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.House"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{int} models.House"
-                    },
-                    "403": {
-                        "description": "body is empty"
                     }
                 }
             }
@@ -627,7 +733,7 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.OwnerLogin"
+                            "$ref": "#/definitions/models.Login"
                         }
                     }
                 ],
@@ -669,7 +775,7 @@
                 }
             }
         },
-        "/owner/{owner-id}/": {
+        "/owner/{ownerID}/": {
             "get": {
                 "tags": [
                     "owner"
@@ -678,8 +784,15 @@
                 "operationId": "OwnerController.Get",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "uid",
+                        "name": "ownerID",
                         "description": "The key for staticblock",
                         "required": true,
                         "type": "string"
@@ -693,7 +806,7 @@
                         }
                     },
                     "403": {
-                        "description": ":uid is empty"
+                        "description": ":ownerID is empty"
                     }
                 }
             },
@@ -705,9 +818,16 @@
                 "operationId": "OwnerController.Update",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "uid",
-                        "description": "The uid you want to update",
+                        "name": "ownerID",
+                        "description": "The ownerID you want to update",
                         "required": true,
                         "type": "string"
                     },
@@ -729,7 +849,7 @@
                         }
                     },
                     "403": {
-                        "description": ":uid is not int"
+                        "description": ":ownerID is not int"
                     }
                 }
             },
@@ -741,8 +861,15 @@
                 "operationId": "OwnerController.Delete",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "uid",
+                        "name": "ownerID",
                         "description": "The uid you want to delete",
                         "required": true,
                         "type": "string"
@@ -758,7 +885,59 @@
                 }
             }
         },
-        "/owner/{owner-id}/houses/": {
+        "/owner/{ownerID}/create-house/": {
+            "post": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "create users",
+                "operationId": "OwnerController.CreateHouse",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "ownerID",
+                        "description": "owner id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "files",
+                        "description": "house image",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{int} models.House"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/owner/{ownerID}/houses/": {
             "get": {
                 "tags": [
                     "owner"
@@ -768,7 +947,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "owner-id",
+                        "name": "ownerID",
                         "description": "the house-id",
                         "required": true,
                         "type": "string"
@@ -784,7 +963,7 @@
                 }
             }
         },
-        "/owner/{owner-id}/page-houses/": {
+        "/owner/{ownerID}/page-houses/": {
             "get": {
                 "tags": [
                     "owner"
@@ -794,7 +973,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "owner-id",
+                        "name": "ownerID",
                         "description": "the house-id",
                         "required": true,
                         "type": "string"
@@ -857,13 +1036,13 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.RenterLogin"
+                            "$ref": "#/definitions/models.Login"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{int} models.UserID"
+                        "description": "{string} success"
                     },
                     "403": {
                         "description": "body is empty"
@@ -899,7 +1078,7 @@
                 }
             }
         },
-        "/renter/{renter-id}/": {
+        "/renter/{renterID}/": {
             "get": {
                 "tags": [
                     "renter"
@@ -908,8 +1087,15 @@
                 "operationId": "RenterController.Get",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "renter-id",
+                        "name": "renterID",
                         "description": "The key for staticblock",
                         "required": true,
                         "type": "string"
@@ -923,7 +1109,7 @@
                         }
                     },
                     "403": {
-                        "description": ":renter-id is empty"
+                        "description": ":renterID is empty"
                     }
                 }
             },
@@ -935,8 +1121,15 @@
                 "operationId": "RenterController.Update",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "path",
-                        "name": "renter-id",
+                        "name": "renterID",
                         "description": "The uid you want to update",
                         "required": true,
                         "type": "string"
@@ -959,7 +1152,7 @@
                         }
                     },
                     "403": {
-                        "description": ":renter-id is not int"
+                        "description": ":renterID is not int"
                     }
                 }
             },
@@ -972,7 +1165,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "renter-id",
+                        "name": "renterID",
                         "description": "The uid you want to delete",
                         "required": true,
                         "type": "string"
@@ -983,7 +1176,7 @@
                         "description": "{string} delete success!"
                     },
                     "403": {
-                        "description": "uid is empty"
+                        "description": "renterID is empty"
                     }
                 }
             }
@@ -1019,6 +1212,9 @@
                     "type": "string"
                 },
                 "house_id": {
+                    "type": "string"
+                },
+                "owner_id": {
                     "type": "string"
                 },
                 "post_time": {
@@ -1123,6 +1319,18 @@
                 }
             }
         },
+        "models.Login": {
+            "title": "Login",
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Owner": {
             "title": "Owner",
             "type": "object",
@@ -1144,18 +1352,6 @@
                 },
                 "profile": {
                     "$ref": "#/definitions/models.Profile"
-                }
-            }
-        },
-        "models.OwnerLogin": {
-            "title": "OwnerLogin",
-            "type": "object",
-            "properties": {
-                "owner_name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
                 }
             }
         },
@@ -1194,18 +1390,6 @@
                     "type": "string"
                 },
                 "renter_full_name": {
-                    "type": "string"
-                },
-                "renter_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.RenterLogin": {
-            "title": "RenterLogin",
-            "type": "object",
-            "properties": {
-                "password": {
                     "type": "string"
                 },
                 "renter_name": {

@@ -38,7 +38,7 @@ type Profile struct {
 	Email       string `json:"email"`
 }
 
-type Login interface {
-	GetUsername() string
-	GetPassword() string
+type Login struct {
+	Username 		string  	`json:"username"`
+	Password		string		`json:"password"`
 }

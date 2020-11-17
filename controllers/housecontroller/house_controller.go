@@ -6,7 +6,6 @@ import (
 	"rent-house/models"
 	"rent-house/services/commentservices"
 	"rent-house/services/houseservices"
-	"rent-house/services/renterservices"
 )
 
 // Operations about house
@@ -14,12 +13,12 @@ type HouseController struct {
 	beego.Controller
 }
 
-// @Title GetAll
+// @Title GetAllActivateHouse
 // @Description get all renters
 // @Success 200 {object} models.Renter
 // @router / [get]
-func (u *HouseController) GetAll() {
-	users, err := renterservices.GetAllRenter()
+func (u *HouseController) GetAllActivateHouse() {
+	users, err := houseservices.GetAllHouse()
 	if err != nil {
 		u.Ctx.WriteString(err.Error())
 		return
@@ -28,16 +27,40 @@ func (u *HouseController) GetAll() {
 	u.ServeJSON()
 }
 
-
+// @Title GetPageActivateHouse
+// @Description get page houses
+// @Param	page	query	int	true	"page"
+// @Param	count	query	int	true	"count"
+// @Success 200 {object} models.House
+// @router /page [get]
+func (u *HouseController) GetPageActivateHouse() {
+	page, err := u.GetInt("page")
+	if err != nil {
+		u.Ctx.WriteString(err.Error())
+		return
+	}
+	count, err := u.GetInt("count")
+	if err != nil {
+		u.Ctx.WriteString(err.Error())
+		return
+	}
+	users, err := houseservices.GetPageHouse(page, count)
+	if err != nil {
+		u.Ctx.WriteString(err.Error())
+		return
+	}
+	u.Data["json"] = users
+	u.ServeJSON()
+}
 
 // @Title Get
 // @Description get user by uid
-// @Param	house-id		path 	string	true		"The key for staticblock"
+// @Param	houseID		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Renter
-// @Failure 403 :house-id is empty
-// @router /:house-id/ [get]
+// @Failure 403 :houseID is empty
+// @router /:houseID/ [get]
 func (u *HouseController) Get() {
-	id := u.Ctx.Input.Param(":house-id")
+	id := u.Ctx.Input.Param(":houseID")
 	if id != "" {
 		user, err := houseservices.GetHouse(id)
 		if err != nil {
@@ -51,11 +74,12 @@ func (u *HouseController) Get() {
 
 // @Title AddComment
 // @Description create users
+// @Param	token			header	string	true		"The token string"
 // @Param	body		body 	models.Comment	true		"body for user content"
-// @Param	house-id	path	string			true		"the house id"
+// @Param	houseID	path	string			true		"the house id"
 // @Success 200 {string} success
 // @Failure 403 body is empty
-// @router /:house-id/add-comment [post]
+// @router /:houseID/add-comment/ [post]
 func (u *HouseController) AddComment() {
 	var ob models.Comment
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
@@ -63,7 +87,8 @@ func (u *HouseController) AddComment() {
 		u.Ctx.WriteString(err.Error())
 		return
 	}
-	err = commentservices.AddComment(&ob)
+	houseID := u.Ctx.Input.Param(":houseID")
+	err = commentservices.AddComment(houseID, &ob)
 	if err != nil {
 		u.Ctx.WriteString(err.Error())
 		return
@@ -74,13 +99,14 @@ func (u *HouseController) AddComment() {
 
 // @Title Update
 // @Description update the user
-// @Param	house-id		path 	string	true		"The uid you want to update"
+// @Param	token			header	string	true		"The token string"
+// @Param	houseID		path 	string	true		"The uid you want to update"
 // @Param	body		body 	models.Renter	true		"body for user content"
 // @Success 200 {object} models.User
-// @Failure 403 :house-id is not int
-// @router /:house-id/ [put]
+// @Failure 403 :houseID is not int
+// @router /:houseID/ [put]
 func (u *HouseController) Update() {
-	id := u.Ctx.Input.Param(":house-id")
+	id := u.Ctx.Input.Param(":houseID")
 	if id != "" {
 		var ob models.House
 		err :=json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
@@ -100,12 +126,13 @@ func (u *HouseController) Update() {
 
 // @Title Delete
 // @Description delete the user
-// @Param	house-id		path 	string	true		"The uid you want to delete"
+// @Param	token			header	string	true		"The token string"
+// @Param	houseID		path 	string	true		"The uid you want to delete"
 // @Success 200 {string} delete success!
-// @Failure 403 house-id is empty
-// @router /:house-id/ [delete]
+// @Failure 403 houseID is empty
+// @router /:houseID/ [delete]
 func (u *HouseController) Delete() {
-	id := u.GetString(":house-id")
+	id := u.GetString(":houseID")
 	err := houseservices.DeleteHouse(id)
 	if err != nil {
 		u.Ctx.WriteString(err.Error())
@@ -117,11 +144,11 @@ func (u *HouseController) Delete() {
 
 // @Title GetAllComment
 // @Description get all renters
-// @Param	house-id	path	string	true	"the house-id
+// @Param	houseID	path	string	true	"the house-id
 // @Success 200 {object} models.Renter
-// @router /:house-id/comments/ [get]
+// @router /:houseID/comments/ [get]
 func (u *HouseController) GetAllComment() {
-	id := u.Ctx.Input.Param(":house-id")
+	id := u.Ctx.Input.Param(":houseID")
 	users, err := commentservices.GetAllCommentOfHouse(id)
 	if err != nil {
 		u.Ctx.WriteString(err.Error())
@@ -133,13 +160,13 @@ func (u *HouseController) GetAllComment() {
 
 // @Title GetPageComment
 // @Description get page comment
-// @Param	house-id	path	string	true	"the house-id"
+// @Param	houseID	path	string	true	"the houseID"
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.Comment
-// @router /:house-id/page-comments/ [get]
+// @router /:houseID/page-comments/ [get]
 func (u *HouseController) GetPageComment() {
-	id := u.Ctx.Input.Param(":house-id")
+	id := u.Ctx.Input.Param(":houseID")
 	page, err := u.GetInt("page")
 	if err != nil {
 		u.Ctx.WriteString(err.Error())

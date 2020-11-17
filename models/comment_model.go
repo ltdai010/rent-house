@@ -9,6 +9,7 @@ import (
 
 type Comment struct {
 	Content   string `json:"content"`
+	OwnerID	  string `json:"owner_id"`
 	Header    string `json:"header"`
 	HouseID	  string `json:"house_id"`
 	PostTime  int64  `json:"post_time"`
@@ -60,13 +61,13 @@ func (this *Comment) DeleteWaitList(id string) error {
 	return err
 }
 
-func (this *Comment) GetFromKey(key string) (*Comment, error) {
+func (this *Comment) GetFromKey(key string) error {
 	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = doc.DataTo(this)
-	return this, err
+	return err
 }
 
 func (this *Comment) GetAll() ([]*response.Comment, error) {

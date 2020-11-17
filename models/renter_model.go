@@ -2,6 +2,7 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
+	"errors"
 	"google.golang.org/api/iterator"
 	"rent-house/consts"
 	"rent-house/restapi/response"
@@ -14,19 +15,6 @@ type Renter struct {
 	PhoneNumber		string 			`json:"phone_number"`
 	Email			string 			`json:"email"`
 	ListFavourite	[]string		`json:"list_favourite"`
-}
-
-type RenterLogin struct {
-	RenterName	string	`json:"renter_name"`
-	Password	string	`json:"password"`
-}
-
-func (this RenterLogin) GetPassword() string {
-	return this.Password
-}
-
-func (this RenterLogin) GetUsername() string {
-	return this.RenterName
 }
 
 func (g *Renter) GetCollectionKey() string {
@@ -61,13 +49,16 @@ func (this *Renter) Delete(id string) error {
 	return err
 }
 
-func (this *Renter) GetFromKey(key string) (*Renter, error) {
+func (this *Renter) GetFromKey(key string) error {
 	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
-		return nil, err
+		return err
+	}
+	if doc == nil {
+		return errors.New("not exist" + this.GetCollectionKey())
 	}
 	err = doc.DataTo(this)
-	return this, err
+	return err
 }
 
 func (this *Renter) GetAll() ([]*response.Renter, error) {

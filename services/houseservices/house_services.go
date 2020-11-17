@@ -1,18 +1,20 @@
 package houseservices
 
 import (
-"rent-house/models"
+	"mime/multipart"
+	"rent-house/models"
 "rent-house/restapi/response"
 )
 
-func AddHouse(house *models.House) error {
+func AddHouse(ownerID string, house *models.House) (string, error) {
+	house.OwnerID = ownerID
 	house.Activate = false
 	return house.PutItem()
 }
 
 func ActiveHouse(id string) error {
 	house := &models.House{}
-	house, err := house.GetFromKey(id)
+	err := house.GetFromKey(id)
 	if err != nil {
 		return err
 	}
@@ -24,9 +26,28 @@ func ActiveHouse(id string) error {
 	return house.DeleteWaitList(id)
 }
 
+func UploadFile(houseID string, file []*multipart.FileHeader) error {
+	house := &models.House{}
+	err := house.GetFromKey(houseID)
+	if err != nil {
+		return err
+	}
+	for _, i := range file {
+		f, err := i.Open()
+		if err != nil {
+			return err
+		}
+		err = house.AddImage(f,houseID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func GetHouse(id string) (*models.House, error) {
 	o := &models.House{}
-	o, err := o.GetFromKey(id)
+	err := o.GetFromKey(id)
 	return o, err
 }
 
@@ -42,7 +63,12 @@ func GetPageWaitHouse(page int, count int) ([]string, error) {
 
 func GetAllHouse() ([]*response.House, error) {
 	o := &models.House{}
-	return o.GetAll()
+	return o.GetAllActivate()
+}
+
+func GetPageHouse(page, count int) ([]*response.House, error) {
+	o := &models.House{}
+	return o.GetPageActivate(page, count)
 }
 
 func GetAllHouseOfOwner(userID string) ([]*response.House, error) {
@@ -61,7 +87,7 @@ func UpdateHouse(id string, ob *models.House) error {
 
 func DeleteHouse(id string) error {
 	u := &models.House{}
-	u, err := u.GetFromKey(id)
+	err := u.GetFromKey(id)
 	if err != nil {
 		return err
 	}

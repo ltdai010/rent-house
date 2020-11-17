@@ -67,10 +67,11 @@ func (u *AdminController) ActivateComment() {
 
 // @Title GetAllWaitHouse
 // @Description get all renters
+// @Param	key			header	string	true		"admin key"
 // @Success 200 {object} models.House
 // @router /wait-houses/ [get]
 func (u *AdminController) GetAllWaitHouse() {
-	obs, err := houseservices.GetAllHouse()
+	obs, err := houseservices.GetAllWaitHouse()
 	if err != nil {
 		u.Ctx.WriteString(err.Error())
 		return
@@ -81,6 +82,7 @@ func (u *AdminController) GetAllWaitHouse() {
 
 // @Title GetPageWaitHouse
 // @Description get page comment
+// @Param	key			header	string	true		"admin key"
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.House
@@ -107,6 +109,7 @@ func (u *AdminController) GetPageWaitHouse() {
 
 // @Title GetAllWaitComment
 // @Description get all wait comments
+// @Param	key			header	string	true		"admin key"
 // @Success 200 {object} models.House
 // @router /wait-comments/ [get]
 func (u *AdminController) GetAllWaitComment() {
@@ -121,6 +124,7 @@ func (u *AdminController) GetAllWaitComment() {
 
 // @Title GetPageWaitComment
 // @Description get page comment
+// @Param	key			header	string	true		"admin key"
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.Comment
@@ -147,6 +151,7 @@ func (u *AdminController) GetPageWaitComment() {
 
 // @Title GetAllWaitOwner
 // @Description get all wait owners
+// @Param	key			header	string	true		"admin key"
 // @Success 200 {object} models.Owner
 // @router /wait-owners/ [get]
 func (u *AdminController) GetAllWaitOwner() {
@@ -161,6 +166,7 @@ func (u *AdminController) GetAllWaitOwner() {
 
 // @Title GetPageWaitOwner
 // @Description get page comment
+// @Param	key			header	string	true		"admin key"
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.Owner
@@ -184,3 +190,4 @@ func (u *AdminController) GetPageWaitOwner() {
 	u.Data["json"] = obs
 	u.ServeJSON()
 }
+

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"rent-house/middlewares"
 	"rent-house/models"
 	_ "rent-house/routers"
 
@@ -12,6 +13,7 @@ func main() {
 		beego.BConfig.WebConfig.DirectoryIndex = true
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
 	}
+	middlewares.InitFilter()
 	models.InitDataBase()
 	beego.Run()
 }

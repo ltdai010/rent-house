@@ -14,7 +14,7 @@ func AddOwner(o *models.Owner) error {
 
 func ActiveOwner(ownerID string) error {
 	owner := &models.Owner{}
-	owner, err := owner.GetFromKey(ownerID)
+	err := owner.GetFromKey(ownerID)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func GetPageWaitOwner(page int, count int) ([]string, error) {
 
 func GetOwner(ownerID string) (*models.Owner, error) {
 	u := &models.Owner{}
-	u, err := u.GetFromKey(ownerID)
+	err := u.GetFromKey(ownerID)
 	return u, err
 }
 
@@ -53,21 +53,21 @@ func UpdateUser(id string, o *models.Owner) error {
 
 func DeleteOwner(ownerID string) error {
 	u := &models.Owner{}
-	u, err := u.GetFromKey(ownerID)
+	err := u.GetFromKey(ownerID)
 	if err != nil {
 		return err
 	}
 	return u.Delete(ownerID)
 }
 
-func LoginOwner(login models.OwnerLogin) (string, error) {
+func LoginOwner(login models.Login) (string, error) {
 	owner := &models.Owner{}
-	owner, err := owner.GetFromKey(login.OwnerName)
+	err := owner.GetFromKey(login.Username)
 	if err != nil {
 		return "", err
 	}
 	if login.Password == owner.Password {
-		return middlewares.CreateToken(login)
+		return middlewares.CreateToken(login.Username)
 	}
 	return "", errors.New("not authorized")
 }
