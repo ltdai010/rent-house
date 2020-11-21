@@ -2,9 +2,11 @@ package admincontroler
 
 import (
 	"github.com/astaxie/beego"
+	"rent-house/restapi/response"
 	"rent-house/services/commentservices"
 	"rent-house/services/houseservices"
 	"rent-house/services/ownerservices"
+	"rent-house/services/renterservices"
 )
 
 type AdminController struct {
@@ -22,10 +24,10 @@ func (u *AdminController) ActivateOwner() {
 	ownerID := u.GetString("ownerID")
 	err := ownerservices.ActiveOwner(ownerID)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
-	u.Data["json"] = "success"
 	u.ServeJSON()
 }
 
@@ -40,10 +42,10 @@ func (u *AdminController) ActivateHouse() {
 	houseID := u.GetString("houseID")
 	err := houseservices.ActiveHouse(houseID)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
-	u.Data["json"] = "success"
 	u.ServeJSON()
 }
 
@@ -58,10 +60,10 @@ func (u *AdminController) ActivateComment() {
 	commentID := u.GetString("commentID")
 	err := commentservices.ActiveComment(commentID)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
-	u.Data["json"] = "success"
 	u.ServeJSON()
 }
 
@@ -73,10 +75,13 @@ func (u *AdminController) ActivateComment() {
 func (u *AdminController) GetAllWaitHouse() {
 	obs, err := houseservices.GetAllWaitHouse()
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = obs
 	u.ServeJSON()
 }
 
@@ -90,20 +95,25 @@ func (u *AdminController) GetAllWaitHouse() {
 func (u *AdminController) GetPageWaitHouse() {
 	page, err := u.GetInt("page")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	count, err := u.GetInt("count")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	obs, err := houseservices.GetPageWaitHouse(page, count)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = obs
 	u.ServeJSON()
 }
 
@@ -115,10 +125,13 @@ func (u *AdminController) GetPageWaitHouse() {
 func (u *AdminController) GetAllWaitComment() {
 	obs, err := commentservices.GetAllWaitComment()
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = obs
 	u.ServeJSON()
 }
 
@@ -132,20 +145,61 @@ func (u *AdminController) GetAllWaitComment() {
 func (u *AdminController) GetPageWaitComment() {
 	page, err := u.GetInt("page")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	count, err := u.GetInt("count")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	obs, err := commentservices.GetPageWaitComment(page, count)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = obs
+	u.ServeJSON()
+}
+
+// @Title GetAllOwner
+// @Description get all owners
+// @Param	key			header	string	true		"admin key"
+// @Success 200 {object} models.Owner
+// @router /owners/ [get]
+func (u *AdminController) GetAllOwner() {
+	users, err := ownerservices.GetAllOwner()
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: users,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetAllRenter
+// @Description get all renters
+// @Param	key			header	string	true		"admin key"
+// @Success 200 {object} models.Renter
+// @router /renters/ [get]
+func (u *AdminController) GetAllRenter() {
+	users, err := renterservices.GetAllRenter()
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: users,
+			Err:  response.NewErr(response.Success),
+		}
+	}
 	u.ServeJSON()
 }
 
@@ -157,10 +211,13 @@ func (u *AdminController) GetPageWaitComment() {
 func (u *AdminController) GetAllWaitOwner() {
 	obs, err := ownerservices.GetAllWaitOwner()
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = obs
 	u.ServeJSON()
 }
 
@@ -174,20 +231,25 @@ func (u *AdminController) GetAllWaitOwner() {
 func (u *AdminController) GetPageWaitOwner() {
 	page, err := u.GetInt("page")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	count, err := u.GetInt("count")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	obs, err := ownerservices.GetPageWaitOwner(page, count)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = obs
 	u.ServeJSON()
 }
 

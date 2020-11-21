@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"github.com/astaxie/beego"
 	"rent-house/models"
+	"rent-house/restapi/request"
+	"rent-house/restapi/response"
+	"rent-house/services/commentservices"
 	"rent-house/services/renterservices"
 )
 
@@ -14,28 +17,29 @@ type RenterController struct {
 
 // @Title CreateRenter
 // @Description create users
-// @Param	body		body 	models.Renter	true		"body for user content"
+// @Param	body		body 	request.RenterPost	true		"body for user content"
 // @Success 200 {int} models.UserID
 // @Failure 403 body is empty
 // @router /sign-up/ [post]
 func (u *RenterController) Post() {
-	var ob models.Renter
+	var ob request.RenterPost
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	err = renterservices.AddRenter(&ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
-	u.Data["json"] = "success"
 	u.ServeJSON()
 }
 
-// @Title CreateRenter
-// @Description create users
+// @Title Login
+// @Description Login
 // @Param	login		body 	models.Login	true		"body for user content"
 // @Success 200 {string} success
 // @Failure 403 body is empty
@@ -44,47 +48,84 @@ func (u *RenterController) Login() {
 	var ob models.Login
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	token, err := renterservices.LoginRenter(ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: token,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = token
 	u.ServeJSON()
 }
 
-// @Title GetAll
-// @Description get all renters
-// @Success 200 {object} models.Renter
-// @router / [get]
-func (u *RenterController) GetAll() {
-	users, err := renterservices.GetAllRenter()
+// @Title AddComment
+// @Description create comment
+// @Param	token			header			string				true		"The token string"
+// @Param	body			body 			request.CommentPost	true		"body for user content"
+// @Param	houseID			path			string				true		"the house id"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /add-comment/:houseID [post]
+func (u *RenterController) AddComment() {
+	var ob request.CommentPost
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
-	u.Data["json"] = users
+	houseID := u.Ctx.Input.Param(":houseID")
+	renterID := u.Ctx.Input.Header("rentername")
+	err = commentservices.AddComment(houseID, renterID, &ob)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
 	u.ServeJSON()
 }
+
+// @Title AddHouseToFavorite
+// @Description create comment
+// @Param	token		header	string	true		"The token string"
+// @Param	houseID		path	string			true		"the house id"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /like/:houseID [post]
+func (u *RenterController) AddHouseToFavorite() {
+	houseID := u.Ctx.Input.Param(":houseID")
+	renterID := u.Ctx.Input.Header("rentername")
+	err := renterservices.AddToFavourite(renterID, houseID)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
 
 // @Title Get
 // @Description get user by uid
 // @Param	token			header	string	true		"token"
-// @Param	renterID		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.Renter
 // @Failure 403 :renterID is empty
-// @router /:renterID/ [get]
+// @router / [get]
 func (u *RenterController) Get() {
-	id := u.Ctx.Input.Param(":renterID")
-	if id != "" {
-		user, err := renterservices.GetRenter(id)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		} else {
-			u.Data["json"] = user
+	id := u.Ctx.Input.Header("rentername")
+	user, err := renterservices.GetRenter(id)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: user,
+			Err:  response.NewErr(response.Success),
 		}
 	}
 	u.ServeJSON()
@@ -93,43 +134,41 @@ func (u *RenterController) Get() {
 // @Title Update
 // @Description update the user
 // @Param	token		header		string	true		"The token"
-// @Param	renterID	path 	string	true		"The uid you want to update"
-// @Param	body		body 	models.Renter	true		"body for user content"
+// @Param	body		body 	request.RenterPut	true		"body for user content"
 // @Success 200 {object} models.User
 // @Failure 403 :renterID is not int
-// @router /:renterID/ [put]
+// @router / [put]
 func (u *RenterController) Put() {
-	id := u.Ctx.Input.Param(":renterID")
-	if id != "" {
-		var ob models.Renter
-		err :=json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
-		if err != nil {
-			u.Ctx.WriteString(err.Error())
-			return
-		}
-		err = renterservices.UpdateRenter(id, &ob)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		} else {
-			u.Data["json"] = "success"
-		}
+	id := u.Ctx.Input.Header("rentername")
+	var ob request.RenterPut
+	err :=json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	err = renterservices.UpdateRenter(id, &ob)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
 	u.ServeJSON()
 }
 
 // @Title Delete
 // @Description delete the user
-// @Param	renterID		path 	string	true		"The uid you want to delete"
+// @Param	token		header 	string	true		"The uid you want to delete"
 // @Success 200 {string} delete success!
 // @Failure 403 renterID is empty
-// @router /:renterID/ [delete]
+// @router / [delete]
 func (u *RenterController) Delete() {
-	id := u.GetString(":renterID")
+	id := u.Ctx.Input.Header("rentername")
 	err := renterservices.DeleteRenter(id)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
-	u.Data["json"] = "delete success!"
 	u.ServeJSON()
 }

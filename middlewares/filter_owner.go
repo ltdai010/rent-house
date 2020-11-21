@@ -5,25 +5,27 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"log"
 	"rent-house/models"
+	"strings"
 )
 
 func filterOwner(ctx *context.Context) {
-	if isOwner(ctx.Input.Header("token"), ctx.Input.Param(":ownerID")) {
+	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/login/") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/sign-up/") || isRenter(ctx) {
 		return
 	}
 	ctx.ResponseWriter.WriteHeader(403)
 }
 
-func isOwner(tokenString, ownerID string) bool {
-	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, keyFunc)
+func isOwner(ctx *context.Context) bool {
+	token, err := jwt.ParseWithClaims(ctx.Input.Header("token"), &TokenClaims{}, keyFunc)
 	if err != nil {
 		log.Println(err)
 		return false
 	}
 	if claim, ok := token.Claims.(*TokenClaims); ok && token.Valid {
 		owner := &models.Owner{}
-		err = owner.GetFromKey(ownerID)
-		if owner.OwnerName == claim.Username {
+		err = owner.GetFromKey(claim.Username)
+		if err != nil {
+			ctx.Request.Header.Set("ownername", claim.Username)
 			return true
 		}
 	}

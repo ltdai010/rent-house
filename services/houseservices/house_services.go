@@ -3,13 +3,38 @@ package houseservices
 import (
 	"mime/multipart"
 	"rent-house/models"
-"rent-house/restapi/response"
+	"rent-house/restapi/request"
+	"rent-house/restapi/response"
+	"time"
 )
 
-func AddHouse(ownerID string, house *models.House) (string, error) {
-	house.OwnerID = ownerID
-	house.Activate = false
-	return house.PutItem()
+func AddHouse(ownerID string, house *request.HousePost) (string, error) {
+	a := &models.Address{}
+	//find address from commune code
+	err := a.FindAddress(house.CommuneCode)
+	if err != nil {
+		return "", err
+	}
+	h := &models.House{
+		OwnerID:        ownerID,
+		HouseType:      house.HouseType,
+		PricePerMonth:  house.PricePerMonth,
+		PricePerYear:   house.PricePerYear,
+		Address:        *a,
+		Infrastructure: house.Infrastructure,
+		NearBy:         house.NearBy,
+		WithOwner:      house.WithOwner,
+		ImageLink:      nil,
+		Header:         house.Header,
+		View:           0,
+		Like:           0,
+		Rented:         false,
+		Content:        house.Content,
+		PostTime:       time.Now().Unix(),
+		Activate:       false,
+		ExpiredTime:    0,
+	}
+	return h.PutItem()
 }
 
 func ActiveHouse(id string) error {
@@ -45,44 +70,111 @@ func UploadFile(houseID string, file []*multipart.FileHeader) error {
 	return nil
 }
 
-func GetHouse(id string) (*models.House, error) {
+func GetHouse(id string) (response.House, error) {
+	o := &models.House{}
+	res, err := o.GetResponse(id)
+	if err != nil {
+		return response.House{}, err
+	}
+	return res, nil
+}
+
+func ViewHouse(id string) (error) {
 	o := &models.House{}
 	err := o.GetFromKey(id)
-	return o, err
+	if err != nil {
+		return err
+	}
+	o.View++
+	_, err = o.PutItem()
+	return err
 }
 
 func GetAllWaitHouse() ([]string, error) {
 	h := &models.House{}
-	return h.GetAllWaitList()
+	list, err := h.GetAllWaitList()
+	if err != nil {
+		return []string{}, err
+	}
+	return list, nil
 }
 
 func GetPageWaitHouse(page int, count int) ([]string, error) {
 	h := &models.House{}
-	return h.GetPaginateWaitList(page, count)
+	list, err := h.GetPaginateWaitList(page, count)
+	if err != nil {
+		return []string{}, err
+	}
+	return list, nil
 }
 
-func GetAllHouse() ([]*response.House, error) {
+func GetAllHouse() ([]response.House, error) {
 	o := &models.House{}
-	return o.GetAllActivate()
+	list, err := o.GetAllActivate()
+	if err != nil {
+		return []response.House{}, err
+	}
+	return list, nil
 }
 
-func GetPageHouse(page, count int) ([]*response.House, error) {
+func GetPageHouse(page, count int) ([]response.House, error) {
 	o := &models.House{}
-	return o.GetPageActivate(page, count)
+	list, err :=  o.GetPageActivate(page, count)
+	if err != nil {
+		return []response.House{}, err
+	}
+	return list, nil
 }
 
-func GetAllHouseOfOwner(userID string) ([]*response.House, error) {
+func GetAllHouseOfOwner(userID string) ([]response.House, error) {
 	o := &models.House{}
-	return o.GetAllHouseOfOwner(userID)
+	list, err := o.GetAllHouseOfOwner(userID)
+	if err != nil {
+		return []response.House{}, err
+	}
+	return list, nil
 }
 
-func GetPageHouseOfOwner(ownerID string, page int, count int) ([]*response.House, error) {
+func GetPageHouseOfOwner(ownerID string, page int, count int) ([]response.House, error) {
 	o := &models.House{}
-	return o.GetPaginateHouseOfUser(ownerID, page, count)
+	list, err := o.GetPaginateHouseOfUser(ownerID, page, count)
+	if err != nil {
+		return []response.House{}, err
+	}
+	return list, nil
 }
 
-func UpdateHouse(id string, ob *models.House) error {
-	return ob.UpdateItem(id)
+func UpdateHouse(id string, ob *request.HousePut) error {
+	h := &models.House{}
+	err := h.GetFromKey(id)
+	if err != nil {
+		return err
+	}
+	a := &models.Address{}
+	err = a.FindAddress(ob.CommuneCode)
+	if err != nil {
+		return err
+	}
+	h.Content = ob.Content
+	h.Header = ob.Header
+	h.WithOwner = ob.WithOwner
+	h.NearBy = ob.NearBy
+	h.Infrastructure = ob.Infrastructure
+	h.Address = *a
+	h.PricePerYear = ob.PricePerYear
+	h.PricePerMonth = ob.PricePerMonth
+	h.HouseType = ob.HouseType
+	return h.UpdateItem(id)
+}
+
+func SearchHouse(key string) ([]response.House, error) {
+	h := &models.House{}
+	return h.SearchAllItem(key)
+}
+
+func SearchPageHouse(key string, page, count int) ([]response.House, error) {
+	h := &models.House{}
+	return h.SearchPaginateItem(key, page, count)
 }
 
 func DeleteHouse(id string) error {

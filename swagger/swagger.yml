@@ -77,6 +77,23 @@ paths:
           description: '{string} success'
         "403":
           description: body is empty
+  /admin/owners/:
+    get:
+      tags:
+      - admin
+      description: get all owners
+      operationId: AdminController.GetAllOwner
+      parameters:
+      - in: header
+        name: key
+        description: admin key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Owner'
   /admin/page-wait-comments/:
     get:
       tags:
@@ -164,6 +181,23 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.Owner'
+  /admin/renters/:
+    get:
+      tags:
+      - admin
+      description: get all renters
+      operationId: AdminController.GetAllRenter
+      parameters:
+      - in: header
+        name: key
+        description: admin key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Renter'
   /admin/wait-comments/:
     get:
       tags:
@@ -266,7 +300,7 @@ paths:
         description: body for user content
         required: true
         schema:
-          $ref: '#/definitions/models.Comment'
+          $ref: '#/definitions/request.CommentPut'
       responses:
         "200":
           description: ""
@@ -300,7 +334,13 @@ paths:
       tags:
       - house
       description: get all renters
-      operationId: HouseController.GetAllActivateHouse
+      operationId: HouseController.GetAllSearchHouse
+      parameters:
+      - in: path
+        name: key
+        description: key
+        required: true
+        type: string
       responses:
         "200":
           description: ""
@@ -346,7 +386,7 @@ paths:
         description: body for user content
         required: true
         schema:
-          $ref: '#/definitions/models.Renter'
+          $ref: '#/definitions/request.HousePut'
       responses:
         "200":
           description: ""
@@ -375,34 +415,6 @@ paths:
           description: '{string} delete success!'
         "403":
           description: houseID is empty
-  /house/{houseID}/add-comment/:
-    post:
-      tags:
-      - house
-      description: create users
-      operationId: HouseController.AddComment
-      parameters:
-      - in: header
-        name: token
-        description: The token string
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for user content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Comment'
-      - in: path
-        name: houseID
-        description: the house id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} success'
-        "403":
-          description: body is empty
   /house/{houseID}/comments/:
     get:
       tags:
@@ -419,7 +431,7 @@ paths:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/models.Renter'
+            $ref: '#/definitions/response.Comment'
   /house/{houseID}/page-comments/:
     get:
       tags:
@@ -448,7 +460,7 @@ paths:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/models.Comment'
+            $ref: '#/definitions/response.Comment'
   /house/page:
     get:
       tags:
@@ -473,18 +485,36 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.House'
-  /owner/:
+  /house/search:
     get:
       tags:
-      - owner
-      description: get all owners
-      operationId: OwnerController.GetAll
+      - house
+      description: get page houses
+      operationId: HouseController.GetPageActivateSearchHouse
+      parameters:
+      - in: query
+        name: key
+        description: key for search
+        required: true
+        type: string
+      - in: query
+        name: page
+        description: page
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: count
+        description: count
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/models.User'
-  /owner/{ownerID}/:
+            $ref: '#/definitions/models.House'
+  /owner/:
     get:
       tags:
       - owner
@@ -494,11 +524,6 @@ paths:
       - in: header
         name: token
         description: The token string
-        required: true
-        type: string
-      - in: path
-        name: ownerID
-        description: The key for staticblock
         required: true
         type: string
       responses:
@@ -517,11 +542,6 @@ paths:
       - in: header
         name: token
         description: The token string
-        required: true
-        type: string
-      - in: path
-        name: ownerID
-        description: The ownerID you want to update
         required: true
         type: string
       - in: body
@@ -548,17 +568,12 @@ paths:
         description: The token string
         required: true
         type: string
-      - in: path
-        name: ownerID
-        description: The uid you want to delete
-        required: true
-        type: string
       responses:
         "200":
           description: '{string} delete success!'
         "403":
           description: uid is empty
-  /owner/{ownerID}/create-house/:
+  /owner/create-house/:
     post:
       tags:
       - owner
@@ -576,11 +591,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.House'
-      - in: path
-        name: ownerID
-        description: owner id
-        required: true
-        type: string
       - in: formData
         name: files
         description: house image
@@ -593,33 +603,51 @@ paths:
           description: '{int} models.House'
         "403":
           description: body is empty
-  /owner/{ownerID}/houses/:
+  /owner/houses/:
     get:
       tags:
       - owner
       description: get all renters
       operationId: OwnerController.GetAllHouse
       parameters:
-      - in: path
-        name: ownerID
-        description: the house-id
+      - in: header
+        name: token
+        description: The token string
         required: true
         type: string
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/models.Renter'
-  /owner/{ownerID}/page-houses/:
+            $ref: '#/definitions/models.House'
+  /owner/login/:
+    post:
+      tags:
+      - owner
+      description: login
+      operationId: OwnerController.Login
+      parameters:
+      - in: body
+        name: login
+        description: body for user content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+      responses:
+        "200":
+          description: '{string} token'
+        "403":
+          description: body is empty
+  /owner/page-houses/:
     get:
       tags:
       - owner
       description: get page house
       operationId: OwnerController.GetPageHouse
       parameters:
-      - in: path
-        name: ownerID
-        description: the house-id
+      - in: header
+        name: token
+        description: The token string
         required: true
         type: string
       - in: query
@@ -639,24 +667,6 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.House'
-  /owner/login/:
-    post:
-      tags:
-      - owner
-      description: create users
-      operationId: OwnerController.CreateRenter
-      parameters:
-      - in: body
-        name: login
-        description: body for user content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Login'
-      responses:
-        "200":
-          description: '{string} token'
-        "403":
-          description: body is empty
   /owner/sign-up/:
     post:
       tags:
@@ -679,28 +689,12 @@ paths:
     get:
       tags:
       - renter
-      description: get all renters
-      operationId: RenterController.GetAll
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Renter'
-  /renter/{renterID}/:
-    get:
-      tags:
-      - renter
       description: get user by uid
       operationId: RenterController.Get
       parameters:
       - in: header
         name: token
         description: token
-        required: true
-        type: string
-      - in: path
-        name: renterID
-        description: The key for staticblock
         required: true
         type: string
       responses:
@@ -721,17 +715,12 @@ paths:
         description: The token
         required: true
         type: string
-      - in: path
-        name: renterID
-        description: The uid you want to update
-        required: true
-        type: string
       - in: body
         name: body
         description: body for user content
         required: true
         schema:
-          $ref: '#/definitions/models.Renter'
+          $ref: '#/definitions/request.RenterPut'
       responses:
         "200":
           description: ""
@@ -745,8 +734,8 @@ paths:
       description: delete the user
       operationId: RenterController.Delete
       parameters:
-      - in: path
-        name: renterID
+      - in: header
+        name: token
         description: The uid you want to delete
         required: true
         type: string
@@ -755,12 +744,62 @@ paths:
           description: '{string} delete success!'
         "403":
           description: renterID is empty
+  /renter/add-comment/{houseID}:
+    post:
+      tags:
+      - renter
+      description: create comment
+      operationId: RenterController.AddComment
+      parameters:
+      - in: header
+        name: token
+        description: The token string
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for user content
+        required: true
+        schema:
+          $ref: '#/definitions/request.CommentPost'
+      - in: path
+        name: houseID
+        description: the house id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} success'
+        "403":
+          description: body is empty
+  /renter/like/{houseID}:
+    post:
+      tags:
+      - renter
+      description: create comment
+      operationId: RenterController.AddHouseToFavorite
+      parameters:
+      - in: header
+        name: token
+        description: The token string
+        required: true
+        type: string
+      - in: path
+        name: houseID
+        description: the house id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} success'
+        "403":
+          description: body is empty
   /renter/login/:
     post:
       tags:
       - renter
-      description: create users
-      operationId: RenterController.CreateRenter
+      description: Login
+      operationId: RenterController.Login
       parameters:
       - in: body
         name: login
@@ -785,7 +824,7 @@ paths:
         description: body for user content
         required: true
         schema:
-          $ref: '#/definitions/models.Renter'
+          $ref: '#/definitions/request.RenterPost'
       responses:
         "200":
           description: '{int} models.UserID'
@@ -796,11 +835,11 @@ definitions:
     title: Address
     type: object
     properties:
+      commune:
+        type: string
       district:
         type: string
       province:
-        type: string
-      street:
         type: string
   models.Comment:
     title: Comment
@@ -845,6 +884,9 @@ definitions:
           type: string
       infrastructure:
         $ref: '#/definitions/models.Infrastructure'
+      like:
+        type: integer
+        format: int64
       near_by:
         type: array
         items:
@@ -858,6 +900,11 @@ definitions:
         type: integer
         format: int64
       price_per_year:
+        type: integer
+        format: int64
+      rented:
+        type: boolean
+      view:
         type: integer
         format: int64
       with_owner:
@@ -941,6 +988,89 @@ definitions:
   models.User:
     title: User
     type: object
+  request.CommentPost:
+    title: CommentPost
+    type: object
+    properties:
+      content:
+        type: string
+      header:
+        type: string
+  request.CommentPut:
+    title: CommentPut
+    type: object
+    properties:
+      content:
+        type: string
+      header:
+        type: string
+  request.HousePut:
+    title: HousePut
+    type: object
+    properties:
+      commune_code:
+        type: string
+      content:
+        type: string
+      header:
+        type: string
+      house_type:
+        $ref: '#/definitions/models.HouseType'
+      infrastructure:
+        $ref: '#/definitions/models.Infrastructure'
+      near_by:
+        type: array
+        items:
+          type: string
+      price:
+        type: integer
+        format: int64
+      price_per_year:
+        type: integer
+        format: int64
+      with_owner:
+        type: boolean
+  request.RenterPost:
+    title: RenterPost
+    type: object
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+      renter_full_name:
+        type: string
+      renter_name:
+        type: string
+  request.RenterPut:
+    title: RenterPut
+    type: object
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+      renter_full_name:
+        type: string
+  response.Comment:
+    title: Comment
+    type: object
+    properties:
+      activate:
+        type: boolean
+      comment_id:
+        type: string
+      content:
+        type: string
+      header:
+        type: string
+      post_time:
+        type: integer
+        format: int64
 tags:
 - name: owner
   description: |

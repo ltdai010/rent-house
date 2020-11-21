@@ -26,16 +26,17 @@ func (g *Owner) GetCollection() *firestore.CollectionRef {
 	return client.Collection(g.GetCollectionKey())
 }
 
-func (this *Owner) GetPaginate(page int, count int) ([]*Owner, error) {
-	listOwner := []*Owner{}
+func (this *Owner) GetPaginate(page int, count int) ([]response.Owner, error) {
+	listOwner := []response.Owner{}
 	listDoc, err := this.GetCollection().StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
 	for _, i := range listDoc {
-		var q Owner
+		var q response.Owner
 		err = i.DataTo(&q)
-		listOwner = append(listOwner, &q)
+		q.OwnerName = i.Ref.ID
+		listOwner = append(listOwner, q)
 	}
 	return listOwner, nil
 }
@@ -108,9 +109,9 @@ func (this *Owner) GetPaginateWaitList(page int, count int) ([]string, error) {
 	return listOwner, nil
 }
 
-func (this *Owner) GetAll() ([]*response.Owner, error) {
+func (this *Owner) GetAll() ([]response.Owner, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listOwner := []*response.Owner{}
+	listOwner := []response.Owner{}
 	for {
 		var q response.Owner
 		doc, err := listdoc.Next()
@@ -122,7 +123,7 @@ func (this *Owner) GetAll() ([]*response.Owner, error) {
 			return nil, err
 		}
 		q.OwnerID = doc.Ref.ID
-		listOwner = append(listOwner, &q)
+		listOwner = append(listOwner, q)
 	}
 	return listOwner, nil
 }

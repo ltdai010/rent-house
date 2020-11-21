@@ -29,8 +29,9 @@ func InitFilter() {
 		ExposeHeaders:    []string{"Content-Length", "Access-Control-Allow-Origin", "Content-Type", "Sec-WebSocket-Accept", "Connection", "Upgrade"},
 		AllowCredentials: true,
 	}))
-	beego.InsertFilter("/v1/rent-house/renter/:renterID/*", beego.BeforeRouter, filterRenter)
-	beego.InsertFilter("/v1/rent-house/owner/:ownerID/*", beego.BeforeRouter, filterOwner)
+
+	beego.InsertFilter("/v1/rent-house/renter/*", beego.BeforeRouter, filterRenter)
+	beego.InsertFilter("/v1/rent-house/owner/*", beego.BeforeRouter, filterOwner)
 	beego.InsertFilter("/v1/rent-house/house/:houseID/*", beego.BeforeRouter, filterHouse)
 	beego.InsertFilter("/v1/rent-house/comment/:commentID/*", beego.BeforeRouter, filterComment)
 	beego.InsertFilter("/v1/rent-house/admin/*", beego.BeforeRouter, filterAdmin)

@@ -25,8 +25,8 @@ func (g *Comment) GetCollection() *firestore.CollectionRef {
 	return client.Collection(g.GetCollectionKey())
 }
 
-func (this *Comment) GetPaginate(page int, count int) ([]*response.Comment, error) {
-	listComment := []*response.Comment{}
+func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, error) {
+	listComment := []response.Comment{}
 	listDoc, err := this.GetCollection().StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (this *Comment) GetPaginate(page int, count int) ([]*response.Comment, erro
 		var q response.Comment
 		err = i.DataTo(&q)
 		q.CommentID = i.Ref.ID
-		listComment = append(listComment, &q)
+		listComment = append(listComment, q)
 	}
 	return listComment, nil
 }
@@ -70,9 +70,9 @@ func (this *Comment) GetFromKey(key string) error {
 	return err
 }
 
-func (this *Comment) GetAll() ([]*response.Comment, error) {
+func (this *Comment) GetAll() ([]response.Comment, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listComment := []*response.Comment{}
+	listComment := []response.Comment{}
 	for {
 		var q response.Comment
 		doc, err := listdoc.Next()
@@ -84,14 +84,14 @@ func (this *Comment) GetAll() ([]*response.Comment, error) {
 			return nil, err
 		}
 		q.CommentID = doc.Ref.ID
-		listComment = append(listComment, &q)
+		listComment = append(listComment, q)
 	}
 	return listComment, nil
 }
 
-func (this *Comment) GetAllCommentInPost(id string) ([]*response.Comment, error) {
+func (this *Comment) GetAllCommentInPost(id string) ([]response.Comment, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx)
-	listComment := []*response.Comment{}
+	listComment := []response.Comment{}
 	for {
 		var q response.Comment
 		doc, err := listdoc.Next()
@@ -103,7 +103,7 @@ func (this *Comment) GetAllCommentInPost(id string) ([]*response.Comment, error)
 			return nil, err
 		}
 		q.CommentID = doc.Ref.ID
-		listComment = append(listComment, &q)
+		listComment = append(listComment, q)
 	}
 	return listComment, nil
 }
@@ -141,9 +141,9 @@ func (this *Comment) GetPaginateWaitList(page int, count int) ([]string, error) 
 	return listOwner, nil
 }
 
-func (this *Comment) GetPaginateCommentInPost(id string, page int, count int) ([]*response.Comment, error) {
+func (this *Comment) GetPaginateCommentInPost(id string, page int, count int) ([]response.Comment, error) {
 	listDoc, err := this.GetCollection().Where("PostID", "==", id).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
-	listComment := []*response.Comment{}
+	listComment := []response.Comment{}
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (this *Comment) GetPaginateCommentInPost(id string, page int, count int) ([
 		var q response.Comment
 		err = i.DataTo(&q)
 		q.CommentID = i.Ref.ID
-		listComment = append(listComment, &q)
+		listComment = append(listComment, q)
 	}
 	return listComment, nil
 }

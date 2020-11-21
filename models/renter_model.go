@@ -61,21 +61,24 @@ func (this *Renter) GetFromKey(key string) error {
 	return err
 }
 
-func (this *Renter) GetAll() ([]*response.Renter, error) {
+func (this *Renter) GetAll() ([]response.Renter, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listRenter := []*response.Renter{}
+	listRenter := []response.Renter{}
 	for {
 		var q response.Renter
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
 		}
+		if err != nil {
+			return nil, err
+		}
 		err = doc.DataTo(&q)
 		if err != nil {
 			return nil, err
 		}
 		q.RenterID = doc.Ref.ID
-		listRenter = append(listRenter, &q)
+		listRenter = append(listRenter, q)
 	}
 	return listRenter, nil
 }

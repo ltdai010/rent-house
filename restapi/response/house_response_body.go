@@ -12,6 +12,9 @@ type House struct {
 	WithOwner      bool           `json:"with_owner"`
 	ImageLink      []string       `json:"image_link"`
 	Header         string         `json:"header"`
+	View		   int 			  `json:"view"`
+	Like		   int			  `json:"like"`
+	Rented		   bool			  `json:"rented"`
 	Content        string         `json:"content"`
 	PostTime	   int64  		  `json:"post_time"`
 	Activate	   bool  		  `json:"activate"`

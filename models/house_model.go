@@ -2,6 +2,7 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
+	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"google.golang.org/api/iterator"
 	"io"
 	"mime/multipart"
@@ -21,6 +22,9 @@ type House struct {
 	WithOwner      bool           `json:"with_owner"`
 	ImageLink      []string       `json:"image_link"`
 	Header         string         `json:"header"`
+	View		   int 			  `json:"view"`
+	Like		   int			  `json:"like"`
+	Rented		   bool			  `json:"rented"`
 	Content        string         `json:"content"`
 	PostTime	   int64  		  `json:"post_time"`
 	Activate	   bool  		  `json:"activate"`
@@ -31,7 +35,6 @@ type HouseSearch struct {
 	ObjectID string `json:"objectID"`
 	House
 }
-
 
 func (g *House) GetCollectionKey() string {
 	return consts.HOUSE
@@ -122,18 +125,28 @@ func (this *House)AddImage(file multipart.File, houseID string) error {
 	return err
 }
 
-func (this *House) GetFromKey(key string) error {
+func (this *House) GetFromKey(key string) (error) {
 	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
 		return err
 	}
-	err = doc.DataTo(this)
-	return err
+	return doc.DataTo(this)
 }
 
-func (this *House) GetAllActivate() ([]*response.House, error) {
+func (this *House) GetResponse(key string) (response.House, error) {
+	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
+	if err != nil {
+		return response.House{}, err
+	}
+	res := response.House{}
+	res.HouseID = doc.Ref.ID
+	err = doc.DataTo(&res)
+	return res, err
+}
+
+func (this *House) GetAllActivate() ([]response.House, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listHouse := []*response.House{}
+	listHouse := []response.House{}
 	for {
 		var q response.House
 		doc, err := listdoc.Next()
@@ -146,15 +159,15 @@ func (this *House) GetAllActivate() ([]*response.House, error) {
 		}
 		q.HouseID = doc.Ref.ID
 		if q.Activate == true {
-			listHouse = append(listHouse, &q)
+			listHouse = append(listHouse, q)
 		}
 	}
 	return listHouse, nil
 }
 
-func (this *House) GetPageActivate(page, count int) ([]*response.House, error) {
+func (this *House) GetPageActivate(page, count int) ([]response.House, error) {
 	listdoc, err := client.Collection(this.GetCollectionKey()).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
-	listHouse := []*response.House{}
+	listHouse := []response.House{}
 	if err != nil {
 		return nil, err
 	}
@@ -162,14 +175,14 @@ func (this *House) GetPageActivate(page, count int) ([]*response.House, error) {
 		var q response.House
 		err = i.DataTo(&q)
 		q.HouseID = i.Ref.ID
-		listHouse = append(listHouse, &q)
+		listHouse = append(listHouse, q)
 	}
 	return listHouse, nil
 }
 
-func (this *House) GetAll() ([]*response.House, error) {
+func (this *House) GetAll() ([]response.House, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
-	listHouse := []*response.House{}
+	listHouse := []response.House{}
 	for {
 		var q response.House
 		doc, err := listdoc.Next()
@@ -181,33 +194,36 @@ func (this *House) GetAll() ([]*response.House, error) {
 			return nil, err
 		}
 		q.HouseID = doc.Ref.ID
-		listHouse = append(listHouse, &q)
+		listHouse = append(listHouse, q)
 	}
 	return listHouse, nil
 }
 
-func (this *House) GetAllHouseOfOwner(id string) ([]*response.House, error) {
+func (this *House) GetAllHouseOfOwner(id string) ([]response.House, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Where("OwnerID", "==", id).Documents(ctx)
-	listHouse := []*response.House{}
+	listHouse := []response.House{}
 	for {
 		var q response.House
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
 		}
+		if err != nil {
+			return nil, err
+		}
 		err = doc.DataTo(&q)
 		if err != nil {
 			return nil, err
 		}
 		q.HouseID = doc.Ref.ID
-		listHouse = append(listHouse, &q)
+		listHouse = append(listHouse, q)
 	}
 	return listHouse, nil
 }
 
-func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]*response.House, error) {
+func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]response.House, error) {
 	listDoc, err := this.GetCollection().Where("OwnerID", "==", id).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
-	listHouse := []*response.House{}
+	listHouse := []response.House{}
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +231,7 @@ func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]*re
 		var q response.House
 		err = i.DataTo(&q)
 		q.HouseID = i.Ref.ID
-		listHouse = append(listHouse, &q)
+		listHouse = append(listHouse, q)
 	}
 	return listHouse, nil
 }
@@ -256,4 +272,48 @@ func (this *House) GetPaginateWaitList(page int, count int) ([]string, error) {
 func (this *House) UpdateItem(id string) error {
 	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
 	return err
+}
+
+func (this *House) SearchAllItem(key string) ([]response.House, error) {
+	res, err := searchIndex.Search(key)
+	if err != nil {
+		return []response.House{}, err
+	}
+	list := []response.House{}
+	results := []HouseSearch{}
+	err = res.UnmarshalHits(&results)
+	if err != nil {
+		return []response.House{}, err
+	}
+	for _, i := range results {
+		h := &House{}
+		resH, err := h.GetResponse(i.ObjectID)
+		if err != nil {
+			return []response.House{}, err
+		}
+		list = append(list, resH)
+	}
+	return list, nil
+}
+
+func (this *House) SearchPaginateItem(key string, page, count int) ([]response.House, error) {
+	res, err := searchIndex.Search(key, opt.Page(page), opt.HitsPerPage(count))
+	if err != nil {
+		return []response.House{}, err
+	}
+	list := []response.House{}
+	results := []HouseSearch{}
+	err = res.UnmarshalHits(&results)
+	if err != nil {
+		return []response.House{}, err
+	}
+	for _, i := range results {
+		h := &House{}
+		resH, err := h.GetResponse(i.ObjectID)
+		if err != nil {
+			return []response.House{}, err
+		}
+		list = append(list, resH)
+	}
+	return list, nil
 }

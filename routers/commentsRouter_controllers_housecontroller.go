@@ -18,6 +18,15 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
+            Method: "GetAllSearchHouse",
+            Router: "/",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
+        beego.ControllerComments{
             Method: "Get",
             Router: "/:houseID/",
             AllowHTTPMethods: []string{"get"},
@@ -45,15 +54,6 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
-            Method: "AddComment",
-            Router: "/:houseID/add-comment/",
-            AllowHTTPMethods: []string{"post"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
-        beego.ControllerComments{
             Method: "GetAllComment",
             Router: "/:houseID/comments/",
             AllowHTTPMethods: []string{"get"},
@@ -74,6 +74,15 @@ func init() {
         beego.ControllerComments{
             Method: "GetPageActivateHouse",
             Router: "/page",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
+        beego.ControllerComments{
+            Method: "GetPageActivateSearchHouse",
+            Router: "/search",
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,

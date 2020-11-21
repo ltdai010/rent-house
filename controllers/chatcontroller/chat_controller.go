@@ -49,7 +49,6 @@ func (w *WebsocketController) Join() {
 		"message" : "success",
 	})
 	go broadcastMessages(Bc[ownerID])
-
 	for {
 		var batm models.Message
 		broadcast := models.Broadcast{}

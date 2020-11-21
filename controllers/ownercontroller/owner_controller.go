@@ -2,9 +2,10 @@ package OwnerController
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/astaxie/beego"
 	"rent-house/models"
+	"rent-house/restapi/request"
+	"rent-house/restapi/response"
 	"rent-house/services/houseservices"
 	"rent-house/services/ownerservices"
 )
@@ -18,35 +19,42 @@ type OwnerController struct {
 // @Description create users
 // @Param	token		header	    string			true		"The token string"
 // @Param	body		body 		models.House	true		"body for user content"
-// @Param	ownerID		path		string			true		"owner id"
 // @Param	files		formData	[]file			true		"house image"
 // @Success 200 {int} models.House
 // @Failure 403 body is empty
-// @router /:ownerID/create-house/ [post]
+// @router /create-house/ [post]
 func (u *OwnerController) CreateHouse() {
-	var ob models.House
+	var ob request.HousePost
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	file, err := u.GetFiles("files")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	if len(file) < 3 {
-		u.Ctx.WriteString(errors.New("not enough image").Error())
+		u.Data["json"] = response.NewErr(response.UnSuccess)
+		u.ServeJSON()
 		return
 	}
-	ownerID := u.Ctx.Input.Param(":ownerID")
+	ownerID := u.Ctx.Input.Header("username")
 	s, err := houseservices.AddHouse(ownerID, &ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	err = houseservices.UploadFile(s, file)
-	u.Data["json"] = map[string]string{"ID" : s}
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
 	u.ServeJSON()
 }
 
@@ -57,53 +65,38 @@ func (u *OwnerController) CreateHouse() {
 // @Failure 403 body is empty
 // @router /sign-up/ [post]
 func (u *OwnerController) CreateOwner() {
-	var user models.Owner
+	var user request.OwnerPost
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &user)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	err = ownerservices.AddOwner(&user)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
-	}
-	u.Data["json"] = "success"
-	u.ServeJSON()
-}
-
-
-// @Title GetAll
-// @Description get all owners
-// @Success 200 {object} models.User
-// @router / [get]
-func (u *OwnerController) GetAll() {
-	users, err := ownerservices.GetAllOwner()
-	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
-	}
-	u.Data["json"] = map[string]interface{}{
-		"list_user" : users,
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
 	u.ServeJSON()
 }
+
 
 // @Title Get
 // @Description get user by uid
 // @Param	token			header	string	true		"The token string"
-// @Param	ownerID		path 	string	true		"The key for staticblock"
 // @Success 200 {object} models.User
 // @Failure 403 :ownerID is empty
-// @router /:ownerID/ [get]
+// @router / [get]
 func (u *OwnerController) Get() {
-	uid := u.Ctx.Input.Param(":ownerID")
-	if uid != "" {
-		user, err := ownerservices.GetOwner(uid)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		} else {
-			u.Data["json"] = user
+	uid := u.Ctx.Input.Header("username")
+	user, err := ownerservices.GetOwner(uid)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: user,
+			Err:  response.NewErr(response.Success),
 		}
 	}
 	u.ServeJSON()
@@ -112,22 +105,24 @@ func (u *OwnerController) Get() {
 // @Title Update
 // @Description update the user
 // @Param	token			header	string	true		"The token string"
-// @Param	ownerID		path 	string	true		"The ownerID you want to update"
 // @Param	body		body 	models.Owner	true		"body for user content"
 // @Success 200 {object} models.User
 // @Failure 403 :ownerID is not int
-// @router /:ownerID/ [put]
+// @router / [put]
 func (u *OwnerController) Put() {
-	uid := u.Ctx.Input.Param(":ownerID")
-	if uid != "" {
-		var user models.Owner
-		json.Unmarshal(u.Ctx.Input.RequestBody, &user)
-		err := ownerservices.UpdateUser(uid, &user)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		} else {
-			u.Data["json"] = "success"
-		}
+	uid := u.Ctx.Input.Header("ownername")
+	var user request.OwnerPut
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &user)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	err = ownerservices.UpdateOwner(uid, &user)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
 	u.ServeJSON()
 }
@@ -135,67 +130,74 @@ func (u *OwnerController) Put() {
 // @Title Delete
 // @Description delete the user
 // @Param	token			header	string	true		"The token string"
-// @Param	ownerID		path 	string	true		"The uid you want to delete"
 // @Success 200 {string} delete success!
 // @Failure 403 uid is empty
-// @router /:ownerID/ [delete]
+// @router / [delete]
 func (u *OwnerController) Delete() {
-	uid := u.GetString(":ownerID")
+	uid := u.Ctx.Input.Header("ownername")
 	err := ownerservices.DeleteOwner(uid)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
-	u.Data["json"] = "delete success!"
 	u.ServeJSON()
 }
 
 // @Title GetAllHouse
 // @Description get all renters
-// @Param	ownerID	path	string	true	"the house-id
-// @Success 200 {object} models.Renter
-// @router /:ownerID/houses/ [get]
+// @Param	token			header	string	true		"The token string"
+// @Success 200 {object} models.House
+// @router /houses/ [get]
 func (u *OwnerController) GetAllHouse() {
-	id := u.Ctx.Input.Param(":ownerID")
+	id := u.Ctx.Input.Header("ownername")
 	houses, err := houseservices.GetAllHouseOfOwner(id)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: houses,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = houses
 	u.ServeJSON()
 }
 
 // @Title GetPageHouse
 // @Description get page house
-// @Param	ownerID	path	string	true	"the house-id"
+// @Param	token		header	string	true		"The token string"
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.House
-// @router /:ownerID/page-houses/ [get]
+// @router /page-houses/ [get]
 func (u *OwnerController) GetPageHouse() {
-	id := u.Ctx.Input.Param(":ownerID")
+	id := u.Ctx.Input.Header("ownername")
 	page, err := u.GetInt("page")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	count, err := u.GetInt("count")
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
-	users, err := houseservices.GetPageHouseOfOwner(id, page, count)
+	houses, err := houseservices.GetPageHouseOfOwner(id, page, count)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: houses,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = users
 	u.ServeJSON()
 }
 
-// @Title CreateRenter
-// @Description create users
+// @Title Login
+// @Description login
 // @Param	login		body 	models.Login	true		"body for user content"
 // @Success 200 {string} token
 // @Failure 403 body is empty
@@ -204,14 +206,18 @@ func (u *OwnerController) Login() {
 	var ob models.Login
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
 		return
 	}
 	token, err := ownerservices.LoginOwner(ob)
 	if err != nil {
-		u.Ctx.WriteString(err.Error())
-		return
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: token,
+			Err:  response.NewErr(response.Success),
+		}
 	}
-	u.Data["json"] = token
 	u.ServeJSON()
 }
