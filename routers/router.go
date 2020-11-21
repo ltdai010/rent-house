@@ -9,6 +9,7 @@ package routers
 
 import (
 	"github.com/astaxie/beego"
+	"rent-house/controllers/addresscontroller"
 	"rent-house/controllers/admincontroler"
 	"rent-house/controllers/chatcontroller"
 	"rent-house/controllers/commentcontroller"
@@ -47,6 +48,11 @@ func init() {
 		beego.NSNamespace("/chat",
 			beego.NSInclude(
 				&chatcontroller.WebsocketController{},
+			),
+		),
+		beego.NSNamespace("/address",
+			beego.NSInclude(
+				&addresscontroller.AddressController{},
 			),
 		),
 	)

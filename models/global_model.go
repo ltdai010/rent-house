@@ -1,11 +1,101 @@
 package models
 
-import "rent-house/consts"
+import (
+	"google.golang.org/api/iterator"
+	"rent-house/consts"
+)
 
 type Address struct {
 	Province  string `json:"province"`
 	District  string `json:"district"`
 	Commune   string `json:"commune"`
+}
+
+func (this *Province) GetAll() ([]Province,error) {
+	iter := client.Collection(consts.PROVINCE).Documents(ctx)
+	list := []Province{}
+	for {
+		p := Province{}
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return []Province{}, err
+		}
+		err = doc.DataTo(&p)
+		if err != nil {
+			continue
+		}
+		list = append(list, p)
+	}
+	return list, nil
+}
+
+func (this *District) GetAll(provinceID string) ([]District,error) {
+	iter := client.Collection(consts.DISTRICT).Where("ParentCode", "==", provinceID).Documents(ctx)
+	list := []District{}
+	for {
+		p := District{}
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return []District{}, err
+		}
+		err = doc.DataTo(&p)
+		if err != nil {
+			continue
+		}
+		list = append(list, p)
+	}
+	return list, nil
+}
+
+func (this *Commune) GetAll(districtID string) ([]Commune,error) {
+	iter := client.Collection(consts.COMMUNE).Where("ParentCode", "==", districtID).Documents(ctx)
+	list := []Commune{}
+	for {
+		p := Commune{}
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return []Commune{}, err
+		}
+		err = doc.DataTo(&p)
+		if err != nil {
+			continue
+		}
+		list = append(list, p)
+	}
+	return list, nil
+}
+
+func (this *Province) GetItem(provinceID string) error {
+	doc, err := client.Collection(consts.PROVINCE).Doc(provinceID).Get(ctx)
+	if err != nil {
+		return err
+	}
+	return doc.DataTo(this)
+}
+
+func (this *District) GetItem(districtID string) error {
+	doc, err := client.Collection(consts.DISTRICT).Doc(districtID).Get(ctx)
+	if err != nil {
+		return err
+	}
+	return doc.DataTo(this)
+}
+
+func (this *Commune) GetItem(communeID string) error {
+	doc, err := client.Collection(consts.COMMUNE).Doc(communeID).Get(ctx)
+	if err != nil {
+		return err
+	}
+	return doc.DataTo(this)
 }
 
 func (this *Address) FindAddress(communeCode string) (error) {

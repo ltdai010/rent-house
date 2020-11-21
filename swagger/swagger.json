@@ -15,6 +15,84 @@
     },
     "basePath": "/v1/rent-house",
     "paths": {
+        "/address/provinces": {
+            "get": {
+                "tags": [
+                    "address"
+                ],
+                "description": "get user by uid",
+                "operationId": "AddressController.Get",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Province"
+                        }
+                    },
+                    "403": {
+                        "description": ":commentID is empty"
+                    }
+                }
+            }
+        },
+        "/address/{districtID}/communes": {
+            "get": {
+                "tags": [
+                    "address"
+                ],
+                "description": "get all commune in district",
+                "operationId": "AddressController.GetCommune",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "districtID",
+                        "description": "districtID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.District"
+                        }
+                    },
+                    "403": {
+                        "description": ":commentID is empty"
+                    }
+                }
+            }
+        },
+        "/address/{provinceID}/districts": {
+            "get": {
+                "tags": [
+                    "address"
+                ],
+                "description": "get all district in province",
+                "operationId": "AddressController.GetDistrict",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "provinceID",
+                        "description": "provinceID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.District"
+                        }
+                    },
+                    "403": {
+                        "description": ":commentID is empty"
+                    }
+                }
+            }
+        },
         "/admin/active-comment/": {
             "post": {
                 "tags": [
@@ -1287,6 +1365,36 @@
                 }
             }
         },
+        "models.District": {
+            "title": "District",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "name_with_type": {
+                    "type": "string"
+                },
+                "parent_code": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "path_with_type": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "models.House": {
             "title": "House",
             "type": "object",
@@ -1437,6 +1545,27 @@
                     "type": "string"
                 },
                 "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Province": {
+            "title": "Province",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "name_with_type": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }
