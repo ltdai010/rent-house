@@ -9,7 +9,7 @@ import (
 )
 
 func filterOwner(ctx *context.Context) {
-	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/login/") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/sign-up/") || isRenter(ctx) {
+	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/login/") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/sign-up/") || isOwner(ctx) {
 		return
 	}
 	ctx.ResponseWriter.WriteHeader(403)
@@ -25,9 +25,10 @@ func isOwner(ctx *context.Context) bool {
 		owner := &models.Owner{}
 		err = owner.GetFromKey(claim.Username)
 		if err != nil {
-			ctx.Request.Header.Set("ownername", claim.Username)
-			return true
+			return false
 		}
+		ctx.Request.Header.Set("ownername", claim.Username)
+		return true
 	}
 	return false
 }

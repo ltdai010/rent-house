@@ -29,7 +29,7 @@ type HouseSearch struct {
 type Address struct {
 	Province string `json:"province"`
 	District string `json:"district"`
-	Street   string `json:"street"`
+	Commune  string `json:"commune"`
 }
 
 type Infrastructure struct {

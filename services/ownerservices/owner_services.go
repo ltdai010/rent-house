@@ -73,13 +73,28 @@ func GetPageWaitOwner(page int, count int) ([]string, error) {
 	return list, nil
 }
 
-func GetOwner(ownerID string) (models.Owner, error) {
+func GetOwner(ownerID string) (response.Owner, error) {
 	u := &models.Owner{}
 	err := u.GetFromKey(ownerID)
 	if err != nil {
-		return models.Owner{}, err
+		return response.Owner{}, err
 	}
-	return *u, nil
+	res := response.Owner{
+		OwnerName:   ownerID,
+		OwnerFullName: u.OwnerFullName,
+		Profile:   response.Profile{
+			IDCard:      u.Profile.IDCard,
+			PhoneNumber: u.Profile.PhoneNumber,
+			Email:       u.Profile.Email,
+		},
+		Address:   response.Address{
+			Province: u.Address.Province,
+			District: u.Address.District,
+			Commune:  u.Address.Commune,
+		},
+		Activate:  u.Activate,
+	}
+	return res, nil
 }
 
 func GetAllOwner() ([]response.Owner, error) {

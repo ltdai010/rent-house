@@ -1,8 +1,8 @@
 package response
 
 type Owner struct {
-	OwnerID   string  `json:"owner_id"`
-	OwnerName string  `json:"owner_name"`
+	OwnerName   string  `json:"owner_name"`
+	OwnerFullName string  `json:"owner_full_name"`
 	Profile   Profile `json:"profile"`
 	Address   Address `json:"address"`
 	Activate  bool	  `json:"activate"`

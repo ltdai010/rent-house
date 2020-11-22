@@ -89,7 +89,7 @@ func (u *OwnerController) CreateOwner() {
 // @Failure 403 :ownerID is empty
 // @router / [get]
 func (u *OwnerController) Get() {
-	uid := u.Ctx.Input.Header("username")
+	uid := u.Ctx.Input.Header("ownername")
 	user, err := ownerservices.GetOwner(uid)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)

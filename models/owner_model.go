@@ -122,7 +122,7 @@ func (this *Owner) GetAll() ([]response.Owner, error) {
 		if err != nil {
 			return nil, err
 		}
-		q.OwnerID = doc.Ref.ID
+		q.OwnerName = doc.Ref.ID
 		listOwner = append(listOwner, q)
 	}
 	return listOwner, nil
