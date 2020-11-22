@@ -31,7 +31,7 @@ func (u *RenterController) Post() {
 	}
 	err = renterservices.AddRenter(&ob)
 	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.Data["json"] = response.NewErr(response.Existed)
 	} else {
 		u.Data["json"] = response.NewErr(response.Success)
 	}

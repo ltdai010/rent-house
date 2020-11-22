@@ -2,6 +2,7 @@ package ownerservices
 
 import (
 	"errors"
+	"log"
 	"rent-house/middlewares"
 	"rent-house/models"
 	"rent-house/restapi/request"
@@ -10,19 +11,30 @@ import (
 
 func AddOwner(o *request.OwnerPost) error {
 	ob := &models.Owner{}
-	err := ob.GetFromKey(o.OwnerFullName)
+	err := ob.GetFromKey(o.OwnerName)
 	if err == nil {
+		log.Println(errors.New("already exist"))
 		return errors.New("already exist")
+	}
+	a := &models.Address{}
+	err = a.FindAddress(o.CommuneCode)
+	if err != nil {
+		log.Println(err)
+		return err
 	}
 	ob = &models.Owner{
 		OwnerName:     o.OwnerName,
 		Password:      o.Password,
 		OwnerFullName: o.OwnerFullName,
 		Profile:       o.Profile,
-		Address:       o.Address,
+		Address:       *a,
 		Activate:      false,
 	}
-	return ob.PutItem()
+	err = ob.PutItem()
+	if err != nil {
+		log.Println(err)
+	}
+	return nil
 }
 
 func ActiveOwner(ownerID string) error {
@@ -90,9 +102,14 @@ func UpdateOwner(id string, ob *request.OwnerPut) error {
 	if err != nil {
 		return err
 	}
+	a := &models.Address{}
+	err = a.FindAddress(ob.CommuneCode)
+	if err != nil {
+		return err
+	}
 	o.Password = ob.Password
 	o.OwnerFullName = ob.OwnerFullName
-	o.Address = ob.Address
+	o.Address = *a
 	o.Profile = ob.Profile
 	return o.UpdateItem(id)
 }

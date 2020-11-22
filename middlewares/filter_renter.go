@@ -9,7 +9,7 @@ import (
 )
 
 func filterRenter(ctx *context.Context) {
-	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/renter/login/") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/renter/sign-up/") || isRenter(ctx)  {
+	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/renter/login") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/renter/sign-up") || isRenter(ctx)  {
 		return
 	}
 	ctx.ResponseWriter.WriteHeader(403)

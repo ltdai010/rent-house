@@ -1085,7 +1085,7 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Owner"
+                            "$ref": "#/definitions/request.OwnerPost"
                         }
                     }
                 ],
@@ -1660,6 +1660,27 @@
                 },
                 "with_owner": {
                     "type": "boolean"
+                }
+            }
+        },
+        "request.OwnerPost": {
+            "title": "OwnerPost",
+            "type": "object",
+            "properties": {
+                "commune_code": {
+                    "type": "string"
+                },
+                "owner_full_name": {
+                    "type": "string"
+                },
+                "owner_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "profile": {
+                    "$ref": "#/definitions/models.Profile"
                 }
             }
         },

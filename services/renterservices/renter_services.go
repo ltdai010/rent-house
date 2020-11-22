@@ -2,6 +2,7 @@ package renterservices
 
 import (
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"rent-house/middlewares"
 	"rent-house/models"
 	"rent-house/restapi/request"
@@ -12,8 +13,20 @@ func AddRenter(o *request.RenterPost) error {
 	r := &models.Renter{}
 	err := r.GetFromKey(o.RenterName)
 	if err != nil {
+		hashed, err := bcrypt.GenerateFromPassword([]byte(o.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return response.ErrSystem
+		}
+		r = &models.Renter{
+			RenterName:     o.RenterName,
+			RenterFullName: o.RenterFullName,
+			Password:       string(hashed),
+			PhoneNumber:    o.PhoneNumber,
+			Email:          o.Email,
+			ListFavourite:  []string{},
+		}
 		err = r.PutItem()
-		return nil
+		return err
 	}
 	return errors.New("already exist")
 }
@@ -64,7 +77,7 @@ func LoginRenter(login models.Login) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if login.Password == renter.Password {
+	if bcrypt.CompareHashAndPassword([]byte(renter.Password), []byte(login.Password)) == nil {
 		return middlewares.CreateToken(login.Username)
 	}
 	return "", errors.New("not authorized")

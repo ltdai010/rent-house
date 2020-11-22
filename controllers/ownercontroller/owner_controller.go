@@ -60,7 +60,7 @@ func (u *OwnerController) CreateHouse() {
 
 // @Title CreateOwner
 // @Description create users
-// @Param	body		body 	models.Owner	true		"body for user content"
+// @Param	body		body 	request.OwnerPost	true		"body for user content"
 // @Success 200 {int} models.UserID
 // @Failure 403 body is empty
 // @router /sign-up/ [post]

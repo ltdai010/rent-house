@@ -2,8 +2,8 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
-	"errors"
 	"google.golang.org/api/iterator"
+	"log"
 	"rent-house/consts"
 	"rent-house/restapi/response"
 )
@@ -52,10 +52,8 @@ func (this *Renter) Delete(id string) error {
 func (this *Renter) GetFromKey(key string) error {
 	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
+		log.Println(err)
 		return err
-	}
-	if doc == nil {
-		return errors.New("not exist" + this.GetCollectionKey())
 	}
 	err = doc.DataTo(this)
 	return err
