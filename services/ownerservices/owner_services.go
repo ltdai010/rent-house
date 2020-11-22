@@ -2,6 +2,7 @@ package ownerservices
 
 import (
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"rent-house/middlewares"
 	"rent-house/models"
@@ -13,7 +14,6 @@ func AddOwner(o *request.OwnerPost) error {
 	ob := &models.Owner{}
 	err := ob.GetFromKey(o.OwnerName)
 	if err == nil {
-		log.Println(errors.New("already exist"))
 		return errors.New("already exist")
 	}
 	a := &models.Address{}
@@ -22,9 +22,13 @@ func AddOwner(o *request.OwnerPost) error {
 		log.Println(err)
 		return err
 	}
+	hashed, err := bcrypt.GenerateFromPassword([]byte(o.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return response.ErrSystem
+	}
 	ob = &models.Owner{
 		OwnerName:     o.OwnerName,
-		Password:      o.Password,
+		Password:      string(hashed),
 		OwnerFullName: o.OwnerFullName,
 		Profile:       o.Profile,
 		Address:       *a,
@@ -129,7 +133,7 @@ func LoginOwner(login models.Login) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if login.Password == owner.Password {
+	if bcrypt.CompareHashAndPassword([]byte(owner.Password), []byte(login.Password)) == nil {
 		return middlewares.CreateToken(login.Username)
 	}
 	return "", errors.New("not authorized")
