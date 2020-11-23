@@ -82,7 +82,7 @@ func init() {
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
             Method: "GetPageActivateSearchHouse",
-            Router: "/search",
+            Router: "/search-results",
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,

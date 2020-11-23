@@ -37,7 +37,7 @@ func init() {
     beego.GlobalControllerRouter["rent-house/controllers/ownercontroller:OwnerController"] = append(beego.GlobalControllerRouter["rent-house/controllers/ownercontroller:OwnerController"],
         beego.ControllerComments{
             Method: "CreateHouse",
-            Router: "/create-house/",
+            Router: "/house/",
             AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,

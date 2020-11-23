@@ -628,7 +628,7 @@
                 }
             }
         },
-        "/house/search": {
+        "/house/search-results": {
             "get": {
                 "tags": [
                     "house"
@@ -930,7 +930,7 @@
                 }
             }
         },
-        "/owner/create-house/": {
+        "/owner/house/": {
             "post": {
                 "tags": [
                     "owner"
@@ -1188,7 +1188,7 @@
                 }
             }
         },
-        "/renter/add-comment/{houseID}": {
+        "/renter/comment/{houseID}": {
             "post": {
                 "tags": [
                     "renter"
@@ -1231,7 +1231,7 @@
             }
         },
         "/renter/like/{houseID}": {
-            "post": {
+            "put": {
                 "tags": [
                     "renter"
                 ],
@@ -1757,7 +1757,7 @@
         },
         {
             "name": "renter",
-            "description": "Operations about Owner\n"
+            "description": "Operations about Renter\n"
         }
     ]
 }

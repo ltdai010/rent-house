@@ -536,7 +536,7 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.House'
-  /house/search:
+  /house/search-results:
     get:
       tags:
       - house
@@ -624,7 +624,7 @@ paths:
           description: '{string} delete success!'
         "403":
           description: uid is empty
-  /owner/create-house/:
+  /owner/house/:
     post:
       tags:
       - owner
@@ -795,7 +795,7 @@ paths:
           description: '{string} delete success!'
         "403":
           description: renterID is empty
-  /renter/add-comment/{houseID}:
+  /renter/comment/{houseID}:
     post:
       tags:
       - renter
@@ -824,7 +824,7 @@ paths:
         "403":
           description: body is empty
   /renter/like/{houseID}:
-    post:
+    put:
       tags:
       - renter
       description: create comment
@@ -1179,4 +1179,4 @@ tags:
     Operations about house
 - name: renter
   description: |
-    Operations about Owner
+    Operations about Renter

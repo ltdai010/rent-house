@@ -10,7 +10,7 @@ import (
 	"rent-house/services/renterservices"
 )
 
-// Operations about Owner
+// Operations about Renter
 type RenterController struct {
 	beego.Controller
 }
