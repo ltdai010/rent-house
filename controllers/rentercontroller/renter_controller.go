@@ -71,7 +71,7 @@ func (u *RenterController) Login() {
 // @Param	houseID			path			string				true		"the house id"
 // @Success 200 {string} success
 // @Failure 403 body is empty
-// @router /add-comment/:houseID [post]
+// @router /comment/:houseID [post]
 func (u *RenterController) AddComment() {
 	var ob request.CommentPost
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
@@ -97,7 +97,7 @@ func (u *RenterController) AddComment() {
 // @Param	houseID		path	string			true		"the house id"
 // @Success 200 {string} success
 // @Failure 403 body is empty
-// @router /like/:houseID [post]
+// @router /like/:houseID [put]
 func (u *RenterController) AddHouseToFavorite() {
 	houseID := u.Ctx.Input.Param(":houseID")
 	renterID := u.Ctx.Input.Header("rentername")

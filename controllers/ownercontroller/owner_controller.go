@@ -22,7 +22,7 @@ type OwnerController struct {
 // @Param	files		formData	[]file			true		"house image"
 // @Success 200 {int} models.House
 // @Failure 403 body is empty
-// @router /create-house/ [post]
+// @router /house/ [post]
 func (u *OwnerController) CreateHouse() {
 	var ob request.HousePost
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)

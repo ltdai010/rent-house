@@ -68,7 +68,7 @@ func (u *HouseController) GetPageActivateHouse() {
 // @Param	page	query	int	true	"page"
 // @Param	count	query	int	true	"count"
 // @Success 200 {object} models.House
-// @router /search [get]
+// @router /search-results [get]
 func (u *HouseController) GetPageActivateSearchHouse() {
 	key := u.GetString("key")
 	page, err := u.GetInt("page")
