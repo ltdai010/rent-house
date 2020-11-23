@@ -4,7 +4,7 @@ type House struct {
 	HouseID		   string		  `json:"house_id"`
 	OwnerID        string         `json:"owner_id"`
 	HouseType      HouseType      `json:"house_type"`
-	PricePerMonth  int            `json:"price"`
+	PricePerMonth  int            `json:"price_per_month"`
 	PricePerYear   int            `json:"price_per_year"`
 	Address        Address        `json:"address"`
 	Infrastructure Infrastructure `json:"infrastructure"`

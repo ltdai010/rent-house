@@ -576,7 +576,7 @@
                 "operationId": "HouseController.GetAllSearchHouse",
                 "parameters": [
                     {
-                        "in": "path",
+                        "in": "query",
                         "name": "key",
                         "description": "key",
                         "required": true,
@@ -587,7 +587,7 @@
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.Renter"
+                            "$ref": "#/definitions/models.House"
                         }
                     }
                 }
@@ -684,13 +684,31 @@
                         "description": "The key for staticblock",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "province",
+                        "description": "the provinceID",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "district",
+                        "description": "the districtID",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "commune",
+                        "description": "the commune id",
+                        "type": "string"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/models.Renter"
+                            "$ref": "#/definitions/models.House"
                         }
                     },
                     "403": {
@@ -731,10 +749,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
+                        "description": "{string} success"
                     },
                     "403": {
                         "description": ":houseID is not int"
@@ -889,7 +904,7 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Owner"
+                            "$ref": "#/definitions/request.OwnerPut"
                         }
                     }
                 ],
@@ -951,7 +966,7 @@
                         "description": "body for user content",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.House"
+                            "$ref": "#/definitions/request.HousePost"
                         }
                     },
                     {
@@ -1444,7 +1459,7 @@
                     "type": "integer",
                     "format": "int64"
                 },
-                "price": {
+                "price_per_month": {
                     "type": "integer",
                     "format": "int64"
                 },
@@ -1601,6 +1616,10 @@
             "title": "User",
             "type": "object"
         },
+        "models.ouse": {
+            "title": "ouse",
+            "type": "object"
+        },
         "request.CommentPost": {
             "title": "CommentPost",
             "type": "object",
@@ -1622,6 +1641,44 @@
                 },
                 "header": {
                     "type": "string"
+                }
+            }
+        },
+        "request.HousePost": {
+            "title": "HousePost",
+            "type": "object",
+            "properties": {
+                "commune_code": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "header": {
+                    "type": "string"
+                },
+                "house_type": {
+                    "$ref": "#/definitions/models.HouseType"
+                },
+                "infrastructure": {
+                    "$ref": "#/definitions/models.Infrastructure"
+                },
+                "near_by": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "price_per_month": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "price_per_year": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "with_owner": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1650,7 +1707,7 @@
                         "type": "string"
                     }
                 },
-                "price": {
+                "price_per_month": {
                     "type": "integer",
                     "format": "int64"
                 },
@@ -1674,6 +1731,24 @@
                     "type": "string"
                 },
                 "owner_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "profile": {
+                    "$ref": "#/definitions/models.Profile"
+                }
+            }
+        },
+        "request.OwnerPut": {
+            "title": "OwnerPut",
+            "type": "object",
+            "properties": {
+                "commune_code": {
+                    "type": "string"
+                },
+                "owner_full_name": {
                     "type": "string"
                 },
                 "password": {

@@ -4,8 +4,8 @@ import "rent-house/models"
 
 type HousePost struct {
 	HouseType      	   models.HouseType      `json:"house_type"`
-	PricePerMonth 	   int            		 `json:"price"`
-	PricePerYear   	   int            		 `json:"price_per_year"`
+	PricePerMonth  	   int            `json:"price_per_month"`
+	PricePerYear   	   int            `json:"price_per_year"`
 	CommuneCode        string         		 `json:"commune_code"`
 	Infrastructure 	   models.Infrastructure `json:"infrastructure"`
 	NearBy         	   []string       		 `json:"near_by"`
@@ -16,7 +16,7 @@ type HousePost struct {
 
 type HousePut struct {
 	HouseType      models.HouseType      `json:"house_type"`
-	PricePerMonth  int            		 `json:"price"`
+	PricePerMonth  int            		 `json:"price_per_month"`
 	PricePerYear   int            		 `json:"price_per_year"`
 	CommuneCode    string         		 `json:"commune_code"`
 	Infrastructure models.Infrastructure `json:"infrastructure"`

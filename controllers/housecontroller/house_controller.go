@@ -16,7 +16,7 @@ type HouseController struct {
 
 // @Title GetAllActivateHouse
 // @Description get all renters
-// @Success 200 {object} models.Renter
+// @Success 200 {object} models.ouse
 // @router / [get]
 func (u *HouseController) GetAllActivateHouse() {
 	users, err := houseservices.GetAllHouse()
@@ -83,7 +83,10 @@ func (u *HouseController) GetPageActivateSearchHouse() {
 		u.ServeJSON()
 		return
 	}
-	users, err := houseservices.SearchPageHouse(key, page, count)
+	provinceID := u.GetString("province")
+	districtID := u.GetString("district")
+	commune := u.GetString("commune")
+	users, err := houseservices.SearchPageHouse(key, provinceID, districtID, commune, page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -97,12 +100,15 @@ func (u *HouseController) GetPageActivateSearchHouse() {
 
 // @Title GetAllSearchHouse
 // @Description get all renters
-// @Param	key	path	string	true	"key"
-// @Success 200 {object} models.Renter
+// @Param	key	query	string	true	"key"
+// @Success 200 {object} models.House
 // @router / [get]
 func (u *HouseController) GetAllSearchHouse() {
 	key := u.GetString("key")
-	houses, err := houseservices.SearchHouse(key)
+	provinceID := u.GetString("province")
+	districtID := u.GetString("district")
+	commune := u.GetString("commune")
+	houses, err := houseservices.SearchHouse(key, provinceID, districtID, commune)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -117,7 +123,10 @@ func (u *HouseController) GetAllSearchHouse() {
 // @Title Get
 // @Description get user by uid
 // @Param	houseID		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Renter
+// @Param	province	query	string	false		"the provinceID"
+// @Param	district	query	string	false		"the districtID"
+// @Param	commune		query	string	false		"the commune id"
+// @Success 200 {object} models.House
 // @Failure 403 :houseID is empty
 // @router /:houseID/ [get]
 func (u *HouseController) Get() {
@@ -149,7 +158,7 @@ func (u *HouseController) Get() {
 // @Param	token			header	string	true		"The token string"
 // @Param	houseID		path 	string	true		"The uid you want to update"
 // @Param	body		body 	request.HousePut	true		"body for user content"
-// @Success 200 {object} models.User
+// @Success 200 {string} success
 // @Failure 403 :houseID is not int
 // @router /:houseID/ [put]
 func (u *HouseController) Update() {

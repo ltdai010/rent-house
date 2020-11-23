@@ -79,6 +79,47 @@ func GetHouse(id string) (response.House, error) {
 	return res, nil
 }
 
+func FilterSearchResult(res []response.House, provinceID, districtID, communeID string) ([]response.House, error) {
+	list := []response.House{}
+	if communeID != "" {
+		commune := models.Commune{}
+		err := commune.GetItem(communeID)
+		if err != nil {
+			return []response.House{}, err
+		}
+		for _, i := range res {
+			if i.Address.Commune == commune.Name {
+				list = append(list, i)
+			}
+		}
+	} else if districtID != "" {
+		district := models.District{}
+		err := district.GetItem(districtID)
+		if err != nil {
+			return []response.House{}, err
+		}
+		for _, i := range res {
+			if i.Address.District == district.Name {
+				list = append(list, i)
+			}
+		}
+	} else if provinceID != "" {
+		province := models.Province{}
+		err := province.GetItem(provinceID)
+		if err != nil {
+			return []response.House{}, err
+		}
+		for _, i := range res {
+			if i.Address.Province == province.Name {
+				list = append(list, i)
+			}
+		}
+	} else {
+		return []response.House{}, response.BadRequest
+	}
+	return list, nil
+}
+
 func ViewHouse(id string) (error) {
 	o := &models.House{}
 	err := o.GetFromKey(id)
@@ -167,14 +208,22 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	return h.UpdateItem(id)
 }
 
-func SearchHouse(key string) ([]response.House, error) {
+func SearchHouse(key, provinceID, districtID, communeID string) ([]response.House, error) {
 	h := &models.House{}
-	return h.SearchAllItem(key)
+	res, err := h.SearchAllItem(key)
+	if err != nil {
+		return []response.House{}, err
+	}
+	return	FilterSearchResult(res, provinceID, districtID, communeID)
 }
 
-func SearchPageHouse(key string, page, count int) ([]response.House, error) {
+func SearchPageHouse(key, provinceID, districtID, communeID string, page, count int) ([]response.House, error) {
 	h := &models.House{}
-	return h.SearchPaginateItem(key, page, count)
+	res, err := h.SearchPaginateItem(key, page, count)
+	if err != nil {
+		return []response.House{}, err
+	}
+	return	FilterSearchResult(res, provinceID, districtID, communeID)
 }
 
 func DeleteHouse(id string) error {

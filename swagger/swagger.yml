@@ -387,7 +387,7 @@ paths:
       description: get all renters
       operationId: HouseController.GetAllSearchHouse
       parameters:
-      - in: path
+      - in: query
         name: key
         description: key
         required: true
@@ -396,7 +396,7 @@ paths:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/models.Renter'
+            $ref: '#/definitions/models.House'
   /house/{houseID}/:
     get:
       tags:
@@ -409,11 +409,23 @@ paths:
         description: The key for staticblock
         required: true
         type: string
+      - in: query
+        name: province
+        description: the provinceID
+        type: string
+      - in: query
+        name: district
+        description: the districtID
+        type: string
+      - in: query
+        name: commune
+        description: the commune id
+        type: string
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/models.Renter'
+            $ref: '#/definitions/models.House'
         "403":
           description: :houseID is empty
     put:
@@ -440,9 +452,7 @@ paths:
           $ref: '#/definitions/request.HousePut'
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.User'
+          description: '{string} success'
         "403":
           description: :houseID is not int
     delete:
@@ -600,7 +610,7 @@ paths:
         description: body for user content
         required: true
         schema:
-          $ref: '#/definitions/models.Owner'
+          $ref: '#/definitions/request.OwnerPut'
       responses:
         "200":
           description: ""
@@ -641,7 +651,7 @@ paths:
         description: body for user content
         required: true
         schema:
-          $ref: '#/definitions/models.House'
+          $ref: '#/definitions/request.HousePost'
       - in: formData
         name: files
         description: house image
@@ -967,7 +977,7 @@ definitions:
       post_time:
         type: integer
         format: int64
-      price:
+      price_per_month:
         type: integer
         format: int64
       price_per_year:
@@ -1073,6 +1083,9 @@ definitions:
   models.User:
     title: User
     type: object
+  models.ouse:
+    title: ouse
+    type: object
   request.CommentPost:
     title: CommentPost
     type: object
@@ -1089,6 +1102,32 @@ definitions:
         type: string
       header:
         type: string
+  request.HousePost:
+    title: HousePost
+    type: object
+    properties:
+      commune_code:
+        type: string
+      content:
+        type: string
+      header:
+        type: string
+      house_type:
+        $ref: '#/definitions/models.HouseType'
+      infrastructure:
+        $ref: '#/definitions/models.Infrastructure'
+      near_by:
+        type: array
+        items:
+          type: string
+      price_per_month:
+        type: integer
+        format: int64
+      price_per_year:
+        type: integer
+        format: int64
+      with_owner:
+        type: boolean
   request.HousePut:
     title: HousePut
     type: object
@@ -1107,7 +1146,7 @@ definitions:
         type: array
         items:
           type: string
-      price:
+      price_per_month:
         type: integer
         format: int64
       price_per_year:
@@ -1124,6 +1163,18 @@ definitions:
       owner_full_name:
         type: string
       owner_name:
+        type: string
+      password:
+        type: string
+      profile:
+        $ref: '#/definitions/models.Profile'
+  request.OwnerPut:
+    title: OwnerPut
+    type: object
+    properties:
+      commune_code:
+        type: string
+      owner_full_name:
         type: string
       password:
         type: string

@@ -18,7 +18,7 @@ type OwnerController struct {
 // @Title CreateHouse
 // @Description create users
 // @Param	token		header	    string			true		"The token string"
-// @Param	body		body 		models.House	true		"body for user content"
+// @Param	body		body 		request.HousePost	true		"body for user content"
 // @Param	files		formData	[]file			true		"house image"
 // @Success 200 {int} models.House
 // @Failure 403 body is empty
@@ -105,7 +105,7 @@ func (u *OwnerController) Get() {
 // @Title Update
 // @Description update the user
 // @Param	token			header	string	true		"The token string"
-// @Param	body		body 	models.Owner	true		"body for user content"
+// @Param	body		body 	request.OwnerPut	true		"body for user content"
 // @Success 200 {object} models.User
 // @Failure 403 :ownerID is not int
 // @router / [put]
