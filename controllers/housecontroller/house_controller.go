@@ -3,6 +3,7 @@ package housecontroller
 import (
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"log"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
 	"rent-house/services/commentservices"
@@ -16,7 +17,7 @@ type HouseController struct {
 
 // @Title GetAllActivateHouse
 // @Description get all renters
-// @Success 200 {object} models.ouse
+// @Success 200 {object} models.House
 // @router / [get]
 func (u *HouseController) GetAllActivateHouse() {
 	users, err := houseservices.GetAllHouse()
@@ -122,7 +123,7 @@ func (u *HouseController) GetAllSearchHouse() {
 
 // @Title Get
 // @Description get user by uid
-// @Param	houseID		path 	string	true		"The key for staticblock"
+// @Param	houseID		path 	string	true		"The house id"
 // @Param	province	query	string	false		"the provinceID"
 // @Param	district	query	string	false		"the districtID"
 // @Param	commune		query	string	false		"the commune id"
@@ -177,6 +178,66 @@ func (u *HouseController) Update() {
 		u.Data["json"] = response.NewErr(response.Success)
 	}
 	u.ServeJSON()
+}
+
+// @Title UploadImage
+// @Description create users
+// @Param	token		header	    string			true		"The token string"
+// @Param	houseID		path		string			true		"The house image"
+// @Param	files		formData    []file			true		"house image"
+// @Success 200 {[]string} image link
+// @Failure 403 body is empty
+// @router /:houseID/images [post]
+func (u *HouseController) UploadImage() {
+	file, err := u.GetFiles("files")
+	if err != nil {
+		log.Println(err)
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	houseID := u.GetString(":houseID")
+	if len(file) < 3 {
+		u.Data["json"] = response.NewErr(response.UnSuccess)
+		u.ServeJSON()
+		return
+	}
+	err = houseservices.UploadFile(houseID, file)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.ErrSystem)
+		u.ServeJSON()
+		return
+	}
+	u.Data["json"] = response.NewErr(response.Success)
+	u.ServeJSON()
+	return
+}
+
+// @Title AddImage
+// @Description create users
+// @Param	token		header	    string			true		"The token string"
+// @Param	houseID		path		string			true		"The house image"
+// @Param	files		formData	[]file			true		"house image"
+// @Success 200 {[]string} image link
+// @Failure 403 body is empty
+// @router /:houseID/images [put]
+func (u *HouseController) AddImage() {
+	file, err := u.GetFiles("files")
+	houseID := u.GetString(":houseID")
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	err = houseservices.UploadFile(houseID, file)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.ErrSystem)
+		u.ServeJSON()
+		return
+	}
+	u.Data["json"] = response.NewErr(response.Success)
+	u.ServeJSON()
+	return
 }
 
 // @Title Delete

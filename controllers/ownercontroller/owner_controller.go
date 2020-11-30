@@ -3,6 +3,7 @@ package OwnerController
 import (
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"log"
 	"rent-house/models"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
@@ -19,7 +20,6 @@ type OwnerController struct {
 // @Description create users
 // @Param	token		header	    string			true		"The token string"
 // @Param	body		body 		request.HousePost	true		"body for user content"
-// @Param	files		formData	[]file			true		"house image"
 // @Success 200 {int} models.House
 // @Failure 403 body is empty
 // @router /house/ [post]
@@ -27,33 +27,22 @@ func (u *OwnerController) CreateHouse() {
 	var ob request.HousePost
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
 	if err != nil {
+		log.Println(err)
 		u.Data["json"] = response.NewErr(response.BadRequest)
 		u.ServeJSON()
 		return
 	}
-	file, err := u.GetFiles("files")
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-		u.ServeJSON()
-		return
-	}
-	if len(file) < 3 {
-		u.Data["json"] = response.NewErr(response.UnSuccess)
-		u.ServeJSON()
-		return
-	}
-	ownerID := u.Ctx.Input.Header("username")
+	ownerID := u.Ctx.Input.Header("ownername")
 	s, err := houseservices.AddHouse(ownerID, &ob)
 	if err != nil {
+		log.Println(err)
 		u.Data["json"] = response.NewErr(response.BadRequest)
 		u.ServeJSON()
 		return
 	}
-	err = houseservices.UploadFile(s, file)
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-	} else {
-		u.Data["json"] = response.NewErr(response.Success)
+	u.Data["json"] = response.ResponseCommonSingle{
+		Data: s,
+		Err:  response.NewErr(response.Success),
 	}
 	u.ServeJSON()
 }

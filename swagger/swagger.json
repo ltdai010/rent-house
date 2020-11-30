@@ -681,7 +681,7 @@
                     {
                         "in": "path",
                         "name": "houseID",
-                        "description": "The key for staticblock",
+                        "description": "The house id",
                         "required": true,
                         "type": "string"
                     },
@@ -810,6 +810,90 @@
                         "schema": {
                             "$ref": "#/definitions/response.Comment"
                         }
+                    }
+                }
+            }
+        },
+        "/house/{houseID}/images": {
+            "put": {
+                "tags": [
+                    "house"
+                ],
+                "description": "create users",
+                "operationId": "HouseController.AddImage",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "houseID",
+                        "description": "The house image",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "files",
+                        "description": "house image",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{[]string} image link"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "house"
+                ],
+                "description": "create users",
+                "operationId": "HouseController.UploadImage",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "houseID",
+                        "description": "The house image",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "files",
+                        "description": "house image",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{[]string} image link"
+                    },
+                    "403": {
+                        "description": "body is empty"
                     }
                 }
             }
@@ -967,16 +1051,6 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/request.HousePost"
-                        }
-                    },
-                    {
-                        "in": "formData",
-                        "name": "files",
-                        "description": "house image",
-                        "required": true,
-                        "type": "array",
-                        "items": {
-                            "type": "file"
                         }
                     }
                 ],
@@ -1459,16 +1533,15 @@
                     "type": "integer",
                     "format": "int64"
                 },
-                "price_per_month": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "price_per_year": {
+                "price": {
                     "type": "integer",
                     "format": "int64"
                 },
                 "rented": {
                     "type": "boolean"
+                },
+                "unit": {
+                    "$ref": "#/definitions/models.Unit"
                 },
                 "view": {
                     "type": "integer",
@@ -1612,12 +1685,13 @@
                 }
             }
         },
+        "models.Unit": {
+            "title": "Unit",
+            "format": "int64",
+            "type": "integer"
+        },
         "models.User": {
             "title": "User",
-            "type": "object"
-        },
-        "models.ouse": {
-            "title": "ouse",
             "type": "object"
         },
         "request.CommentPost": {
@@ -1669,13 +1743,12 @@
                         "type": "string"
                     }
                 },
-                "price_per_month": {
+                "price": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "price_per_year": {
-                    "type": "integer",
-                    "format": "int64"
+                "unit": {
+                    "$ref": "#/definitions/models.Unit"
                 },
                 "with_owner": {
                     "type": "boolean"
@@ -1707,13 +1780,12 @@
                         "type": "string"
                     }
                 },
-                "price_per_month": {
+                "price": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "price_per_year": {
-                    "type": "integer",
-                    "format": "int64"
+                "unit": {
+                    "$ref": "#/definitions/models.Unit"
                 },
                 "with_owner": {
                     "type": "boolean"

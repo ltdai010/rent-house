@@ -1,6 +1,7 @@
 package houseservices
 
 import (
+	"log"
 	"mime/multipart"
 	"rent-house/models"
 	"rent-house/restapi/request"
@@ -13,13 +14,14 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 	//find address from commune code
 	err := a.FindAddress(house.CommuneCode)
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 	h := &models.House{
 		OwnerID:        ownerID,
 		HouseType:      house.HouseType,
-		PricePerMonth:  house.PricePerMonth,
-		PricePerYear:   house.PricePerYear,
+		Price: 			house.Price,
+		Unit:   		house.Unit,
 		Address:        *a,
 		Infrastructure: house.Infrastructure,
 		NearBy:         house.NearBy,
@@ -202,8 +204,8 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	h.NearBy = ob.NearBy
 	h.Infrastructure = ob.Infrastructure
 	h.Address = *a
-	h.PricePerYear = ob.PricePerYear
-	h.PricePerMonth = ob.PricePerMonth
+	h.Price = ob.Price
+	h.Unit = ob.Unit
 	h.HouseType = ob.HouseType
 	return h.UpdateItem(id)
 }

@@ -14,8 +14,8 @@ import (
 type House struct {
 	OwnerID        string         `json:"owner_id"`
 	HouseType      HouseType      `json:"house_type"`
-	PricePerMonth  int            `json:"price_per_month"`
-	PricePerYear   int            `json:"price_per_year"`
+	Price 		   int   		  `json:"price"`
+	Unit 		   Unit			  `json:"unit"`
 	Address        Address        `json:"address"`
 	Infrastructure Infrastructure `json:"infrastructure"`
 	NearBy         []string       `json:"near_by"`

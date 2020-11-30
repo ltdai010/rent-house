@@ -145,6 +145,14 @@ type Infrastructure struct {
 	Other           string `json:"other"`
 }
 
+type Unit int
+
+const (
+	Month = iota
+	Quarter
+	Year
+)
+
 type HouseType int
 
 const (
