@@ -16,6 +16,7 @@ import (
 	"rent-house/controllers/housecontroller"
 	ownercontroller "rent-house/controllers/ownercontroller"
 	"rent-house/controllers/rentercontroller"
+	"rent-house/controllers/searchcontroller"
 )
 
 func init() {
@@ -53,6 +54,11 @@ func init() {
 		beego.NSNamespace("/address",
 			beego.NSInclude(
 				&addresscontroller.AddressController{},
+			),
+		),
+		beego.NSNamespace("/search",
+			beego.NSInclude(
+				&searchcontroller.SearchController{},
 			),
 		),
 	)

@@ -14,23 +14,27 @@ import (
 type House struct {
 	OwnerID        string         `json:"owner_id"`
 	HouseType      HouseType      `json:"house_type"`
-	Price 		   int   		  `json:"price"`
+	Price		   int     	      `json:"price"`
 	Unit 		   Unit			  `json:"unit"`
 	Address        Address        `json:"address"`
+	CommuneCode	   string		  `json:"commune_code"`
 	Infrastructure Infrastructure `json:"infrastructure"`
-	NearBy         []string       `json:"near_by"`
+	NearBy         string         `json:"near_by"`
+	PreOrder	   int			  `json:"pre_order"`
+	Surface		   int			  `json:"surface"`
 	WithOwner      bool           `json:"with_owner"`
 	ImageLink      []string       `json:"image_link"`
+	LastViewed	   int64 		  `json:"last_viewed"`
+	MonthlyView	   int			  `json:"monthly_view"`
 	Header         string         `json:"header"`
-	View		   int 			  `json:"view"`
-	Like		   int			  `json:"like"`
+	View		   int64 		  `json:"view"`
+	Like		   int64		  `json:"like"`
 	Rented		   bool			  `json:"rented"`
 	Content        string         `json:"content"`
 	PostTime	   int64  		  `json:"post_time"`
 	Activate	   bool  		  `json:"activate"`
 	ExpiredTime	   int64  		  `json:"expired_time"`
 }
-
 type HouseSearch struct {
 	ObjectID string `json:"objectID"`
 	House
@@ -44,9 +48,45 @@ func (g *House) GetCollection() *firestore.CollectionRef {
 	return client.Collection(g.GetCollectionKey())
 }
 
+func (this *House) GetMaxViewHouseInMonth() (response.House, error) {
+	ref := client.Collection(consts.HOUSE).OrderBy("MonthlyView", firestore.Asc).Limit(1).Documents(ctx)
+	doc, err := ref.Next()
+	if err != nil {
+		return response.House{}, err
+	}
+	res := response.House{}
+	err = doc.DataTo(&res)
+	res.HouseID = doc.Ref.ID
+	return response.House{}, err
+}
+
+func (this *House) FindMaxViewHouse() (response.House, error) {
+	ref := client.Collection(consts.HOUSE).OrderBy("View", firestore.Asc).Limit(1).Documents(ctx)
+	doc, err := ref.Next()
+	if err != nil {
+		return response.House{}, err
+	}
+	res := response.House{}
+	err = doc.DataTo(&res)
+	res.HouseID = doc.Ref.ID
+	return response.House{}, err
+}
+
+func (this *House) FindMaxLikeHouse() (response.House, error) {
+	ref := client.Collection(consts.HOUSE).OrderBy("Like", firestore.Asc).Limit(1).Documents(ctx)
+	doc, err := ref.Next()
+	if err != nil {
+		return response.House{}, err
+	}
+	res := response.House{}
+	err = doc.DataTo(&res)
+	res.HouseID = doc.Ref.ID
+	return response.House{}, err
+}
+
 func (this *House) GetPaginate(page int, count int) ([]*House, error) {
 	listHouse := []*House{}
-	listDoc, err := this.GetCollection().StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +206,7 @@ func (this *House) GetAllActivate() ([]response.House, error) {
 }
 
 func (this *House) GetPageActivate(page, count int) ([]response.House, error) {
-	listdoc, err := client.Collection(this.GetCollectionKey()).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listdoc, err := client.Collection(this.GetCollectionKey()).OrderBy("PostTime", firestore.Asc).StartAfter(page * count).Limit(count).Documents(ctx).GetAll()
 	listHouse := []response.House{}
 	if err != nil {
 		return nil, err
@@ -222,7 +262,7 @@ func (this *House) GetAllHouseOfOwner(id string) ([]response.House, error) {
 }
 
 func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]response.House, error) {
-	listDoc, err := this.GetCollection().Where("OwnerID", "==", id).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().Where("OwnerID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	listHouse := []response.House{}
 	if err != nil {
 		return nil, err
@@ -255,7 +295,7 @@ func (this *House) GetAllWaitList() ([]string, error) {
 
 func (this *House) GetPaginateWaitList(page int, count int) ([]string, error) {
 	listOwner := []string{}
-	listDoc, err := client.Collection(consts.HOUSE_WAIT_LIST).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := client.Collection(consts.HOUSE_WAIT_LIST).StartAt(page * count).OrderBy("HouseID", firestore.Asc).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}

@@ -53,68 +53,11 @@ func (u *HouseController) GetPageActivateHouse() {
 	}
 	users, err := houseservices.GetPageHouse(page, count)
 	if err != nil {
+		log.Println(err)
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
 		u.Data["json"] = response.ResponseCommonSingle{
 			Data: users,
-			Err:  response.NewErr(response.Success),
-		}
-	}
-	u.ServeJSON()
-}
-
-// @Title GetPageActivateSearchHouse
-// @Description get page houses
-// @Param	key		query	string	true	"key for search"
-// @Param	page	query	int	true	"page"
-// @Param	count	query	int	true	"count"
-// @Success 200 {object} models.House
-// @router /search-results [get]
-func (u *HouseController) GetPageActivateSearchHouse() {
-	key := u.GetString("key")
-	page, err := u.GetInt("page")
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-		u.ServeJSON()
-		return
-	}
-	count, err := u.GetInt("count")
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-		u.ServeJSON()
-		return
-	}
-	provinceID := u.GetString("province")
-	districtID := u.GetString("district")
-	commune := u.GetString("commune")
-	users, err := houseservices.SearchPageHouse(key, provinceID, districtID, commune, page, count)
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
-			Data: users,
-			Err:  response.NewErr(response.Success),
-		}
-	}
-	u.ServeJSON()
-}
-
-// @Title GetAllSearchHouse
-// @Description get all renters
-// @Param	key	query	string	true	"key"
-// @Success 200 {object} models.House
-// @router / [get]
-func (u *HouseController) GetAllSearchHouse() {
-	key := u.GetString("key")
-	provinceID := u.GetString("province")
-	districtID := u.GetString("district")
-	commune := u.GetString("commune")
-	houses, err := houseservices.SearchHouse(key, provinceID, districtID, commune)
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
-			Data: houses,
 			Err:  response.NewErr(response.Success),
 		}
 	}
@@ -124,9 +67,6 @@ func (u *HouseController) GetAllSearchHouse() {
 // @Title Get
 // @Description get user by uid
 // @Param	houseID		path 	string	true		"The house id"
-// @Param	province	query	string	false		"the provinceID"
-// @Param	district	query	string	false		"the districtID"
-// @Param	commune		query	string	false		"the commune id"
 // @Success 200 {object} models.House
 // @Failure 403 :houseID is empty
 // @router /:houseID/ [get]

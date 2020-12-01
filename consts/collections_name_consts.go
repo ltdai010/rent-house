@@ -12,6 +12,7 @@ const REPORTED_HOUSE = "reported-houses"
 const PROVINCE = "province"
 const DISTRICT = "district"
 const COMMUNE = "commune"
+const STATISTIC = "statistic"
 
 //secret key
 const SECRET_KEY = "rent-house"

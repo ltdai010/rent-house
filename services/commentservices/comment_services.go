@@ -81,7 +81,7 @@ func GetAllCommentOfHouse(houseID string) ([]response.Comment, error) {
 
 func GetPageCommentOfHouse(houseID string, page int, count int) ([]response.Comment, error) {
 	o := &models.Comment{}
-	list, err := o.GetPaginateCommentInPost(houseID, page, count)
+	list, err := o.GetPaginateCommentInHouse(houseID, page, count)
 	if err != nil {
 		return []response.Comment{}, err
 	}

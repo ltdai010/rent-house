@@ -18,24 +18,6 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
-            Method: "GetAllSearchHouse",
-            Router: "/",
-            AllowHTTPMethods: []string{"get"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
-        beego.ControllerComments{
-            Method: "Delete",
-            Router: "/:houseID/",
-            AllowHTTPMethods: []string{"delete"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
-        beego.ControllerComments{
             Method: "Get",
             Router: "/:houseID/",
             AllowHTTPMethods: []string{"get"},
@@ -54,6 +36,15 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
+            Method: "Delete",
+            Router: "/:houseID/",
+            AllowHTTPMethods: []string{"delete"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
+        beego.ControllerComments{
             Method: "GetAllComment",
             Router: "/:houseID/comments/",
             AllowHTTPMethods: []string{"get"},
@@ -63,18 +54,18 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
-            Method: "AddImage",
+            Method: "UploadImage",
             Router: "/:houseID/images",
-            AllowHTTPMethods: []string{"put"},
+            AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
-            Method: "UploadImage",
+            Method: "AddImage",
             Router: "/:houseID/images",
-            AllowHTTPMethods: []string{"post"},
+            AllowHTTPMethods: []string{"put"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
@@ -92,15 +83,6 @@ func init() {
         beego.ControllerComments{
             Method: "GetPageActivateHouse",
             Router: "/page",
-            AllowHTTPMethods: []string{"get"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
-        beego.ControllerComments{
-            Method: "GetPageActivateSearchHouse",
-            Router: "/search-results",
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,

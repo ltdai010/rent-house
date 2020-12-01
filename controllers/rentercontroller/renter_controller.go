@@ -7,6 +7,7 @@ import (
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
 	"rent-house/services/commentservices"
+	"rent-house/services/houseservices"
 	"rent-house/services/renterservices"
 )
 
@@ -101,7 +102,7 @@ func (u *RenterController) AddComment() {
 func (u *RenterController) AddHouseToFavorite() {
 	houseID := u.Ctx.Input.Param(":houseID")
 	renterID := u.Ctx.Input.Header("rentername")
-	err := renterservices.AddToFavourite(renterID, houseID)
+	err := houseservices.AddToFavourite(renterID, houseID)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

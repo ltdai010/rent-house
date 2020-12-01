@@ -11,7 +11,7 @@ import (
 func main() {
 	if beego.BConfig.RunMode == "dev" {
 		beego.BConfig.WebConfig.DirectoryIndex = true
-		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+		beego.BConfig.WebConfig.StaticDir["/rent-house/swagger"] = "swagger"
 	}
 	middlewares.InitFilter()
 	models.InitDataBase()

@@ -8,12 +8,16 @@ type House struct {
 	Unit 		   Unit			  `json:"unit"`
 	Address        Address        `json:"address"`
 	Infrastructure Infrastructure `json:"infrastructure"`
-	NearBy         []string       `json:"near_by"`
+	NearBy         string         `json:"near_by"`
+	PreOrder	   int			  `json:"pre_order"`
+	Surface		   int			  `json:"surface"`
 	WithOwner      bool           `json:"with_owner"`
 	ImageLink      []string       `json:"image_link"`
+	LastViewed	   int64 		  `json:"last_viewed"`
+	MonthlyView	   int			  `json:"monthly_view"`
 	Header         string         `json:"header"`
-	View		   int 			  `json:"view"`
-	Like		   int			  `json:"like"`
+	View		   int64		  `json:"view"`
+	Like		   int64		  `json:"like"`
 	Rented		   bool			  `json:"rented"`
 	Content        string         `json:"content"`
 	PostTime	   int64  		  `json:"post_time"`
@@ -47,6 +51,7 @@ type Infrastructure struct {
 	Balcony         bool   `json:"balcony"`
 	ElectricPrice   int    `json:"electric_price"`
 	WaterPrice      int    `json:"water_price"`
+	NumberOfRoom	int	   `json:"number_of_room"`
 	Other           string `json:"other"`
 }
 

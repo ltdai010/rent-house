@@ -6,6 +6,7 @@ import (
 	"rent-house/models"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
+	"strconv"
 	"time"
 )
 
@@ -23,6 +24,7 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		Price: 			house.Price,
 		Unit:   		house.Unit,
 		Address:        *a,
+		CommuneCode:    house.CommuneCode,
 		Infrastructure: house.Infrastructure,
 		NearBy:         house.NearBy,
 		WithOwner:      house.WithOwner,
@@ -117,7 +119,7 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 			}
 		}
 	} else {
-		return []response.House{}, response.BadRequest
+		return res, nil
 	}
 	return list, nil
 }
@@ -126,9 +128,105 @@ func ViewHouse(id string) (error) {
 	o := &models.House{}
 	err := o.GetFromKey(id)
 	if err != nil {
+		return response.NotExisted
+	}
+
+	//increase view
+	o.View++
+	last := time.Unix(o.LastViewed, 0)
+	if last.Month() == time.Now().Month() {
+		o.MonthlyView++
+	} else {
+		o.MonthlyView = 1;
+	}
+
+	//create new one day//hour//views
+	h, _, _ := time.Now().Clock()
+	//create address
+	c := &models.Commune{}
+	err = c.GetItem(o.CommuneCode)
+	if err != nil {
 		return err
 	}
-	o.View++
+	d := &models.District{}
+	err = d.GetItem(c.ParentCode)
+	if err != nil {
+		return err
+	}
+	//create price range
+	pm := o.Price
+	switch o.Unit {
+	case models.Month:
+	case models.Quarter:
+		pm = pm/3
+	case models.Year:
+		pm = pm/12
+	}
+	pr := models.PriceRangeFactory(pm)
+	//update statistic
+	stat := &models.Statistic{}
+	err = stat.GetFromKey(stat.GetKeyNow())
+	//check if statistic existed
+	if err != nil {
+		//create new statistic
+		stat = &models.Statistic{
+			ViewTime: map[string]map[string]int64{
+				strconv.Itoa(time.Now().Day()) : {
+					strconv.Itoa(h): 1,
+				},
+			},
+			ViewLocation: map[string]map[string]int64{
+				d.ParentCode : {
+					d.Code : 1,
+				},
+			},
+			ViewPriceRange: map[string]int64{
+				string(pr) : 1,
+			},
+		}
+	} else {
+		//increase view
+		//check if view time existed
+		if v, ok := stat.ViewTime[strconv.Itoa(time.Now().Day())]; ok {
+			//exist day
+			if k, o := v[strconv.Itoa(h)]; o {
+				//exist hour
+				v[strconv.Itoa(h)] = k + 1
+			}
+			v[strconv.Itoa(h)] = 1
+		} else {
+			//not exist day
+			stat.ViewTime[strconv.Itoa(time.Now().Day())] = map[string]int64{
+				strconv.Itoa(h) : 1,
+			}
+		}
+		//check if view location existed
+		if v, ok := stat.ViewLocation[d.ParentCode]; ok {
+			//exist province
+			if k, o := v[d.Code]; o {
+				//exist district
+				v[d.Code] = k + 1
+			}
+			v[d.Code] = 1
+		} else {
+			//not exist province
+			stat.ViewLocation[d.ParentCode] = map[string]int64{
+				d.Code : 1,
+			}
+		}
+		//check if view price existed
+		if v, ok := stat.ViewPriceRange[string(pr)]; ok {
+			//exist price range
+			stat.ViewPriceRange[string(pr)] = v + 1
+		} else {
+			stat.ViewPriceRange[string(pr)] = 1
+		}
+	}
+	//update statistic
+	err = stat.PutItem()
+	if err != nil {
+		return err
+	}
 	_, err = o.PutItem()
 	return err
 }
@@ -198,6 +296,7 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	if err != nil {
 		return err
 	}
+	h.CommuneCode = ob.CommuneCode
 	h.Content = ob.Content
 	h.Header = ob.Header
 	h.WithOwner = ob.WithOwner
@@ -236,3 +335,67 @@ func DeleteHouse(id string) error {
 	}
 	return u.Delete(id)
 }
+
+func AddToFavourite(renterID, houseID string) error {
+	r := &models.Renter{}
+	err := r.GetFromKey(renterID)
+	if err != nil {
+		return err
+	}
+	//check if already exist
+	for _, i := range r.ListFavourite {
+		if i == houseID {
+			return response.Existed
+		}
+	}
+	//add to list
+	r.ListFavourite = append(r.ListFavourite, houseID)
+	err = r.PutItem()
+	if err != nil {
+		return err
+	}
+	//raise the number of likes
+	h := &models.House{}
+	err = h.GetFromKey(houseID)
+	if err != nil {
+		return err
+	}
+	h.Like++
+	_, err = h.PutItem()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func RemoveFromFavourite(renterID, houseID string) error {
+	r := &models.Renter{}
+	err := r.GetFromKey(renterID)
+	if err != nil {
+		return err
+	}
+	list := []string{}
+	//check if exist
+	for _, i := range r.ListFavourite {
+		if i == houseID {
+			continue
+		}
+		list = append(list, i)
+	}
+	//add to list
+	r.ListFavourite = list
+	err = r.PutItem()
+	if err != nil {
+		return err
+	}
+	//decrease the number of likes
+	h := &models.House{}
+	err = h.GetFromKey(houseID)
+	if err != nil {
+		return err
+	}
+	h.Like--
+	_, err = h.PutItem()
+	return nil
+}
+

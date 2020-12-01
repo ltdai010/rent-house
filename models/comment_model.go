@@ -27,7 +27,7 @@ func (g *Comment) GetCollection() *firestore.CollectionRef {
 
 func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, error) {
 	listComment := []response.Comment{}
-	listDoc, err := this.GetCollection().StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (this *Comment) GetAllWaitList() ([]string, error) {
 
 func (this *Comment) GetPaginateWaitList(page int, count int) ([]string, error) {
 	listOwner := []string{}
-	listDoc, err := client.Collection(consts.COMMENT_WAIT_LIST).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := client.Collection(consts.COMMENT_WAIT_LIST).OrderBy("CommentID", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -141,8 +141,8 @@ func (this *Comment) GetPaginateWaitList(page int, count int) ([]string, error) 
 	return listOwner, nil
 }
 
-func (this *Comment) GetPaginateCommentInPost(id string, page int, count int) ([]response.Comment, error) {
-	listDoc, err := this.GetCollection().Where("PostID", "==", id).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+func (this *Comment) GetPaginateCommentInHouse(id string, page int, count int) ([]response.Comment, error) {
+	listDoc, err := this.GetCollection().Where("HouseID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	listComment := []response.Comment{}
 	if err != nil {
 		return nil, err

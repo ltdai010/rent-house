@@ -28,7 +28,7 @@ func (g *Owner) GetCollection() *firestore.CollectionRef {
 
 func (this *Owner) GetPaginate(page int, count int) ([]response.Owner, error) {
 	listOwner := []response.Owner{}
-	listDoc, err := this.GetCollection().StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().OrderBy("OwnerName", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (this *Owner) GetAllWaitList() ([]string, error) {
 
 func (this *Owner) GetPaginateWaitList(page int, count int) ([]string, error) {
 	listOwner := []string{}
-	listDoc, err := client.Collection(consts.OWNER_WAIT_LIST).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := client.Collection(consts.OWNER_WAIT_LIST).OrderBy("OwnerName", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}

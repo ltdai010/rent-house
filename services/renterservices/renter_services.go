@@ -83,31 +83,4 @@ func LoginRenter(login models.Login) (string, error) {
 	return "", errors.New("not authorized")
 }
 
-func AddToFavourite(renterID, houseID string) error {
-	r := &models.Renter{}
-	err := r.GetFromKey(renterID)
-	if err != nil {
-		return err
-	}
-	//check if already exist
-	for _, i := range r.ListFavourite {
-		if i == houseID {
-			return response.Existed
-		}
-	}
-	//add to list
-	r.ListFavourite = append(r.ListFavourite, houseID)
-	err = r.PutItem()
-	if err != nil {
-		return err
-	}
-	//raise the number of likes
-	h := &models.House{}
-	err = h.GetFromKey(houseID)
-	if err != nil {
-		return err
-	}
-	h.Like++
-	_, err = h.PutItem()
-	return nil
-}
+

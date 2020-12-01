@@ -27,7 +27,7 @@ func (g *Renter) GetCollection() *firestore.CollectionRef {
 
 func (this *Renter) GetPaginate(page int, count int) ([]*Renter, error) {
 	listRenter := []*Renter{}
-	listDoc, err := this.GetCollection().StartAt(page*count).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().OrderBy("RenterName", firestore.Asc).StartAt(page*count).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
