@@ -177,7 +177,7 @@ const (
 	More = "5000 - *"
 )
 
-func PriceRangeFactory(price int) PriceRange {
+func PriceRangeFactory(price float64) PriceRange {
 	if price < 500 {
 		return VeryLow
 	} else if price >= 500 && price < 700 {

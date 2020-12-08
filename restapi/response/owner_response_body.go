@@ -5,6 +5,7 @@ type Owner struct {
 	OwnerFullName string  `json:"owner_full_name"`
 	Profile   Profile `json:"profile"`
 	Address   Address `json:"address"`
+	AverageStar float32 `json:"average_star"`
 	Activate  bool	  `json:"activate"`
 }
 

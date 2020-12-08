@@ -8,13 +8,13 @@ import (
 )
 
 type Comment struct {
-	Content   string `json:"content"`
-	OwnerID	  string `json:"owner_id"`
-	Header    string `json:"header"`
-	HouseID	  string `json:"house_id"`
-	PostTime  int64  `json:"post_time"`
-	Star	  int	 `json:"star"`
-	Activate  bool	 `json:"activate"`
+	Content  string `json:"content"`
+	RenterID string `json:"renter_id"`
+	Header   string `json:"header"`
+	HouseID  string `json:"house_id"`
+	PostTime int64  `json:"post_time"`
+	Star     int    `json:"star"`
+	Activate bool   `json:"activate"`
 }
 
 func (g *Comment) GetCollectionKey() string {
@@ -89,7 +89,7 @@ func (this *Comment) GetAll() ([]response.Comment, error) {
 	return listComment, nil
 }
 
-func (this *Comment) GetAllCommentInPost(id string) ([]response.Comment, error) {
+func (this *Comment) GetAllCommentInHouse(id string) ([]response.Comment, error) {
 	listdoc := client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx)
 	listComment := []response.Comment{}
 	for {
@@ -97,6 +97,9 @@ func (this *Comment) GetAllCommentInPost(id string) ([]response.Comment, error) 
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
+		}
+		if err != nil {
+			return nil, err
 		}
 		err = doc.DataTo(&q)
 		if err != nil {

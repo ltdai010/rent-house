@@ -1,4 +1,4 @@
-package addressservice
+package addressservices
 
 import "rent-house/models"
 

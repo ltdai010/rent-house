@@ -3,6 +3,7 @@ package rentercontroller
 import (
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"log"
 	"rent-house/models"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
@@ -55,7 +56,7 @@ func (u *RenterController) Login() {
 	}
 	token, err := renterservices.LoginRenter(ob)
 	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.Data["json"] = response.NewErr(response.NotPermission)
 	} else {
 		u.Data["json"] = response.ResponseCommonSingle{
 			Data: token,
@@ -68,8 +69,8 @@ func (u *RenterController) Login() {
 // @Title AddComment
 // @Description create comment
 // @Param	token			header			string				true		"The token string"
-// @Param	body			body 			request.CommentPost	true		"body for user content"
 // @Param	houseID			path			string				true		"the house id"
+// @Param	body			body 			request.CommentPost	true		"body for user content"
 // @Success 200 {string} success
 // @Failure 403 body is empty
 // @router /comment/:houseID [post]
@@ -77,6 +78,7 @@ func (u *RenterController) AddComment() {
 	var ob request.CommentPost
 	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
 	if err != nil {
+		log.Println(err)
 		u.Data["json"] = response.NewErr(response.BadRequest)
 		u.ServeJSON()
 		return
@@ -85,6 +87,7 @@ func (u *RenterController) AddComment() {
 	renterID := u.Ctx.Input.Header("rentername")
 	err = commentservices.AddComment(houseID, renterID, &ob)
 	if err != nil {
+
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
 		u.Data["json"] = response.NewErr(response.Success)

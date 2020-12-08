@@ -9,6 +9,7 @@ import (
 	"github.com/astaxie/beego"
 	"google.golang.org/api/option"
 	"log"
+	"net/smtp"
 	"sync"
 )
 
@@ -19,6 +20,8 @@ var (
 	searchIndex  *search.Index
 	bucket       *storage.BucketHandle
 	ctx          context.Context
+	EmailAuth    smtp.Auth
+	EmailFrom    string
 )
 
 func InitDataBase() {
@@ -26,6 +29,7 @@ func InitDataBase() {
 		initCloudStore()
 		initStorage()
 		initSearch()
+		initGmail()
 	})
 }
 
@@ -40,6 +44,13 @@ func initCloudStore() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func initGmail() {
+	emailHost := "smtp.gmail.com"
+	EmailFrom = "ltdai2468@gmail.com"
+	emailPassword := "dajape0#"
+	EmailAuth = smtp.PlainAuth("", EmailFrom, emailPassword, emailHost)
 }
 
 func initSearch()  {

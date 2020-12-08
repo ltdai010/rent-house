@@ -3,7 +3,7 @@ package addresscontroller
 import (
 	"github.com/astaxie/beego"
 	"rent-house/restapi/response"
-	"rent-house/services/addressservice"
+	"rent-house/services/addressservices"
 )
 
 type AddressController struct {
@@ -16,7 +16,7 @@ type AddressController struct {
 // @Failure 403 :commentID is empty
 // @router /provinces [get]
 func (u *AddressController) GetProvince() {
-	prs, err := addressservice.GetAllProvince()
+	prs, err := addressservices.GetAllProvince()
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -36,7 +36,7 @@ func (u *AddressController) GetProvince() {
 // @router /:provinceID/districts [get]
 func (u *AddressController) GetDistrict() {
 	provinceID := u.Ctx.Input.Param(":provinceID")
-	prs, err := addressservice.GetAllDistrict(provinceID)
+	prs, err := addressservices.GetAllDistrict(provinceID)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -56,7 +56,7 @@ func (u *AddressController) GetDistrict() {
 // @router /:districtID/communes [get]
 func (u *AddressController) GetCommune() {
 	districtID := u.Ctx.Input.Param(":districtID")
-	prs, err := addressservice.GetAllCommune(districtID)
+	prs, err := addressservices.GetAllCommune(districtID)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

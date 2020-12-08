@@ -4,19 +4,38 @@ import (
 	"rent-house/models"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
+	"strconv"
 	"time"
 )
 
 func AddComment(houseID string, ownerID string, ob *request.CommentPost) error {
+	if ob.Star < 0 || ob.Star > 5 {
+		return response.BadRequest
+	}
 	c := &models.Comment{
 		Content:  ob.Content,
-		OwnerID:  ownerID,
+		RenterID: ownerID,
 		Header:   ob.Header,
 		HouseID:  houseID,
 		PostTime: time.Now().Unix(),
-		Star:     0,
+		Star:     ob.Star,
 		Activate: false,
 	}
+	h := &models.House{}
+	err := h.GetFromKey(houseID)
+	if err != nil {
+		return err
+	}
+	if h.Review == nil {
+		h.Review = map[string]int{}
+	}
+	if v, ok := h.Review[strconv.Itoa(ob.Star)]; ok {
+		h.Review[strconv.Itoa(ob.Star)] = v + 1
+	} else {
+		h.Review[strconv.Itoa(ob.Star)] = 1
+	}
+	//update
+	go h.UpdateItem(houseID)
 	return c.PutItem()
 }
 
@@ -72,7 +91,7 @@ func GetAllComment() ([]response.Comment, error) {
 
 func GetAllCommentOfHouse(houseID string) ([]response.Comment, error) {
 	o := &models.Comment{}
-	list, err := o.GetAllCommentInPost(houseID)
+	list, err := o.GetAllCommentInHouse(houseID)
 	if err != nil {
 		return []response.Comment{}, err
 	}

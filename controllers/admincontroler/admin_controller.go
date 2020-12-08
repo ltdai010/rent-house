@@ -75,7 +75,7 @@ func (u *AdminController) ActivateComment() {
 func (u *AdminController) GetAllWaitHouse() {
 	obs, err := houseservices.GetAllWaitHouse()
 	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.Data["json"] = response.NewErr(response.ErrSystem)
 	} else {
 		u.Data["json"] = response.ResponseCommonSingle{
 			Data: obs,

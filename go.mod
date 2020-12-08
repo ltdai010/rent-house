@@ -12,5 +12,6 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/smartystreets/goconvey v1.6.4
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	google.golang.org/api v0.35.0
 )

@@ -14,9 +14,10 @@ import (
 	"rent-house/controllers/chatcontroller"
 	"rent-house/controllers/commentcontroller"
 	"rent-house/controllers/housecontroller"
-	ownercontroller "rent-house/controllers/ownercontroller"
+	"rent-house/controllers/ownercontroller"
 	"rent-house/controllers/rentercontroller"
 	"rent-house/controllers/searchcontroller"
+	"rent-house/controllers/statisticcontroller"
 )
 
 func init() {
@@ -59,6 +60,11 @@ func init() {
 		beego.NSNamespace("/search",
 			beego.NSInclude(
 				&searchcontroller.SearchController{},
+			),
+		),
+		beego.NSNamespace("/statistic",
+			beego.NSInclude(
+				&statisticcontroller.StatisticController{},
 			),
 		),
 	)

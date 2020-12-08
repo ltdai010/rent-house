@@ -14,12 +14,12 @@ import (
 type House struct {
 	OwnerID        string         `json:"owner_id"`
 	HouseType      HouseType      `json:"house_type"`
-	Price		   int     	      `json:"price"`
+	Price		   float64     	  `json:"price"`
 	Unit 		   Unit			  `json:"unit"`
 	Address        Address        `json:"address"`
 	CommuneCode	   string		  `json:"commune_code"`
 	Infrastructure Infrastructure `json:"infrastructure"`
-	NearBy         string         `json:"near_by"`
+	NearBy         []string       `json:"near_by"`
 	PreOrder	   int			  `json:"pre_order"`
 	Surface		   int			  `json:"surface"`
 	WithOwner      bool           `json:"with_owner"`
@@ -33,11 +33,16 @@ type House struct {
 	Content        string         `json:"content"`
 	PostTime	   int64  		  `json:"post_time"`
 	Activate	   bool  		  `json:"activate"`
+	Review         map[string]int `json:"review"`
+	AppearTime	   int64		  `json:"appear_time"`
 	ExpiredTime	   int64  		  `json:"expired_time"`
 }
 type HouseSearch struct {
-	ObjectID string `json:"objectID"`
-	House
+	ObjectID 	   string 		  `json:"objectID"`
+	OwnerID        string         `json:"owner_id"`
+	NearBy         []string         `json:"near_by"`
+	Header         string         `json:"header"`
+	Content        string         `json:"content"`
 }
 
 func (g *House) GetCollectionKey() string {
@@ -56,8 +61,11 @@ func (this *House) GetMaxViewHouseInMonth() (response.House, error) {
 	}
 	res := response.House{}
 	err = doc.DataTo(&res)
+	if err != nil {
+		return response.House{}, err
+	}
 	res.HouseID = doc.Ref.ID
-	return response.House{}, err
+	return res, nil
 }
 
 func (this *House) FindMaxViewHouse() (response.House, error) {
@@ -105,14 +113,15 @@ func (this *House) PutItem() (string, error) {
 		return "", err
 	}
 	//add to search
-	_, err = searchIndex.SaveObject(HouseSearch{
-		ObjectID: res.ID,
-		House:    *this,
+	go searchIndex.SaveObject(HouseSearch{
+		ObjectID:       res.ID,
+		OwnerID:        this.OwnerID,
+		NearBy:         this.NearBy,
+		Header:         this.Header,
+		Content:        this.Content,
 	})
-	if err != nil {
-		return "", err
-	}
-	_, err = client.Collection(consts.HOUSE_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
+	//add to in active
+	go client.Collection(consts.HOUSE_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
 		"HouseID" : res.ID,
 	})
 	return res.ID, err
@@ -144,6 +153,10 @@ func (this *House) Public(time PostTime) error {
 
 func (this *House) Delete(id string) error {
 	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = searchIndex.Delete(id)
 	return err
 }
 
@@ -262,7 +275,7 @@ func (this *House) GetAllHouseOfOwner(id string) ([]response.House, error) {
 }
 
 func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]response.House, error) {
-	listDoc, err := this.GetCollection().Where("OwnerID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().Where("RenterID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	listHouse := []response.House{}
 	if err != nil {
 		return nil, err
@@ -276,21 +289,34 @@ func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]res
 	return listHouse, nil
 }
 
-func (this *House) GetAllWaitList() ([]string, error) {
+func (this *House) GetAllWaitList() ([]response.House, error) {
 	listdoc := client.Collection(consts.HOUSE_WAIT_LIST).Documents(ctx)
-	listOwner := []string{}
+	listHouse := []response.House{}
 	for {
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
 		}
-		i, err := doc.DataAt("HouseID")
 		if err != nil {
 			return nil, err
 		}
-		listOwner = append(listOwner, i.(string))
+		i, err := doc.DataAt("HouseID")
+		if err != nil {
+			continue
+		}
+		h := response.House{}
+		it, err := client.Collection(consts.HOUSE).Doc(i.(string)).Get(ctx)
+		if err != nil {
+			continue
+		}
+		err = it.DataTo(&h)
+		if err != nil {
+			continue
+		}
+		h.HouseID = it.Ref.ID
+		listHouse = append(listHouse, h)
 	}
-	return listOwner, nil
+	return listHouse, nil
 }
 
 func (this *House) GetPaginateWaitList(page int, count int) ([]string, error) {

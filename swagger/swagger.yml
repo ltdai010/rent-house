@@ -648,7 +648,7 @@ paths:
     post:
       tags:
       - owner
-      description: create users
+      description: create users month = 0|| quarter = 1|| year = 2
       operationId: OwnerController.CreateHouse
       parameters:
       - in: header
@@ -820,17 +820,17 @@ paths:
         description: The token string
         required: true
         type: string
+      - in: path
+        name: houseID
+        description: the house id
+        required: true
+        type: string
       - in: body
         name: body
         description: body for user content
         required: true
         schema:
           $ref: '#/definitions/request.CommentPost'
-      - in: path
-        name: houseID
-        description: the house id
-        required: true
-        type: string
       responses:
         "200":
           description: '{string} success'
@@ -974,6 +974,59 @@ paths:
             $ref: '#/definitions/models.House'
         "403":
           description: :houseID is empty
+  /statistic/most-view-this-month/:
+    get:
+      tags:
+      - statistic
+      description: get user by uid
+      operationId: StatisticController.Get
+      parameters:
+      - in: hear
+        name: key
+        description: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/response.House'
+        "403":
+          description: :houseID is empty
+  /statistic/timeline-this-month/:
+    get:
+      tags:
+      - statistic
+      description: get view in hour
+      operationId: StatisticController.GetTimelineThisMonth
+      parameters:
+      - in: hear
+        name: key
+        description: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{map} map[string]int64{}'
+        "403":
+          description: ': is empty'
+  /statistic/view-in-hour-this-month/:
+    get:
+      tags:
+      - statistic
+      description: get view in hour
+      operationId: StatisticController.GetViewInHour
+      parameters:
+      - in: hear
+        name: key
+        description: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{map} map[string]int64{}'
+        "403":
+          description: ': is empty'
 definitions:
   models.Address:
     title: Address
@@ -997,11 +1050,11 @@ definitions:
         type: string
       house_id:
         type: string
-      owner_id:
-        type: string
       post_time:
         type: integer
         format: int64
+      renter_id:
+        type: string
       star:
         type: integer
         format: int64
@@ -1033,6 +1086,9 @@ definitions:
         type: boolean
       address:
         $ref: '#/definitions/models.Address'
+      appear_time:
+        type: integer
+        format: int64
       commune_code:
         type: string
       content:
@@ -1060,7 +1116,9 @@ definitions:
         type: integer
         format: int64
       near_by:
-        type: string
+        type: array
+        items:
+          type: string
       owner_id:
         type: string
       post_time:
@@ -1070,10 +1128,14 @@ definitions:
         type: integer
         format: int64
       price:
-        type: integer
-        format: int64
+        type: number
+        format: double
       rented:
         type: boolean
+      review:
+        additionalProperties:
+          type: integer
+          format: int64
       surface:
         type: integer
         format: int64
@@ -1192,6 +1254,9 @@ definitions:
         type: string
       header:
         type: string
+      star:
+        type: integer
+        format: int64
   request.CommentPut:
     title: CommentPut
     type: object
@@ -1200,10 +1265,16 @@ definitions:
         type: string
       header:
         type: string
+      star:
+        type: integer
+        format: int64
   request.HousePost:
     title: HousePost
     type: object
     properties:
+      appear_time:
+        type: integer
+        format: int64
       commune_code:
         type: string
       content:
@@ -1215,13 +1286,15 @@ definitions:
       infrastructure:
         $ref: '#/definitions/models.Infrastructure'
       near_by:
-        type: string
+        type: array
+        items:
+          type: string
       pre_order:
         type: integer
         format: int64
       price:
-        type: integer
-        format: int64
+        type: number
+        format: double
       surface:
         type: integer
         format: int64
@@ -1233,6 +1306,9 @@ definitions:
     title: HousePut
     type: object
     properties:
+      appear_time:
+        type: integer
+        format: int64
       commune_code:
         type: string
       content:
@@ -1244,13 +1320,15 @@ definitions:
       infrastructure:
         $ref: '#/definitions/models.Infrastructure'
       near_by:
-        type: string
+        type: array
+        items:
+          type: string
       pre_order:
         type: integer
         format: int64
       price:
-        type: integer
-        format: int64
+        type: number
+        format: double
       surface:
         type: integer
         format: int64
@@ -1280,8 +1358,6 @@ definitions:
         type: string
       owner_full_name:
         type: string
-      password:
-        type: string
       profile:
         $ref: '#/definitions/models.Profile'
   request.RenterPost:
@@ -1310,6 +1386,16 @@ definitions:
         type: string
       renter_full_name:
         type: string
+  response.Address:
+    title: Address
+    type: object
+    properties:
+      commune:
+        type: string
+      district:
+        type: string
+      province:
+        type: string
   response.Comment:
     title: Comment
     type: object
@@ -1322,9 +1408,115 @@ definitions:
         type: string
       header:
         type: string
+      house_id:
+        type: string
       post_time:
         type: integer
         format: int64
+      renter_id:
+        type: string
+      star:
+        type: integer
+        format: int64
+  response.House:
+    title: House
+    type: object
+    properties:
+      activate:
+        type: boolean
+      address:
+        $ref: '#/definitions/response.Address'
+      appear_time:
+        type: integer
+        format: int64
+      content:
+        type: string
+      expired_time:
+        type: integer
+        format: int64
+      header:
+        type: string
+      house_id:
+        type: string
+      house_type:
+        $ref: '#/definitions/response.HouseType'
+      image_link:
+        type: array
+        items:
+          type: string
+      infrastructure:
+        $ref: '#/definitions/response.Infrastructure'
+      last_viewed:
+        type: integer
+        format: int64
+      like:
+        type: integer
+        format: int64
+      monthly_view:
+        type: integer
+        format: int64
+      near_by:
+        type: array
+        items:
+          type: string
+      owner_id:
+        type: string
+      post_time:
+        type: integer
+        format: int64
+      pre_order:
+        type: integer
+        format: int64
+      price:
+        type: number
+        format: double
+      rented:
+        type: boolean
+      review:
+        additionalProperties:
+          type: integer
+          format: int64
+      surface:
+        type: integer
+        format: int64
+      unit:
+        $ref: '#/definitions/response.Unit'
+      view:
+        type: integer
+        format: int64
+      with_owner:
+        type: boolean
+  response.HouseType:
+    title: HouseType
+    format: int64
+    type: integer
+  response.Infrastructure:
+    title: Infrastructure
+    type: object
+    properties:
+      air_condition:
+        type: boolean
+      balcony:
+        type: boolean
+      electric_price:
+        type: integer
+        format: int64
+      heater:
+        type: boolean
+      number_of_room:
+        type: integer
+        format: int64
+      other:
+        type: string
+      private_bathroom:
+        type: boolean
+      water_price:
+        type: integer
+        format: int64
+  response.Unit:
+    title: Unit
+    format: int64
+    type: integer
 tags:
 - name: owner
   description: |
@@ -1335,3 +1527,6 @@ tags:
 - name: renter
   description: |
     Operations about Renter
+- name: statistic
+  description: |
+    Operations about Statistic

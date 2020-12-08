@@ -18,10 +18,22 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		log.Println(err)
 		return "", err
 	}
+	//calculate price per month
+	var divide float64
+	switch house.Unit {
+	case models.Month:
+		divide = 1
+	case models.Quarter:
+		divide = 3
+	case models.Year:
+		divide = 12
+	default:
+		return "", response.BadRequest
+	}
 	h := &models.House{
 		OwnerID:        ownerID,
 		HouseType:      house.HouseType,
-		Price: 			house.Price,
+		Price: 			house.Price/divide,
 		Unit:   		house.Unit,
 		Address:        *a,
 		CommuneCode:    house.CommuneCode,
@@ -36,6 +48,8 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		Content:        house.Content,
 		PostTime:       time.Now().Unix(),
 		Activate:       false,
+		Review: 		map[string]int{},
+		AppearTime:     house.AppearTime*7*3600*24,
 		ExpiredTime:    0,
 	}
 	return h.PutItem()
@@ -48,10 +62,23 @@ func ActiveHouse(id string) error {
 		return err
 	}
 	house.Activate = true
+	house.PostTime = time.Now().Unix()
+	house.ExpiredTime = house.PostTime + house.AppearTime
 	err = house.UpdateItem(id)
 	if err != nil {
 		return err
 	}
+	o := &models.Owner{}
+	err = o.GetFromKey(house.OwnerID)
+	if err != nil {
+		return err
+	}
+	mail := &models.Mail{
+		To:      o.Profile.Email,
+		Subject: "Active house",
+		Msg:     "Your house name "+ house.Header + " has been active for everyone to see.\nIt will last since " + time.Unix(house.ExpiredTime, 0).String(),
+	}
+	go mail.SendMail()
 	return house.DeleteWaitList(id)
 }
 
@@ -135,8 +162,10 @@ func ViewHouse(id string) (error) {
 	o.View++
 	last := time.Unix(o.LastViewed, 0)
 	if last.Month() == time.Now().Month() {
+		o.LastViewed = time.Now().Unix()
 		o.MonthlyView++
 	} else {
+		o.LastViewed = time.Now().Unix()
 		o.MonthlyView = 1;
 	}
 
@@ -154,15 +183,7 @@ func ViewHouse(id string) (error) {
 		return err
 	}
 	//create price range
-	pm := o.Price
-	switch o.Unit {
-	case models.Month:
-	case models.Quarter:
-		pm = pm/3
-	case models.Year:
-		pm = pm/12
-	}
-	pr := models.PriceRangeFactory(pm)
+	pr := models.PriceRangeFactory(o.Price)
 	//update statistic
 	stat := &models.Statistic{}
 	err = stat.GetFromKey(stat.GetKeyNow())
@@ -192,8 +213,9 @@ func ViewHouse(id string) (error) {
 			if k, o := v[strconv.Itoa(h)]; o {
 				//exist hour
 				v[strconv.Itoa(h)] = k + 1
+			} else {
+				v[strconv.Itoa(h)] = 1
 			}
-			v[strconv.Itoa(h)] = 1
 		} else {
 			//not exist day
 			stat.ViewTime[strconv.Itoa(time.Now().Day())] = map[string]int64{
@@ -227,15 +249,16 @@ func ViewHouse(id string) (error) {
 	if err != nil {
 		return err
 	}
-	_, err = o.PutItem()
+	err = o.UpdateItem(id)
 	return err
 }
 
-func GetAllWaitHouse() ([]string, error) {
+func GetAllWaitHouse() ([]response.House, error) {
 	h := &models.House{}
 	list, err := h.GetAllWaitList()
 	if err != nil {
-		return []string{}, err
+		log.Println(err)
+		return []response.House{}, err
 	}
 	return list, nil
 }
@@ -296,6 +319,18 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	if err != nil {
 		return err
 	}
+	//calculate price per month
+	var divide float64
+	switch ob.Unit {
+	case models.Month:
+		divide = 1
+	case models.Quarter:
+		divide = 3
+	case models.Year:
+		divide = 12
+	default:
+		return response.BadRequest
+	}
 	h.CommuneCode = ob.CommuneCode
 	h.Content = ob.Content
 	h.Header = ob.Header
@@ -303,7 +338,8 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	h.NearBy = ob.NearBy
 	h.Infrastructure = ob.Infrastructure
 	h.Address = *a
-	h.Price = ob.Price
+	h.AppearTime = ob.AppearTime*7*3600*24
+	h.Price = ob.Price/divide
 	h.Unit = ob.Unit
 	h.HouseType = ob.HouseType
 	return h.UpdateItem(id)

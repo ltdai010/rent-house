@@ -1,4 +1,4 @@
-package OwnerController
+package ownercontroller
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ type OwnerController struct {
 }
 
 // @Title CreateHouse
-// @Description create users
+// @Description create users month = 0|| quarter = 1|| year = 2
 // @Param	token		header	    string			true		"The token string"
 // @Param	body		body 		request.HousePost	true		"body for user content"
 // @Success 200 {int} models.House

@@ -25,7 +25,7 @@ func ownComment(tokenString, commentID string) bool {
 	if claim, ok := token.Claims.(*TokenClaims); ok && token.Valid {
 		comment := &models.Comment{}
 		err = comment.GetFromKey(commentID)
-		if comment.OwnerID == claim.Username {
+		if comment.RenterID == claim.Username {
 			return true
 		}
 	}

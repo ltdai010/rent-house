@@ -4,11 +4,11 @@ type House struct {
 	HouseID		   string		  `json:"house_id"`
 	OwnerID        string         `json:"owner_id"`
 	HouseType      HouseType      `json:"house_type"`
-	Price		   int     	      `json:"price"`
+	Price		   float64 	      `json:"price"`
 	Unit 		   Unit			  `json:"unit"`
 	Address        Address        `json:"address"`
 	Infrastructure Infrastructure `json:"infrastructure"`
-	NearBy         string         `json:"near_by"`
+	NearBy         []string       `json:"near_by"`
 	PreOrder	   int			  `json:"pre_order"`
 	Surface		   int			  `json:"surface"`
 	WithOwner      bool           `json:"with_owner"`
@@ -22,6 +22,8 @@ type House struct {
 	Content        string         `json:"content"`
 	PostTime	   int64  		  `json:"post_time"`
 	Activate	   bool  		  `json:"activate"`
+	Review 		   map[string]int `json:"review"`
+	AppearTime	   int64		  `json:"appear_time"`
 	ExpiredTime	   int64  		  `json:"expired_time"`
 }
 

@@ -92,9 +92,36 @@ func GetOwner(ownerID string) (response.Owner, error) {
 			District: u.Address.District,
 			Commune:  u.Address.Commune,
 		},
+		AverageStar: AverageStar(ownerID),
 		Activate:  u.Activate,
 	}
 	return res, nil
+}
+
+func AverageStar(ownerID string) float32 {
+	house := &models.House{}
+	list, err := house.GetAllHouseOfOwner(ownerID)
+	if err != nil {
+		return 0
+	}
+	var num float32
+	var sum float32
+	for _, i := range list {
+		if i.Review == nil {
+			continue
+		}
+		n := i.Review["0"] + i.Review["1"] + i.Review["2"] + i.Review["3"] + i.Review["4"] + i.Review["5"]
+		s := i.Review["1"]*1 + i.Review["2"]*2 + i.Review["3"]*3 + i.Review["4"]*4 + i.Review["5"]*5
+		if n == 0 {
+			n = 1
+		}
+		sum += float32(s)/float32(n)
+		num++
+	}
+	if num == 0 {
+		num = 1
+	}
+	return sum / num
 }
 
 func GetAllOwner() ([]response.Owner, error) {
@@ -126,7 +153,6 @@ func UpdateOwner(id string, ob *request.OwnerPut) error {
 	if err != nil {
 		return err
 	}
-	o.Password = ob.Password
 	o.OwnerFullName = ob.OwnerFullName
 	o.Address = *a
 	o.Profile = ob.Profile
