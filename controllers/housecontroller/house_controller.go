@@ -122,12 +122,10 @@ func (u *HouseController) Update() {
 
 // @Title UploadImage
 // @Description create users
-// @Param	token		header	    string			true		"The token string"
-// @Param	houseID		path		string			true		"The house image"
 // @Param	files		formData    []file			true		"house image"
 // @Success 200 {[]string} image link
 // @Failure 403 body is empty
-// @router /:houseID/images [post]
+// @router /images [post]
 func (u *HouseController) UploadImage() {
 	file, err := u.GetFiles("files")
 	if err != nil {
@@ -136,46 +134,16 @@ func (u *HouseController) UploadImage() {
 		u.ServeJSON()
 		return
 	}
-	houseID := u.GetString(":houseID")
-	if len(file) < 3 {
-		u.Data["json"] = response.NewErr(response.UnSuccess)
-		u.ServeJSON()
-		return
-	}
-	err = houseservices.UploadFile(houseID, file)
+	list, err := houseservices.UploadFile(file)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.ErrSystem)
 		u.ServeJSON()
 		return
 	}
-	u.Data["json"] = response.NewErr(response.Success)
-	u.ServeJSON()
-	return
-}
-
-// @Title AddImage
-// @Description create users
-// @Param	token		header	    string			true		"The token string"
-// @Param	houseID		path		string			true		"The house image"
-// @Param	files		formData	[]file			true		"house image"
-// @Success 200 {[]string} image link
-// @Failure 403 body is empty
-// @router /:houseID/images [put]
-func (u *HouseController) AddImage() {
-	file, err := u.GetFiles("files")
-	houseID := u.GetString(":houseID")
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-		u.ServeJSON()
-		return
+	u.Data["json"] = response.ResponseCommonSingle{
+		Data: list,
+		Err:  response.NewErr(response.Success),
 	}
-	err = houseservices.UploadFile(houseID, file)
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.ErrSystem)
-		u.ServeJSON()
-		return
-	}
-	u.Data["json"] = response.NewErr(response.Success)
 	u.ServeJSON()
 	return
 }

@@ -475,63 +475,6 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/response.Comment'
-  /house/{houseID}/images:
-    put:
-      tags:
-      - house
-      description: create users
-      operationId: HouseController.AddImage
-      parameters:
-      - in: header
-        name: token
-        description: The token string
-        required: true
-        type: string
-      - in: path
-        name: houseID
-        description: The house image
-        required: true
-        type: string
-      - in: formData
-        name: files
-        description: house image
-        required: true
-        type: array
-        items:
-          type: file
-      responses:
-        "200":
-          description: '{[]string} image link'
-        "403":
-          description: body is empty
-    post:
-      tags:
-      - house
-      description: create users
-      operationId: HouseController.UploadImage
-      parameters:
-      - in: header
-        name: token
-        description: The token string
-        required: true
-        type: string
-      - in: path
-        name: houseID
-        description: The house image
-        required: true
-        type: string
-      - in: formData
-        name: files
-        description: house image
-        required: true
-        type: array
-        items:
-          type: file
-      responses:
-        "200":
-          description: '{[]string} image link'
-        "403":
-          description: body is empty
   /house/{houseID}/page-comments/:
     get:
       tags:
@@ -561,6 +504,25 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/response.Comment'
+  /house/images:
+    post:
+      tags:
+      - house
+      description: create users
+      operationId: HouseController.UploadImage
+      parameters:
+      - in: formData
+        name: files
+        description: house image
+        required: true
+        type: array
+        items:
+          type: file
+      responses:
+        "200":
+          description: '{[]string} image link'
+        "403":
+          description: body is empty
   /house/page:
     get:
       tags:
@@ -1283,6 +1245,10 @@ definitions:
         type: string
       house_type:
         $ref: '#/definitions/models.HouseType'
+      image_link:
+        type: array
+        items:
+          type: string
       infrastructure:
         $ref: '#/definitions/models.Infrastructure'
       near_by:
@@ -1317,6 +1283,10 @@ definitions:
         type: string
       house_type:
         $ref: '#/definitions/models.HouseType'
+      image_link:
+        type: array
+        items:
+          type: string
       infrastructure:
         $ref: '#/definitions/models.Infrastructure'
       near_by:

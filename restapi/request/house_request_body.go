@@ -10,6 +10,7 @@ type HousePost struct {
 	Surface		   	   int			         `json:"surface"`
 	CommuneCode        string         		 `json:"commune_code"`
 	Infrastructure 	   models.Infrastructure `json:"infrastructure"`
+	ImageLink          []string       		 `json:"image_link"`
 	NearBy         	   []string       		 `json:"near_by"`
 	WithOwner      	   bool           		 `json:"with_owner"`
 	AppearTime	       int64		  		 `json:"appear_time"`
@@ -25,6 +26,7 @@ type HousePut struct {
 	PreOrder	   int	  	     		 `json:"pre_order"`
 	Surface		   int			         `json:"surface"`
 	Infrastructure models.Infrastructure `json:"infrastructure"`
+	ImageLink      []string       		 `json:"image_link"`
 	NearBy         []string        		 `json:"near_by"`
 	AppearTime	   int64		  		 `json:"appear_time"`
 	WithOwner      bool           		 `json:"with_owner"`

@@ -40,7 +40,7 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		Infrastructure: house.Infrastructure,
 		NearBy:         house.NearBy,
 		WithOwner:      house.WithOwner,
-		ImageLink:      nil,
+		ImageLink:      house.ImageLink,
 		Header:         house.Header,
 		View:           0,
 		Like:           0,
@@ -82,23 +82,21 @@ func ActiveHouse(id string) error {
 	return house.DeleteWaitList(id)
 }
 
-func UploadFile(houseID string, file []*multipart.FileHeader) error {
+func UploadFile(file []*multipart.FileHeader) ([]string, error) {
 	house := &models.House{}
-	err := house.GetFromKey(houseID)
-	if err != nil {
-		return err
-	}
+	list := []string{}
 	for _, i := range file {
 		f, err := i.Open()
 		if err != nil {
-			return err
+			return nil, err
 		}
-		err = house.AddImage(f,houseID)
+		s, err := house.AddImage(f)
 		if err != nil {
-			return err
+			return nil, err
 		}
+		list = append(list, "https://storage.googleapis.com/rent-the-house-010.appspot.com/" + s)
 	}
-	return nil
+	return list, nil
 }
 
 func GetHouse(id string) (response.House, error) {
@@ -338,6 +336,7 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	h.NearBy = ob.NearBy
 	h.Infrastructure = ob.Infrastructure
 	h.Address = *a
+	h.ImageLink = ob.ImageLink
 	h.AppearTime = ob.AppearTime*7*3600*24
 	h.Price = ob.Price/divide
 	h.Unit = ob.Unit

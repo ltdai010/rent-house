@@ -8,7 +8,6 @@ import (
 	"mime/multipart"
 	"rent-house/consts"
 	"rent-house/restapi/response"
-	"strconv"
 )
 
 type House struct {
@@ -165,17 +164,21 @@ func (this *House) DeleteWaitList(id string) error {
 	return err
 }
 
-func (this *House)AddImage(file multipart.File, houseID string) error {
-	wc := bucket.Object(houseID + "-" + strconv.Itoa(len(this.ImageLink))).NewWriter(ctx)
+func (this *House) AddImage(file multipart.File) (string, error) {
+	ref, _, err := client.Collection(consts.IMAGE_LINK).Add(ctx, map[string]string{
+		"Image" : "link",
+	})
+	if err != nil {
+		return "", err
+	}
+	wc := bucket.Object(ref.ID).NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
-		return err
+		return "", err
 	}
 	if err := wc.Close(); err != nil {
-		return err
+		return "", err
 	}
-	this.ImageLink = append(this.ImageLink, houseID + "-" + strconv.Itoa(len(this.ImageLink)))
-	_, err := this.GetCollection().Doc(houseID).Set(ctx, this)
-	return err
+	return ref.ID, nil
 }
 
 func (this *House) GetFromKey(key string) (error) {

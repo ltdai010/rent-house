@@ -13,6 +13,7 @@ const PROVINCE = "province"
 const DISTRICT = "district"
 const COMMUNE = "commune"
 const STATISTIC = "statistic"
+const IMAGE_LINK = "image-link"
 
 //secret key
 const SECRET_KEY = "rent-house"
