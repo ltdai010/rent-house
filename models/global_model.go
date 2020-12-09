@@ -144,6 +144,7 @@ type Infrastructure struct {
 	ElectricPrice   int    `json:"electric_price"`
 	WaterPrice      int    `json:"water_price"`
 	NumberOfRoom	int	   `json:"number_of_room"`
+	Kitchen         bool   `json:"kitchen"`
 	Other           string `json:"other"`
 }
 
