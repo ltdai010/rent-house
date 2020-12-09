@@ -30,6 +30,7 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 	default:
 		return "", response.BadRequest
 	}
+	a.Street = house.Street
 	h := &models.House{
 		OwnerID:        ownerID,
 		HouseType:      house.HouseType,
@@ -317,6 +318,7 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	if err != nil {
 		return err
 	}
+	a.Street = ob.Street
 	//calculate price per month
 	var divide float64
 	switch ob.Unit {

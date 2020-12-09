@@ -9,6 +9,7 @@ type HousePost struct {
 	PreOrder	   	   int	  	     		 `json:"pre_order"`
 	Surface		   	   int			         `json:"surface"`
 	CommuneCode        string         		 `json:"commune_code"`
+	Street  		   string				 `json:"street"`
 	Infrastructure 	   models.Infrastructure `json:"infrastructure"`
 	ImageLink          []string       		 `json:"image_link"`
 	NearBy         	   []string       		 `json:"near_by"`
@@ -23,6 +24,7 @@ type HousePut struct {
 	Price		   float64 	      		 `json:"price"`
 	Unit 		   models.Unit			 `json:"unit"`
 	CommuneCode    string         		 `json:"commune_code"`
+	Street  	   string				 `json:"street"`
 	PreOrder	   int	  	     		 `json:"pre_order"`
 	Surface		   int			         `json:"surface"`
 	Infrastructure models.Infrastructure `json:"infrastructure"`
