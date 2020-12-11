@@ -48,7 +48,7 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		Rented:         false,
 		Content:        house.Content,
 		PostTime:       time.Now().Unix(),
-		Activate:       false,
+		Status:         models.InActivated,
 		Review: 		map[string]int{},
 		AppearTime:     house.AppearTime*7*3600*24,
 		ExpiredTime:    0,
@@ -62,7 +62,7 @@ func ActiveHouse(id string) error {
 	if err != nil {
 		return err
 	}
-	house.Activate = true
+	house.Status = models.Activated
 	house.PostTime = time.Now().Unix()
 	house.ExpiredTime = house.PostTime + house.AppearTime
 	err = house.UpdateItem(id)

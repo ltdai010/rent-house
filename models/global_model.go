@@ -5,6 +5,14 @@ import (
 	"rent-house/consts"
 )
 
+type Status string
+
+const (
+	InActivated = "inactivated"
+	Activated = "activated"
+	Denied = "denied"
+)
+
 type Address struct {
 	Province  string `json:"province"`
 	District  string `json:"district"`

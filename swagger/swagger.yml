@@ -548,24 +548,6 @@ paths:
           schema:
             $ref: '#/definitions/models.House'
   /owner/:
-    get:
-      tags:
-      - owner
-      description: get user by uid
-      operationId: OwnerController.Get
-      parameters:
-      - in: header
-        name: token
-        description: The token string
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.User'
-        "403":
-          description: :ownerID is empty
     put:
       tags:
       - owner
@@ -606,6 +588,71 @@ paths:
           description: '{string} delete success!'
         "403":
           description: uid is empty
+  /owner/{ownerID}:
+    get:
+      tags:
+      - owner
+      description: get user by uid
+      operationId: OwnerController.Get
+      parameters:
+      - in: path
+        name: ownerID
+        description: The ownerID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+        "403":
+          description: :ownerID is empty
+  /owner/{ownerID}/houses/:
+    get:
+      tags:
+      - owner
+      description: get all renters
+      operationId: OwnerController.GetAllHouse
+      parameters:
+      - in: path
+        name: ownerID
+        description: The ownerID string
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.House'
+  /owner/{ownerID}/page-houses/:
+    get:
+      tags:
+      - owner
+      description: get page house
+      operationId: OwnerController.GetPageHouse
+      parameters:
+      - in: path
+        name: ownerID
+        description: The ownerID
+        required: true
+        type: string
+      - in: query
+        name: page
+        description: the page
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: count
+        description: the count
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.House'
   /owner/house/:
     post:
       tags:
@@ -629,23 +676,6 @@ paths:
           description: '{int} models.House'
         "403":
           description: body is empty
-  /owner/houses/:
-    get:
-      tags:
-      - owner
-      description: get all renters
-      operationId: OwnerController.GetAllHouse
-      parameters:
-      - in: header
-        name: token
-        description: The token string
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.House'
   /owner/login/:
     post:
       tags:
@@ -664,35 +694,6 @@ paths:
           description: '{string} token'
         "403":
           description: body is empty
-  /owner/page-houses/:
-    get:
-      tags:
-      - owner
-      description: get page house
-      operationId: OwnerController.GetPageHouse
-      parameters:
-      - in: header
-        name: token
-        description: The token string
-        required: true
-        type: string
-      - in: query
-        name: page
-        description: the page
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: count
-        description: the count
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.House'
   /owner/sign-up/:
     post:
       tags:
@@ -1000,6 +1001,8 @@ definitions:
         type: string
       province:
         type: string
+      street:
+        type: string
   models.Comment:
     title: Comment
     type: object
@@ -1044,10 +1047,10 @@ definitions:
     title: House
     type: object
     properties:
-      activate:
-        type: boolean
       address:
         $ref: '#/definitions/models.Address'
+      admin_comment:
+        type: string
       appear_time:
         type: integer
         format: int64
@@ -1098,6 +1101,8 @@ definitions:
         additionalProperties:
           type: integer
           format: int64
+      status:
+        $ref: '#/definitions/models.Status'
       surface:
         type: integer
         format: int64
@@ -1124,6 +1129,8 @@ definitions:
         type: integer
         format: int64
       heater:
+        type: boolean
+      kitchen:
         type: boolean
       number_of_room:
         type: integer
@@ -1201,6 +1208,9 @@ definitions:
         type: string
       renter_name:
         type: string
+  models.Status:
+    title: Status
+    type: string
   models.Unit:
     title: Unit
     format: int64
@@ -1261,6 +1271,8 @@ definitions:
       price:
         type: number
         format: double
+      street:
+        type: string
       surface:
         type: integer
         format: int64
@@ -1299,6 +1311,8 @@ definitions:
       price:
         type: number
         format: double
+      street:
+        type: string
       surface:
         type: integer
         format: int64
@@ -1392,10 +1406,10 @@ definitions:
     title: House
     type: object
     properties:
-      activate:
-        type: boolean
       address:
         $ref: '#/definitions/response.Address'
+      admin_comment:
+        type: string
       appear_time:
         type: integer
         format: int64
@@ -1446,6 +1460,8 @@ definitions:
         additionalProperties:
           type: integer
           format: int64
+      status:
+        $ref: '#/definitions/response.Status'
       surface:
         type: integer
         format: int64
@@ -1473,6 +1489,8 @@ definitions:
         format: int64
       heater:
         type: boolean
+      kitchen:
+        type: boolean
       number_of_room:
         type: integer
         format: int64
@@ -1483,6 +1501,9 @@ definitions:
       water_price:
         type: integer
         format: int64
+  response.Status:
+    title: Status
+    type: string
   response.Unit:
     title: Unit
     format: int64

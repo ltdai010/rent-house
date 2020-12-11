@@ -9,7 +9,7 @@ import (
 )
 
 func filterOwner(ctx *context.Context) {
-	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/login/") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/sign-up/") || isOwner(ctx) {
+	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/login/") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/sign-up/") || ctx.Input.Method() == "GET" || isOwner(ctx) {
 		return
 	}
 	ctx.ResponseWriter.WriteHeader(403)

@@ -21,16 +21,25 @@ type House struct {
 	Rented		   bool			  `json:"rented"`
 	Content        string         `json:"content"`
 	PostTime	   int64  		  `json:"post_time"`
-	Activate	   bool  		  `json:"activate"`
+	Status	       Status  		  `json:"status"`
 	Review 		   map[string]int `json:"review"`
 	AppearTime	   int64		  `json:"appear_time"`
 	ExpiredTime	   int64  		  `json:"expired_time"`
+	AdminComment   string		  `json:"admin_comment"`
 }
 
 type HouseSearch struct {
 	ObjectID string `json:"objectID"`
 	House
 }
+
+type Status string
+
+const (
+	InActivated = "inactivated"
+	Activated = "activated"
+	Denied = "denied"
+)
 
 type Unit int
 

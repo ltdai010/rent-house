@@ -817,33 +817,6 @@
             }
         },
         "/owner/": {
-            "get": {
-                "tags": [
-                    "owner"
-                ],
-                "description": "get user by uid",
-                "operationId": "OwnerController.Get",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "token",
-                        "description": "The token string",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    },
-                    "403": {
-                        "description": ":ownerID is empty"
-                    }
-                }
-            },
             "put": {
                 "tags": [
                     "owner"
@@ -940,32 +913,6 @@
                 }
             }
         },
-        "/owner/houses/": {
-            "get": {
-                "tags": [
-                    "owner"
-                ],
-                "description": "get all renters",
-                "operationId": "OwnerController.GetAllHouse",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "token",
-                        "description": "The token string",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.House"
-                        }
-                    }
-                }
-            }
-        },
         "/owner/login/": {
             "post": {
                 "tags": [
@@ -994,7 +941,90 @@
                 }
             }
         },
-        "/owner/page-houses/": {
+        "/owner/sign-up/": {
+            "post": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "create users",
+                "operationId": "OwnerController.CreateOwner",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.OwnerPost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{int} models.UserID"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/owner/{ownerID}": {
+            "get": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "get user by uid",
+                "operationId": "OwnerController.Get",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "ownerID",
+                        "description": "The ownerID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "403": {
+                        "description": ":ownerID is empty"
+                    }
+                }
+            }
+        },
+        "/owner/{ownerID}/houses/": {
+            "get": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "get all renters",
+                "operationId": "OwnerController.GetAllHouse",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "ownerID",
+                        "description": "The ownerID string",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    }
+                }
+            }
+        },
+        "/owner/{ownerID}/page-houses/": {
             "get": {
                 "tags": [
                     "owner"
@@ -1003,9 +1033,9 @@
                 "operationId": "OwnerController.GetPageHouse",
                 "parameters": [
                     {
-                        "in": "header",
-                        "name": "token",
-                        "description": "The token string",
+                        "in": "path",
+                        "name": "ownerID",
+                        "description": "The ownerID",
                         "required": true,
                         "type": "string"
                     },
@@ -1032,34 +1062,6 @@
                         "schema": {
                             "$ref": "#/definitions/models.House"
                         }
-                    }
-                }
-            }
-        },
-        "/owner/sign-up/": {
-            "post": {
-                "tags": [
-                    "owner"
-                ],
-                "description": "create users",
-                "operationId": "OwnerController.CreateOwner",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for user content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.OwnerPost"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{int} models.UserID"
-                    },
-                    "403": {
-                        "description": "body is empty"
                     }
                 }
             }
@@ -1498,6 +1500,9 @@
                 },
                 "province": {
                     "type": "string"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },
@@ -1564,11 +1569,11 @@
             "title": "House",
             "type": "object",
             "properties": {
-                "activate": {
-                    "type": "boolean"
-                },
                 "address": {
                     "$ref": "#/definitions/models.Address"
+                },
+                "admin_comment": {
+                    "type": "string"
                 },
                 "appear_time": {
                     "type": "integer",
@@ -1641,6 +1646,9 @@
                         "format": "int64"
                     }
                 },
+                "status": {
+                    "$ref": "#/definitions/models.Status"
+                },
                 "surface": {
                     "type": "integer",
                     "format": "int64"
@@ -1677,6 +1685,9 @@
                     "format": "int64"
                 },
                 "heater": {
+                    "type": "boolean"
+                },
+                "kitchen": {
                     "type": "boolean"
                 },
                 "number_of_room": {
@@ -1794,6 +1805,10 @@
                 }
             }
         },
+        "models.Status": {
+            "title": "Status",
+            "type": "string"
+        },
         "models.Unit": {
             "title": "Unit",
             "format": "int64",
@@ -1878,6 +1893,9 @@
                     "type": "number",
                     "format": "double"
                 },
+                "street": {
+                    "type": "string"
+                },
                 "surface": {
                     "type": "integer",
                     "format": "int64"
@@ -1932,6 +1950,9 @@
                 "price": {
                     "type": "number",
                     "format": "double"
+                },
+                "street": {
+                    "type": "string"
                 },
                 "surface": {
                     "type": "integer",
@@ -2071,11 +2092,11 @@
             "title": "House",
             "type": "object",
             "properties": {
-                "activate": {
-                    "type": "boolean"
-                },
                 "address": {
                     "$ref": "#/definitions/response.Address"
+                },
+                "admin_comment": {
+                    "type": "string"
                 },
                 "appear_time": {
                     "type": "integer",
@@ -2148,6 +2169,9 @@
                         "format": "int64"
                     }
                 },
+                "status": {
+                    "$ref": "#/definitions/response.Status"
+                },
                 "surface": {
                     "type": "integer",
                     "format": "int64"
@@ -2186,6 +2210,9 @@
                 "heater": {
                     "type": "boolean"
                 },
+                "kitchen": {
+                    "type": "boolean"
+                },
                 "number_of_room": {
                     "type": "integer",
                     "format": "int64"
@@ -2201,6 +2228,10 @@
                     "format": "int64"
                 }
             }
+        },
+        "response.Status": {
+            "title": "Status",
+            "type": "string"
         },
         "response.Unit": {
             "title": "Unit",

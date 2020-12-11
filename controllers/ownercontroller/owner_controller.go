@@ -73,13 +73,12 @@ func (u *OwnerController) CreateOwner() {
 
 // @Title Get
 // @Description get user by uid
-// @Param	token			header	string	true		"The token string"
+// @Param   ownerID	path   string	true		"The ownerID"
 // @Success 200 {object} models.User
 // @Failure 403 :ownerID is empty
-// @router / [get]
-func (u *OwnerController) Get() {
-	uid := u.Ctx.Input.Header("ownername")
-	user, err := ownerservices.GetOwner(uid)
+// @router /:ownerID [get]
+func (u *OwnerController) GetOwner(ownerID string) {
+	user, err := ownerservices.GetOwner(ownerID)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -135,12 +134,11 @@ func (u *OwnerController) Delete() {
 
 // @Title GetAllHouse
 // @Description get all renters
-// @Param	token			header	string	true		"The token string"
+// @Param	ownerID			path	string	true		"The ownerID string"
 // @Success 200 {object} models.House
-// @router /houses/ [get]
-func (u *OwnerController) GetAllHouse() {
-	id := u.Ctx.Input.Header("ownername")
-	houses, err := houseservices.GetAllHouseOfOwner(id)
+// @router /:ownerID/houses/ [get]
+func (u *OwnerController) GetAllHouse(ownerID string) {
+	houses, err := houseservices.GetAllHouseOfOwner(ownerID)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -154,26 +152,13 @@ func (u *OwnerController) GetAllHouse() {
 
 // @Title GetPageHouse
 // @Description get page house
-// @Param	token		header	string	true		"The token string"
+// @Param	ownerID		path	string	true		"The ownerID "
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.House
-// @router /page-houses/ [get]
-func (u *OwnerController) GetPageHouse() {
-	id := u.Ctx.Input.Header("ownername")
-	page, err := u.GetInt("page")
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-		u.ServeJSON()
-		return
-	}
-	count, err := u.GetInt("count")
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-		u.ServeJSON()
-		return
-	}
-	houses, err := houseservices.GetPageHouseOfOwner(id, page, count)
+// @router /:ownerID/page-houses/ [get]
+func (u *OwnerController) GetPageHouse(ownerID string, page int, count int) {
+	houses, err := houseservices.GetPageHouseOfOwner(ownerID, page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

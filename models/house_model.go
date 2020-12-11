@@ -5,6 +5,7 @@ import (
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"google.golang.org/api/iterator"
 	"io"
+	"log"
 	"mime/multipart"
 	"rent-house/consts"
 	"rent-house/restapi/response"
@@ -31,10 +32,11 @@ type House struct {
 	Rented		   bool			  `json:"rented"`
 	Content        string         `json:"content"`
 	PostTime	   int64  		  `json:"post_time"`
-	Activate	   bool  		  `json:"activate"`
+	Status	       Status  		  `json:"status"`
 	Review         map[string]int `json:"review"`
 	AppearTime	   int64		  `json:"appear_time"`
 	ExpiredTime	   int64  		  `json:"expired_time"`
+	AdminComment   string		  `json:"admin_comment"`
 }
 type HouseSearch struct {
 	ObjectID 	   string 		  `json:"objectID"`
@@ -145,7 +147,7 @@ func (this *House) Public(time PostTime) error {
 	}
 	h.PostTime = time.PostTime
 	h.ExpiredTime = time.ExpireTime
-	h.Activate = true
+	h.Status = Activated
 	_, err = this.GetCollection().Doc(time.HouseID).Set(ctx, h)
 	return err
 }
@@ -214,7 +216,7 @@ func (this *House) GetAllActivate() ([]response.House, error) {
 			return nil, err
 		}
 		q.HouseID = doc.Ref.ID
-		if q.Activate == true {
+		if q.Status == Activated {
 			listHouse = append(listHouse, q)
 		}
 	}
@@ -278,10 +280,11 @@ func (this *House) GetAllHouseOfOwner(id string) ([]response.House, error) {
 }
 
 func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]response.House, error) {
-	listDoc, err := this.GetCollection().Where("RenterID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().Where("OwnerID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	listHouse := []response.House{}
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return listHouse, err
 	}
 	for _, i := range listDoc {
 		var q response.House
@@ -324,7 +327,7 @@ func (this *House) GetAllWaitList() ([]response.House, error) {
 
 func (this *House) GetPaginateWaitList(page int, count int) ([]string, error) {
 	listOwner := []string{}
-	listDoc, err := client.Collection(consts.HOUSE_WAIT_LIST).StartAt(page * count).OrderBy("HouseID", firestore.Asc).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := client.Collection(consts.HOUSE_WAIT_LIST).OrderBy("HouseID", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
