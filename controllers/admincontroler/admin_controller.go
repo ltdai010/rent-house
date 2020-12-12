@@ -1,8 +1,13 @@
 package admincontroler
 
 import (
+	"encoding/json"
 	"github.com/astaxie/beego"
+	"log"
+	"rent-house/models"
+	"rent-house/restapi/request"
 	"rent-house/restapi/response"
+	"rent-house/services/adminservice"
 	"rent-house/services/commentservices"
 	"rent-house/services/houseservices"
 	"rent-house/services/ownerservices"
@@ -15,7 +20,7 @@ type AdminController struct {
 
 // @Title ActivateOwner
 // @Description create users
-// @Param	key			header	string	true		"admin key"
+// @Param	token		header	string	true		"admin key"
 // @Param	ownerID		query 	string	true		"ownerID"
 // @Success 200 {string} success
 // @Failure 403 body is empty
@@ -31,9 +36,67 @@ func (u *AdminController) ActivateOwner() {
 	u.ServeJSON()
 }
 
+// @Title CreateHouse
+// @Description create users month = 0|| quarter = 1|| year = 2
+// @Param	token		header	    string			true			"The token string"
+// @Param	body		body 		request.HousePost	true		"body for user content"
+// @Success 200 {int} models.House
+// @Failure 403 body is empty
+// @router /house/ [post]
+func (u *AdminController) CreateHouse() {
+	var ob request.HousePost
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
+	if err != nil {
+		log.Println(err)
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	ownerID := u.Ctx.Input.Header("admin")
+	s, err := houseservices.AdminAddHouse(ownerID, &ob)
+	if err != nil {
+		log.Println(err)
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	u.Data["json"] = response.ResponseCommonSingle{
+		Data: s,
+		Err:  response.NewErr(response.Success),
+	}
+	u.ServeJSON()
+}
+
+
+// @Title Login
+// @Description login
+// @Param	login		body 	models.Login	true		"body for user content"
+// @Success 200 {string} token
+// @Failure 403 body is empty
+// @router /login/ [post]
+func (u *AdminController) Login() {
+	var ob models.Login
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	token, err := adminservice.LoginAdmin(ob)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: token,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
 // @Title ActivateHouse
 // @Description create users
-// @Param	key				header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Param	houseID		    query 	string	true		"houseID"
 // @Success 200 {string} success
 // @Failure 403 body is empty
@@ -51,7 +114,7 @@ func (u *AdminController) ActivateHouse() {
 
 // @Title ActivateComment
 // @Description create users
-// @Param	key				header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Param	commentID		query 	string	true		"houseID"
 // @Success 200 {string} success
 // @Failure 403 body is empty
@@ -69,7 +132,7 @@ func (u *AdminController) ActivateComment() {
 
 // @Title GetAllWaitHouse
 // @Description get all renters
-// @Param	key			header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Success 200 {object} models.House
 // @router /wait-houses/ [get]
 func (u *AdminController) GetAllWaitHouse() {
@@ -87,7 +150,7 @@ func (u *AdminController) GetAllWaitHouse() {
 
 // @Title GetPageWaitHouse
 // @Description get page comment
-// @Param	key			header	string	true		"admin key"
+// @Param	token		header	string	true		"admin key"
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.House
@@ -119,7 +182,7 @@ func (u *AdminController) GetPageWaitHouse() {
 
 // @Title GetAllWaitComment
 // @Description get all wait comments
-// @Param	key			header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Success 200 {object} models.House
 // @router /wait-comments/ [get]
 func (u *AdminController) GetAllWaitComment() {
@@ -137,7 +200,7 @@ func (u *AdminController) GetAllWaitComment() {
 
 // @Title GetPageWaitComment
 // @Description get page comment
-// @Param	key			header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.Comment
@@ -169,7 +232,7 @@ func (u *AdminController) GetPageWaitComment() {
 
 // @Title GetAllOwner
 // @Description get all owners
-// @Param	key			header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Success 200 {object} models.Owner
 // @router /owners/ [get]
 func (u *AdminController) GetAllOwner() {
@@ -187,7 +250,7 @@ func (u *AdminController) GetAllOwner() {
 
 // @Title GetAllRenter
 // @Description get all renters
-// @Param	key			header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Success 200 {object} models.Renter
 // @router /renters/ [get]
 func (u *AdminController) GetAllRenter() {
@@ -205,7 +268,7 @@ func (u *AdminController) GetAllRenter() {
 
 // @Title GetAllWaitOwner
 // @Description get all wait owners
-// @Param	key			header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Success 200 {object} models.Owner
 // @router /wait-owners/ [get]
 func (u *AdminController) GetAllWaitOwner() {
@@ -223,7 +286,7 @@ func (u *AdminController) GetAllWaitOwner() {
 
 // @Title GetPageWaitOwner
 // @Description get page comment
-// @Param	key			header	string	true		"admin key"
+// @Param	token			header	string	true		"admin key"
 // @Param	page		query	int		true	"the page"
 // @Param	count		query	int		true	"the count"
 // @Success 200 {object} models.Owner

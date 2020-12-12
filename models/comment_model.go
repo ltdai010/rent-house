@@ -22,7 +22,7 @@ func (g *Comment) GetCollectionKey() string {
 }
 
 func (g *Comment) GetCollection() *firestore.CollectionRef {
-	return client.Collection(g.GetCollectionKey())
+	return Client.Collection(g.GetCollectionKey())
 }
 
 func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, error) {
@@ -41,28 +41,28 @@ func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, error
 }
 
 func (this *Comment) PutItem() error {
-	res, _, err := client.Collection(this.GetCollectionKey()).Add(ctx, *this)
+	res, _, err := Client.Collection(this.GetCollectionKey()).Add(ctx, *this)
 	if err != nil {
 		return err
 	}
-	_, err = client.Collection(consts.COMMENT_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
+	_, err = Client.Collection(consts.COMMENT_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
 		"CommentID" : res.ID,
 	})
 	return err
 }
 
 func (this *Comment) Delete(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
 	return err
 }
 
 func (this *Comment) DeleteWaitList(id string) error {
-	_, err := client.Collection(consts.COMMENT_WAIT_LIST).Doc(id).Delete(ctx)
+	_, err := Client.Collection(consts.COMMENT_WAIT_LIST).Doc(id).Delete(ctx)
 	return err
 }
 
 func (this *Comment) GetFromKey(key string) error {
-	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
+	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (this *Comment) GetFromKey(key string) error {
 }
 
 func (this *Comment) GetAll() ([]response.Comment, error) {
-	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Documents(ctx)
 	listComment := []response.Comment{}
 	for {
 		var q response.Comment
@@ -90,7 +90,7 @@ func (this *Comment) GetAll() ([]response.Comment, error) {
 }
 
 func (this *Comment) GetAllCommentInHouse(id string) ([]response.Comment, error) {
-	listdoc := client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx)
 	listComment := []response.Comment{}
 	for {
 		var q response.Comment
@@ -112,7 +112,7 @@ func (this *Comment) GetAllCommentInHouse(id string) ([]response.Comment, error)
 }
 
 func (this *Comment) GetAllWaitList() ([]string, error) {
-	listdoc := client.Collection(consts.COMMENT_WAIT_LIST).Documents(ctx)
+	listdoc := Client.Collection(consts.COMMENT_WAIT_LIST).Documents(ctx)
 	listOwner := []string{}
 	for {
 		doc, err := listdoc.Next()
@@ -130,7 +130,7 @@ func (this *Comment) GetAllWaitList() ([]string, error) {
 
 func (this *Comment) GetPaginateWaitList(page int, count int) ([]string, error) {
 	listOwner := []string{}
-	listDoc, err := client.Collection(consts.COMMENT_WAIT_LIST).OrderBy("CommentID", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := Client.Collection(consts.COMMENT_WAIT_LIST).OrderBy("CommentID", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -160,6 +160,6 @@ func (this *Comment) GetPaginateCommentInHouse(id string, page int, count int) (
 }
 
 func (this *Comment) UpdateItem(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
 	return err
 }

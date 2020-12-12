@@ -103,7 +103,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -136,7 +136,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -169,7 +169,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -192,6 +192,69 @@
                 }
             }
         },
+        "/admin/house/": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "create users month = 0|| quarter = 1|| year = 2",
+                "operationId": "AdminController.CreateHouse",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.HousePost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{int} models.House"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/admin/login/": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "login",
+                "operationId": "AdminController.Login",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "login",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} token"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
         "/admin/owners/": {
             "get": {
                 "tags": [
@@ -202,7 +265,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -228,7 +291,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -270,7 +333,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -312,7 +375,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -354,7 +417,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -380,7 +443,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -406,7 +469,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"
@@ -432,7 +495,7 @@
                 "parameters": [
                     {
                         "in": "header",
-                        "name": "key",
+                        "name": "token",
                         "description": "admin key",
                         "required": true,
                         "type": "string"

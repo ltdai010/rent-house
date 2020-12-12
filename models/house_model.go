@@ -51,11 +51,11 @@ func (g *House) GetCollectionKey() string {
 }
 
 func (g *House) GetCollection() *firestore.CollectionRef {
-	return client.Collection(g.GetCollectionKey())
+	return Client.Collection(g.GetCollectionKey())
 }
 
 func (this *House) GetMaxViewHouseInMonth() (response.House, error) {
-	ref := client.Collection(consts.HOUSE).OrderBy("MonthlyView", firestore.Asc).Limit(1).Documents(ctx)
+	ref := Client.Collection(consts.HOUSE).OrderBy("MonthlyView", firestore.Asc).Limit(1).Documents(ctx)
 	doc, err := ref.Next()
 	if err != nil {
 		return response.House{}, err
@@ -70,7 +70,7 @@ func (this *House) GetMaxViewHouseInMonth() (response.House, error) {
 }
 
 func (this *House) FindMaxViewHouse() (response.House, error) {
-	ref := client.Collection(consts.HOUSE).OrderBy("View", firestore.Asc).Limit(1).Documents(ctx)
+	ref := Client.Collection(consts.HOUSE).OrderBy("View", firestore.Asc).Limit(1).Documents(ctx)
 	doc, err := ref.Next()
 	if err != nil {
 		return response.House{}, err
@@ -82,7 +82,7 @@ func (this *House) FindMaxViewHouse() (response.House, error) {
 }
 
 func (this *House) FindMaxLikeHouse() (response.House, error) {
-	ref := client.Collection(consts.HOUSE).OrderBy("Like", firestore.Asc).Limit(1).Documents(ctx)
+	ref := Client.Collection(consts.HOUSE).OrderBy("Like", firestore.Asc).Limit(1).Documents(ctx)
 	doc, err := ref.Next()
 	if err != nil {
 		return response.House{}, err
@@ -109,7 +109,7 @@ func (this *House) GetPaginate(page int, count int) ([]*House, error) {
 
 func (this *House) PutItem() (string, error) {
 	//add to collection
-	res, _, err := client.Collection(this.GetCollectionKey()).Add(ctx, *this)
+	res, _, err := Client.Collection(this.GetCollectionKey()).Add(ctx, *this)
 	if err != nil {
 		return "", err
 	}
@@ -122,7 +122,7 @@ func (this *House) PutItem() (string, error) {
 		Content:        this.Content,
 	})
 	//add to in active
-	go client.Collection(consts.HOUSE_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
+	go Client.Collection(consts.HOUSE_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
 		"HouseID" : res.ID,
 	})
 	return res.ID, err
@@ -153,7 +153,7 @@ func (this *House) Public(time PostTime) error {
 }
 
 func (this *House) Delete(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
 	if err != nil {
 		return err
 	}
@@ -162,12 +162,12 @@ func (this *House) Delete(id string) error {
 }
 
 func (this *House) DeleteWaitList(id string) error {
-	_, err := client.Collection(consts.HOUSE_WAIT_LIST).Doc(id).Delete(ctx)
+	_, err := Client.Collection(consts.HOUSE_WAIT_LIST).Doc(id).Delete(ctx)
 	return err
 }
 
 func (this *House) AddImage(file multipart.File) (string, error) {
-	ref, _, err := client.Collection(consts.IMAGE_LINK).Add(ctx, map[string]string{
+	ref, _, err := Client.Collection(consts.IMAGE_LINK).Add(ctx, map[string]string{
 		"Image" : "link",
 	})
 	if err != nil {
@@ -184,7 +184,7 @@ func (this *House) AddImage(file multipart.File) (string, error) {
 }
 
 func (this *House) GetFromKey(key string) (error) {
-	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
+	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func (this *House) GetFromKey(key string) (error) {
 }
 
 func (this *House) GetResponse(key string) (response.House, error) {
-	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
+	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
 		return response.House{}, err
 	}
@@ -203,7 +203,7 @@ func (this *House) GetResponse(key string) (response.House, error) {
 }
 
 func (this *House) GetAllActivate() ([]response.House, error) {
-	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Documents(ctx)
 	listHouse := []response.House{}
 	for {
 		var q response.House
@@ -224,7 +224,7 @@ func (this *House) GetAllActivate() ([]response.House, error) {
 }
 
 func (this *House) GetPageActivate(page, count int) ([]response.House, error) {
-	listdoc, err := client.Collection(this.GetCollectionKey()).OrderBy("PostTime", firestore.Asc).StartAfter(page * count).Limit(count).Documents(ctx).GetAll()
+	listdoc, err := Client.Collection(this.GetCollectionKey()).OrderBy("PostTime", firestore.Asc).StartAfter(page * count).Limit(count).Documents(ctx).GetAll()
 	listHouse := []response.House{}
 	if err != nil {
 		return nil, err
@@ -239,7 +239,7 @@ func (this *House) GetPageActivate(page, count int) ([]response.House, error) {
 }
 
 func (this *House) GetAll() ([]response.House, error) {
-	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Documents(ctx)
 	listHouse := []response.House{}
 	for {
 		var q response.House
@@ -258,7 +258,7 @@ func (this *House) GetAll() ([]response.House, error) {
 }
 
 func (this *House) GetAllHouseOfOwner(id string) ([]response.House, error) {
-	listdoc := client.Collection(this.GetCollectionKey()).Where("OwnerID", "==", id).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Where("OwnerID", "==", id).Documents(ctx)
 	listHouse := []response.House{}
 	for {
 		var q response.House
@@ -296,7 +296,7 @@ func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]res
 }
 
 func (this *House) GetAllWaitList() ([]response.House, error) {
-	listdoc := client.Collection(consts.HOUSE_WAIT_LIST).Documents(ctx)
+	listdoc := Client.Collection(consts.HOUSE_WAIT_LIST).Documents(ctx)
 	listHouse := []response.House{}
 	for {
 		doc, err := listdoc.Next()
@@ -311,7 +311,7 @@ func (this *House) GetAllWaitList() ([]response.House, error) {
 			continue
 		}
 		h := response.House{}
-		it, err := client.Collection(consts.HOUSE).Doc(i.(string)).Get(ctx)
+		it, err := Client.Collection(consts.HOUSE).Doc(i.(string)).Get(ctx)
 		if err != nil {
 			continue
 		}
@@ -327,7 +327,7 @@ func (this *House) GetAllWaitList() ([]response.House, error) {
 
 func (this *House) GetPaginateWaitList(page int, count int) ([]string, error) {
 	listOwner := []string{}
-	listDoc, err := client.Collection(consts.HOUSE_WAIT_LIST).OrderBy("HouseID", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := Client.Collection(consts.HOUSE_WAIT_LIST).OrderBy("HouseID", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -342,7 +342,7 @@ func (this *House) GetPaginateWaitList(page int, count int) ([]string, error) {
 }
 
 func (this *House) UpdateItem(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
 	return err
 }
 

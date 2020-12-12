@@ -16,6 +16,11 @@ func AddOwner(o *request.OwnerPost) error {
 	if err == nil {
 		return errors.New("already exist")
 	}
+	ad := &models.Admin{}
+	err = ad.GetFromKey(o.OwnerName)
+	if err == nil {
+		return errors.New("already exist")
+	}
 	a := &models.Address{}
 	err = a.FindAddress(o.CommuneCode)
 	if err != nil {

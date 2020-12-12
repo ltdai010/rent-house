@@ -15,7 +15,7 @@ import (
 
 var (
 	initOnce     sync.Once
-	client       *firestore.Client
+	Client       *firestore.Client
 	clientSearch *search.Client
 	searchIndex  *search.Index
 	bucket       *storage.BucketHandle
@@ -40,7 +40,7 @@ func initCloudStore() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	client, err = app.Firestore(ctx)
+	Client, err = app.Firestore(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}

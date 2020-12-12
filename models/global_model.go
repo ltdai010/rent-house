@@ -21,7 +21,7 @@ type Address struct {
 }
 
 func (this *Province) GetAll() ([]Province,error) {
-	iter := client.Collection(consts.PROVINCE).Documents(ctx)
+	iter := Client.Collection(consts.PROVINCE).Documents(ctx)
 	list := []Province{}
 	for {
 		p := Province{}
@@ -42,7 +42,7 @@ func (this *Province) GetAll() ([]Province,error) {
 }
 
 func (this *District) GetAll(provinceID string) ([]District,error) {
-	iter := client.Collection(consts.DISTRICT).Where("ParentCode", "==", provinceID).Documents(ctx)
+	iter := Client.Collection(consts.DISTRICT).Where("ParentCode", "==", provinceID).Documents(ctx)
 	list := []District{}
 	for {
 		p := District{}
@@ -63,7 +63,7 @@ func (this *District) GetAll(provinceID string) ([]District,error) {
 }
 
 func (this *Commune) GetAll(districtID string) ([]Commune,error) {
-	iter := client.Collection(consts.COMMUNE).Where("ParentCode", "==", districtID).Documents(ctx)
+	iter := Client.Collection(consts.COMMUNE).Where("ParentCode", "==", districtID).Documents(ctx)
 	list := []Commune{}
 	for {
 		p := Commune{}
@@ -84,7 +84,7 @@ func (this *Commune) GetAll(districtID string) ([]Commune,error) {
 }
 
 func (this *Province) GetItem(provinceID string) error {
-	doc, err := client.Collection(consts.PROVINCE).Doc(provinceID).Get(ctx)
+	doc, err := Client.Collection(consts.PROVINCE).Doc(provinceID).Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (this *Province) GetItem(provinceID string) error {
 }
 
 func (this *District) GetItem(districtID string) error {
-	doc, err := client.Collection(consts.DISTRICT).Doc(districtID).Get(ctx)
+	doc, err := Client.Collection(consts.DISTRICT).Doc(districtID).Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (this *District) GetItem(districtID string) error {
 }
 
 func (this *Commune) GetItem(communeID string) error {
-	doc, err := client.Collection(consts.COMMUNE).Doc(communeID).Get(ctx)
+	doc, err := Client.Collection(consts.COMMUNE).Doc(communeID).Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (this *Commune) GetItem(communeID string) error {
 
 func (this *Address) FindAddress(communeCode string) (error) {
 	//get the commune
-	doc, err := client.Collection(consts.COMMUNE).Doc(communeCode).Get(ctx)
+	doc, err := Client.Collection(consts.COMMUNE).Doc(communeCode).Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (this *Address) FindAddress(communeCode string) (error) {
 		return err
 	}
 	//get the commune's district
-	doc, err = client.Collection(consts.DISTRICT).Doc(c.ParentCode).Get(ctx)
+	doc, err = Client.Collection(consts.DISTRICT).Doc(c.ParentCode).Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (this *Address) FindAddress(communeCode string) (error) {
 		return err
 	}
 	//get the district's province
-	doc, err = client.Collection(consts.PROVINCE).Doc(d.ParentCode).Get(ctx)
+	doc, err = Client.Collection(consts.PROVINCE).Doc(d.ParentCode).Get(ctx)
 	if err != nil {
 		return err
 	}

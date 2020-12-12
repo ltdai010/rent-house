@@ -23,7 +23,7 @@ func (g *Owner) GetCollectionKey() string {
 }
 
 func (g *Owner) GetCollection() *firestore.CollectionRef {
-	return client.Collection(g.GetCollectionKey())
+	return Client.Collection(g.GetCollectionKey())
 }
 
 func (this *Owner) GetPaginate(page int, count int) ([]response.Owner, error) {
@@ -42,33 +42,33 @@ func (this *Owner) GetPaginate(page int, count int) ([]response.Owner, error) {
 }
 
 func (this *Owner) PutItem() error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(this.OwnerName).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(this.OwnerName).Set(ctx, *this)
 	if err != nil {
 		return err
 	}
-	_, err = client.Collection(consts.OWNER_WAIT_LIST).Doc(this.OwnerName).Set(ctx, map[string]string{
+	_, err = Client.Collection(consts.OWNER_WAIT_LIST).Doc(this.OwnerName).Set(ctx, map[string]string{
 		"OwnerName" : this.OwnerName,
 	})
 	return err
 }
 
 func (this *Owner) UpdateItem(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
 	return err
 }
 
 func (this *Owner) Delete(id string) error {
-	_, err := client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
 	return err
 }
 
 func (this *Owner) DeleteWaitList(id string) error {
-	_, err := client.Collection(consts.OWNER_WAIT_LIST).Doc(id).Delete(ctx)
+	_, err := Client.Collection(consts.OWNER_WAIT_LIST).Doc(id).Delete(ctx)
 	return err
 }
 
 func (this *Owner) GetFromKey(key string) error {
-	doc, err := client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
+	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (this *Owner) GetFromKey(key string) error {
 }
 
 func (this *Owner) GetAllWaitList() ([]string, error) {
-	listdoc := client.Collection(consts.OWNER_WAIT_LIST).Documents(ctx)
+	listdoc := Client.Collection(consts.OWNER_WAIT_LIST).Documents(ctx)
 	listOwner := []string{}
 	for {
 		doc, err := listdoc.Next()
@@ -95,7 +95,7 @@ func (this *Owner) GetAllWaitList() ([]string, error) {
 
 func (this *Owner) GetPaginateWaitList(page int, count int) ([]string, error) {
 	listOwner := []string{}
-	listDoc, err := client.Collection(consts.OWNER_WAIT_LIST).OrderBy("OwnerName", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := Client.Collection(consts.OWNER_WAIT_LIST).OrderBy("OwnerName", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (this *Owner) GetPaginateWaitList(page int, count int) ([]string, error) {
 }
 
 func (this *Owner) GetAll() ([]response.Owner, error) {
-	listdoc := client.Collection(this.GetCollectionKey()).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Documents(ctx)
 	listOwner := []response.Owner{}
 	for {
 		var q response.Owner

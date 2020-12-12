@@ -56,6 +56,53 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 	return h.PutItem()
 }
 
+func AdminAddHouse(ownerID string, house *request.HousePost) (string, error) {
+	a := &models.Address{}
+	//find address from commune code
+	err := a.FindAddress(house.CommuneCode)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	//calculate price per month
+	var divide float64
+	switch house.Unit {
+	case models.Month:
+		divide = 1
+	case models.Quarter:
+		divide = 3
+	case models.Year:
+		divide = 12
+	default:
+		return "", response.BadRequest
+	}
+	a.Street = house.Street
+	h := &models.House{
+		OwnerID:        ownerID,
+		HouseType:      house.HouseType,
+		Price: 			house.Price/divide,
+		Unit:   		house.Unit,
+		Address:        *a,
+		CommuneCode:    house.CommuneCode,
+		Infrastructure: house.Infrastructure,
+		NearBy:         house.NearBy,
+		WithOwner:      house.WithOwner,
+		ImageLink:      house.ImageLink,
+		Header:         house.Header,
+		View:           0,
+		Like:           0,
+		Rented:         false,
+		Content:        house.Content,
+		PostTime:       time.Now().Unix(),
+		Status:         models.Activated,
+		Review: 		map[string]int{},
+		AppearTime:     house.AppearTime*7*3600*24,
+		ExpiredTime:    time.Now().Unix() + house.AppearTime*7*3600*24,
+	}
+	return h.PutItem()
+}
+
+
 func ActiveHouse(id string) error {
 	house := &models.House{}
 	err := house.GetFromKey(id)
