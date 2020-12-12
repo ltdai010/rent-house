@@ -96,7 +96,7 @@ func (u *HouseController) Get() {
 
 // @Title Update
 // @Description update the user
-// @Param	token			header	string	true		"The token string"
+// @Param	token		header	string	true		"The token string"
 // @Param	houseID		path 	string	true		"The uid you want to update"
 // @Param	body		body 	request.HousePut	true		"body for user content"
 // @Success 200 {string} success
@@ -112,6 +112,26 @@ func (u *HouseController) Update() {
 		return
 	}
 	err = houseservices.UpdateHouse(id, &ob)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
+
+// @Title UpdateExpiredTime
+// @Description update the user
+// @Param	token		header	string	true		"The token string"
+// @Param	houseID		path 	string	true		"The uid you want to update"
+// @Param	time		query 	int64	true		"time"
+// @Success 200 {string} success
+// @Failure 403 :houseID is not int
+// @router /:houseID/expired-time [put]
+func (u *HouseController) UpdateExpiredTime(time int64) {
+	id := u.Ctx.Input.Param(":houseID")
+	err := houseservices.PutExtendTime(id, time)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

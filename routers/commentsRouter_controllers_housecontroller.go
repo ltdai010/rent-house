@@ -54,6 +54,17 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
+            Method: "UpdateExpiredTime",
+            Router: "/:houseID/expired-time",
+            AllowHTTPMethods: []string{"put"},
+            MethodParams: param.Make(
+				param.New("time", param.IsRequired),
+			),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
+        beego.ControllerComments{
             Method: "GetPageComment",
             Router: "/:houseID/page-comments/",
             AllowHTTPMethods: []string{"get"},

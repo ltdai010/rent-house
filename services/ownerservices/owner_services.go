@@ -155,6 +155,9 @@ func UpdateOwner(id string, ob *request.OwnerPut) error {
 	if err != nil {
 		return err
 	}
+	if o.Activate == true {
+		return response.NotPermission
+	}
 	a := &models.Address{}
 	err = a.FindAddress(ob.CommuneCode)
 	if err != nil {

@@ -95,7 +95,7 @@ func (u *AdminController) Login() {
 }
 
 // @Title ActivateHouse
-// @Description create users
+// @Description active house
 // @Param	token			header	string	true		"admin key"
 // @Param	houseID		    query 	string	true		"houseID"
 // @Success 200 {string} success
@@ -104,6 +104,24 @@ func (u *AdminController) Login() {
 func (u *AdminController) ActivateHouse() {
 	houseID := u.GetString("houseID")
 	err := houseservices.ActiveHouse(houseID)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
+// @Title ExtendHouse
+// @Description extend house time
+// @Param	token			header	string	true		"admin key"
+// @Param	houseID		    query 	string	true		"houseID"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /extend-house/ [post]
+func (u *AdminController) ExtendHouse() {
+	houseID := u.GetString("houseID")
+	err := houseservices.ExtendHouseTime(houseID)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

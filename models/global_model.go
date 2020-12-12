@@ -11,6 +11,7 @@ const (
 	InActivated = "inactivated"
 	Activated = "activated"
 	Denied = "denied"
+	Extend = "extend"
 )
 
 type Address struct {

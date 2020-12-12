@@ -2,6 +2,7 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
+	"fmt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"google.golang.org/api/iterator"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"mime/multipart"
 	"rent-house/consts"
 	"rent-house/restapi/response"
+	"time"
 )
 
 type House struct {
@@ -188,7 +190,7 @@ func (this *House) GetResponse(key string) (response.House, error) {
 }
 
 func (this *House) GetAllActivate() ([]response.House, error) {
-	listdoc := Client.Collection(this.GetCollectionKey()).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Where("ExpiredTime", ">", fmt.Sprint(time.Now().Unix())).Documents(ctx)
 	listHouse := []response.House{}
 	for {
 		var q response.House
@@ -196,14 +198,15 @@ func (this *House) GetAllActivate() ([]response.House, error) {
 		if err == iterator.Done {
 			break
 		}
+		if err != nil {
+			return nil, err
+		}
 		err = doc.DataTo(&q)
 		if err != nil {
 			return nil, err
 		}
 		q.HouseID = doc.Ref.ID
-		if q.Status == Activated {
-			listHouse = append(listHouse, q)
-		}
+		listHouse = append(listHouse, q)
 	}
 	return listHouse, nil
 }
@@ -212,13 +215,17 @@ func (this *House) GetPageActivate(page, count int) ([]response.House, error) {
 	listdoc, err := Client.Collection(this.GetCollectionKey()).OrderBy("PostTime", firestore.Asc).StartAfter(page * count).Limit(count).Documents(ctx).GetAll()
 	listHouse := []response.House{}
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
+	now := time.Now().Unix()
 	for _, i := range listdoc {
 		var q response.House
 		err = i.DataTo(&q)
 		q.HouseID = i.Ref.ID
-		listHouse = append(listHouse, q)
+		if q.ExpiredTime > now {
+			listHouse = append(listHouse, q)
+		}
 	}
 	return listHouse, nil
 }
@@ -340,13 +347,16 @@ func (this *House) SearchAllItem(key string) ([]response.House, error) {
 	if err != nil {
 		return []response.House{}, err
 	}
+	now := time.Now().Unix()
 	for _, i := range results {
 		h := &House{}
 		resH, err := h.GetResponse(i.ObjectID)
 		if err != nil {
 			return []response.House{}, err
 		}
-		list = append(list, resH)
+		if h.ExpiredTime > now {
+			list = append(list, resH)
+		}
 	}
 	return list, nil
 }
@@ -362,13 +372,16 @@ func (this *House) SearchPaginateItem(key string, page, count int) ([]response.H
 	if err != nil {
 		return []response.House{}, err
 	}
+	now := time.Now().Unix()
 	for _, i := range results {
 		h := &House{}
 		resH, err := h.GetResponse(i.ObjectID)
 		if err != nil {
 			return []response.House{}, err
 		}
-		list = append(list, resH)
+		if h.ExpiredTime > now {
+			list = append(list, resH)
+		}
 	}
 	return list, nil
 }

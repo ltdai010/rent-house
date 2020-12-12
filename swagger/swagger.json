@@ -131,7 +131,7 @@
                 "tags": [
                     "admin"
                 ],
-                "description": "create users",
+                "description": "active house",
                 "operationId": "AdminController.ActivateHouse",
                 "parameters": [
                     {
@@ -178,6 +178,39 @@
                         "in": "query",
                         "name": "ownerID",
                         "description": "ownerID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/admin/extend-house/": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "extend house time",
+                "operationId": "AdminController.ExtendHouse",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "houseID",
+                        "description": "houseID",
                         "required": true,
                         "type": "string"
                     }
@@ -842,6 +875,47 @@
                         "schema": {
                             "$ref": "#/definitions/response.Comment"
                         }
+                    }
+                }
+            }
+        },
+        "/house/{houseID}/expired-time": {
+            "put": {
+                "tags": [
+                    "house"
+                ],
+                "description": "update the user",
+                "operationId": "HouseController.UpdateExpiredTime",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "houseID",
+                        "description": "The uid you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "time",
+                        "description": "time",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": ":houseID is not int"
                     }
                 }
             }

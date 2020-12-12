@@ -112,6 +112,7 @@ func ActiveHouse(id string) error {
 	house.Status = models.Activated
 	house.PostTime = time.Now().Unix()
 	house.ExpiredTime = house.PostTime + house.AppearTime
+	house.AppearTime = 0
 	err = house.UpdateItem(id)
 	if err != nil {
 		return err
@@ -195,6 +196,20 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 		return res, nil
 	}
 	return list, nil
+}
+
+func ExtendHouseTime(houseID string) error {
+	h := &models.House{}
+	err := h.GetFromKey(houseID)
+	if err != nil {
+		return err
+	}
+	if h.ExpiredTime > time.Now().Unix() {
+		h.ExpiredTime+= h.AppearTime
+	} else {
+		h.ExpiredTime = time.Now().Unix() + h.AppearTime
+	}
+	return h.UpdateItem(houseID)
 }
 
 func ViewHouse(id string) (error) {
@@ -360,6 +375,9 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	if err != nil {
 		return err
 	}
+	if h.Status == models.Activated {
+		return response.NotPermission
+	}
 	a := &models.Address{}
 	err = a.FindAddress(ob.CommuneCode)
 	if err != nil {
@@ -391,6 +409,17 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	h.Unit = ob.Unit
 	h.HouseType = ob.HouseType
 	return h.UpdateItem(id)
+}
+
+func PutExtendTime(houseID string, extendTime int64) error {
+	h := &models.House{}
+	err := h.GetFromKey(houseID)
+	if err != nil {
+		return err
+	}
+	h.AppearTime = extendTime
+	h.Status = models.Extend
+	return h.UpdateItem(houseID)
 }
 
 func SearchHouse(key, provinceID, districtID, communeID string) ([]response.House, error) {
@@ -445,7 +474,7 @@ func AddToFavourite(renterID, houseID string) error {
 		return err
 	}
 	h.Like++
-	_, err = h.PutItem()
+	err = h.UpdateItem(houseID)
 	if err != nil {
 		return err
 	}
@@ -479,6 +508,6 @@ func RemoveFromFavourite(renterID, houseID string) error {
 		return err
 	}
 	h.Like--
-	_, err = h.PutItem()
-	return nil
+	err = h.UpdateItem(houseID)
+	return err
 }
