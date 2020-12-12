@@ -127,7 +127,7 @@ func ActiveHouse(id string) error {
 		Msg:     "Your house name "+ house.Header + " has been active for everyone to see.\nIt will last since " + time.Unix(house.ExpiredTime, 0).String(),
 	}
 	go mail.SendMail()
-	return house.DeleteWaitList(id)
+	return nil
 }
 
 func UploadFile(file []*multipart.FileHeader) ([]string, error) {
@@ -309,11 +309,11 @@ func GetAllWaitHouse() ([]response.House, error) {
 	return list, nil
 }
 
-func GetPageWaitHouse(page int, count int) ([]string, error) {
+func GetPageWaitHouse(page int, count int) ([]response.House, error) {
 	h := &models.House{}
 	list, err := h.GetPaginateWaitList(page, count)
 	if err != nil {
-		return []string{}, err
+		return list, err
 	}
 	return list, nil
 }
@@ -482,4 +482,3 @@ func RemoveFromFavourite(renterID, houseID string) error {
 	_, err = h.PutItem()
 	return nil
 }
-

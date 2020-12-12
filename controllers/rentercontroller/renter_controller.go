@@ -135,6 +135,26 @@ func (u *RenterController) Get() {
 	u.ServeJSON()
 }
 
+// @Title GetInfo
+// @Description get user by uid
+// @Param	renterID		path	string	true		"renter id"
+// @Success 200 {object} response.RenterInfo
+// @Failure 403 :renterID is empty
+// @router /info/:renterID [get]
+func (u *RenterController) GetInfo() {
+	id := u.Ctx.Input.Param(":renterID")
+	user, err := renterservices.GetRenterInfo(id)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: user,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
 // @Title Update
 // @Description update the user
 // @Param	token		header		string	true		"The token"
@@ -152,6 +172,24 @@ func (u *RenterController) Put() {
 		return
 	}
 	err = renterservices.UpdateRenter(id, &ob)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
+// @Title ChangePass
+// @Description update the user
+// @Param	token		header		string	true		"The token"
+// @Param	password	body 	    string	true		"body password"
+// @Success 200 {object} models.User
+// @Failure 403 :renterID is not int
+// @router /password [put]
+func (u *RenterController) ChangePass() {
+	id := u.Ctx.Input.Header("rentername")
+	err := renterservices.ChangePassword(id, string(u.Ctx.Input.RequestBody))
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

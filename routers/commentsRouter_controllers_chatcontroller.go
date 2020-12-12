@@ -16,4 +16,13 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["rent-house/controllers/chatcontroller:WebsocketController"] = append(beego.GlobalControllerRouter["rent-house/controllers/chatcontroller:WebsocketController"],
+        beego.ControllerComments{
+            Method: "JoinAdmin",
+            Router: "/admin",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
 }

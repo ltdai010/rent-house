@@ -9,6 +9,15 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"] = append(beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"],
         beego.ControllerComments{
+            Method: "Put",
+            Router: "/",
+            AllowHTTPMethods: []string{"put"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"] = append(beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"],
+        beego.ControllerComments{
             Method: "Delete",
             Router: "/",
             AllowHTTPMethods: []string{"delete"},
@@ -27,18 +36,18 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"] = append(beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"],
         beego.ControllerComments{
-            Method: "Put",
-            Router: "/",
-            AllowHTTPMethods: []string{"put"},
+            Method: "AddComment",
+            Router: "/comment/:houseID",
+            AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
     beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"] = append(beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"],
         beego.ControllerComments{
-            Method: "AddComment",
-            Router: "/comment/:houseID",
-            AllowHTTPMethods: []string{"post"},
+            Method: "GetInfo",
+            Router: "/info/:renterID",
+            AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
@@ -57,6 +66,15 @@ func init() {
             Method: "Login",
             Router: "/login/",
             AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"] = append(beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"],
+        beego.ControllerComments{
+            Method: "ChangePass",
+            Router: "/password",
+            AllowHTTPMethods: []string{"put"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})

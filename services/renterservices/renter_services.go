@@ -7,6 +7,7 @@ import (
 	"rent-house/models"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
+	"time"
 )
 
 func AddRenter(o *request.RenterPost) error {
@@ -24,6 +25,7 @@ func AddRenter(o *request.RenterPost) error {
 			PhoneNumber:    o.PhoneNumber,
 			Email:          o.Email,
 			ListFavourite:  []string{},
+			PasswordChanged: time.Now().Unix(),
 		}
 		err = r.PutItem()
 		return err
@@ -83,4 +85,29 @@ func LoginRenter(login models.Login) (string, error) {
 	return "", errors.New("not authorized")
 }
 
+func GetRenterInfo(renterID string) (response.RenterInfo, error) {
+	renter := &models.Renter{}
+	err := renter.GetFromKey(renterID)
+	if err != nil {
+		return response.RenterInfo{}, err
+	}
+	return response.RenterInfo{
+		RenterID:   renterID,
+		RenterName: renter.RenterName,
+	}, nil
+}
 
+func ChangePassword(renterID string, password string) error {
+	renter := &models.Renter{}
+	err := renter.GetFromKey(renterID)
+	if err != nil {
+		return err
+	}
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil
+	}
+	renter.PasswordChanged = time.Now().Unix()
+	renter.Password = string(hashed)
+	return renter.PutItem()
+}

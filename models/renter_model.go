@@ -14,6 +14,7 @@ type Renter struct {
 	Password		string			`json:"password"`
 	PhoneNumber		string 			`json:"phone_number"`
 	Email			string 			`json:"email"`
+	PasswordChanged	int64			`json:"password_changed"`
 	ListFavourite	[]string		`json:"list_favourite"`
 }
 

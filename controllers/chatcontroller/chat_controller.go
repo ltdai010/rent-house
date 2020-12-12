@@ -6,6 +6,8 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"rent-house/middlewares"
+	"rent-house/restapi/response"
 	"rent-house/websocket/chatservice/models"
 	"time"
 )
@@ -15,8 +17,14 @@ type WebsocketController struct {
 }
 
 var (
-	Clients  = make(map[string]map[*websocket.Conn]bool)     // connected Clients
-	Bc       = make(map[string]chan models.Broadcast) // broadcastbody channel
+	//connected client
+	Clients  = make(map[string]*websocket.Conn)     // connected Clients
+	//admin receiver
+	Admin    = make(map[string]*websocket.Conn)
+	//broadcast to admin channel
+	BcAdmin = make(map[string]chan models.BroadCastToAdmin) // broadcastbody channel
+	//broadcast to client channel
+	BcOwner = make(map[string]chan models.BroadCastToOwner)
 	upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -40,49 +48,108 @@ func (w *WebsocketController) Join() {
 		w.Ctx.WriteString(err.Error())
 		return
 	}
-	ownerID := string(b)
-	Clients[ownerID] = make(map[*websocket.Conn]bool)
-	Clients[ownerID][ws] = true
-	Bc[ownerID] = make(chan models.Broadcast)
-	ws.WriteJSON(map[string]string{
-		"code" : "200",
-		"message" : "success",
-	})
-	go broadcastMessages(Bc[ownerID])
+	tokenString := string(b)
+	ownerID := middlewares.GetOwnernameFromToken(tokenString)
+	if ownerID == "" {
+		ws.WriteJSON(response.BadRequest)
+		return
+	}
+	Clients[ownerID] = ws
+	BcAdmin[ownerID] = make(chan models.BroadCastToAdmin)
+	ws.WriteJSON(response.Success)
+	go broadcastToAdmin(BcAdmin[ownerID])
 	for {
-		var batm models.Message
-		broadcast := models.Broadcast{}
+		var msg models.OwnerMessage
 		// Read in a new messagebody as JSON and map it to a MoveMessage object
 		_, b, err = ws.ReadMessage()
-		err = json.Unmarshal(b, &batm)
+		err = json.Unmarshal(b, &msg)
 		if err != nil {
-			ws.WriteJSON(map[string]interface{}{
-				"code" : "400",
-				"message" : err.Error(),
-			})
+			ws.WriteJSON(response.BadRequest)
 			ws.Close()
+			delete(Clients, ownerID)
 			return
 		}
-		broadcast.Message = batm
-		broadcast.SendTime = time.Now().Unix()
 		// Send the newly received messagebody to the broadcastbody channel
-		Bc[ownerID] <- broadcast
+		BcAdmin[ownerID] <- models.BroadCastToAdmin{
+			OwnerID:      ownerID,
+			SendTime:     time.Now().Unix(),
+			OwnerMessage: msg,
+		}
 	}
 }
 
-func broadcastMessages(bs <- chan models.Broadcast) {
+func broadcastToAdmin(msg <- chan models.BroadCastToAdmin) {
 	for {
 		// Grab the next messagebody from the broadcastbody channel
-		for i := range bs {
-			for client := range Clients[i.OwnerID] {
-				err := client.WriteJSON(i)
+		for i := range msg {
+			for _, v := range Admin {
+				v.WriteJSON(i)
+			}
+		}
+		// Send it out to every admin that is currently connected
+	}
+}
+
+
+// @Title WebSocket
+// @Description WebSocket
+// @router /admin
+func (w *WebsocketController) JoinAdmin() {
+	ws, err := upgrader.Upgrade(w.Ctx.ResponseWriter, w.Ctx.Request, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	// Make sure we close the connection when the function returns
+	defer ws.Close()
+	// Register our new client
+	_, b, err := ws.ReadMessage()
+	if err != nil {
+		w.Ctx.WriteString(err.Error())
+		return
+	}
+	tokenString := string(b)
+	adminID := middlewares.GetAdminFromToken(tokenString)
+	if adminID == "" {
+		ws.WriteJSON(response.BadRequest)
+		return
+	}
+	Admin[adminID] = ws
+	err = ws.WriteJSON(response.Success)
+	if err != nil {
+		return
+	}
+	BcOwner[adminID] = make(chan models.BroadCastToOwner)
+	go broadcastToOwner(BcOwner[adminID])
+	for {
+		var msg models.AdminMessage
+		// Read in a new messagebody as JSON and map it to a MoveMessage object
+		_, b, err = ws.ReadMessage()
+		err = json.Unmarshal(b, &msg)
+		if err != nil {
+			ws.WriteJSON(response.BadRequest)
+			ws.Close()
+			return
+		}
+		// Send the newly received messagebody to the broadcastbody channel
+		BcOwner[adminID] <- models.BroadCastToOwner{
+			AdminID:      adminID,
+			SendTime:     time.Now().Unix(),
+			AdminMessage: msg,
+		}
+	}
+}
+
+func broadcastToOwner(msg <- chan models.BroadCastToOwner) {
+	for {
+		// Grab the next messagebody from the broadcastbody channel
+		for i := range msg {
+			if Clients[i.OwnerID] != nil {
+				err := Clients[i.OwnerID].WriteJSON(i)
 				if err != nil {
-					log.Printf("error: %v", err)
-					client.Close()
-					delete(Clients[i.OwnerID], client)
+					delete(Clients, i.OwnerID)
 				}
 			}
 		}
-		// Send it out to every client that is currently connected
+		// Send it out to every owner that is currently connected
 	}
 }

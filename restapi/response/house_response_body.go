@@ -53,6 +53,7 @@ type Address struct {
 	Province string `json:"province"`
 	District string `json:"district"`
 	Commune  string `json:"commune"`
+	Street   string `json:"street"`
 }
 
 type Infrastructure struct {

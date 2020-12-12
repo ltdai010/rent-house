@@ -17,7 +17,7 @@ func filterComment(ctx *context.Context) {
 }
 
 func ownComment(tokenString, commentID string) bool {
-	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, keyFunc)
+	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, KeyFunc)
 	if err != nil {
 		log.Println(err)
 		return false

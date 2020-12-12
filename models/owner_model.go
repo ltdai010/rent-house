@@ -13,6 +13,7 @@ type Owner struct {
 	OwnerFullName	string		`json:"owner_full_name"`
 	Profile   		Profile 	`json:"profile"`
 	Address   		Address 	`json:"address"`
+	PasswordChanged int64		`json:"password_changed"`
 	Activate  		bool	 	`json:"activate"`
 }
 

@@ -347,6 +347,12 @@ paths:
       - chat
       description: WebSocket
       operationId: WebsocketController.WebSocket
+  /chat/admin:
+    get:
+      tags:
+      - chat
+      description: WebSocket
+      operationId: WebsocketController.WebSocket
   /comment/{commentID}/:
     get:
       tags:
@@ -840,6 +846,25 @@ paths:
           description: '{string} success'
         "403":
           description: body is empty
+  /renter/info/{renterID}:
+    get:
+      tags:
+      - renter
+      description: get user by uid
+      operationId: RenterController.GetInfo
+      parameters:
+      - in: path
+        name: renterID
+        description: renter id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/response.RenterInfo'
+        "403":
+          description: :renterID is empty
   /renter/like/{houseID}:
     put:
       tags:
@@ -880,6 +905,32 @@ paths:
           description: '{string} success'
         "403":
           description: body is empty
+  /renter/password:
+    put:
+      tags:
+      - renter
+      description: update the user
+      operationId: RenterController.ChangePass
+      parameters:
+      - in: header
+        name: token
+        description: The token
+        required: true
+        type: string
+      - in: body
+        name: password
+        description: body password
+        required: true
+        schema:
+          type: string
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+        "403":
+          description: :renterID is not int
   /renter/sign-up/:
     post:
       tags:
@@ -1205,6 +1256,9 @@ definitions:
         type: string
       password:
         type: string
+      password_changed:
+        type: integer
+        format: int64
       profile:
         $ref: '#/definitions/models.Profile'
   models.Profile:
@@ -1243,6 +1297,9 @@ definitions:
           type: string
       password:
         type: string
+      password_changed:
+        type: integer
+        format: int64
       phone_number:
         type: string
       renter_full_name:
@@ -1421,6 +1478,8 @@ definitions:
         type: string
       province:
         type: string
+      street:
+        type: string
   response.Comment:
     title: Comment
     type: object
@@ -1542,6 +1601,14 @@ definitions:
       water_price:
         type: integer
         format: int64
+  response.RenterInfo:
+    title: RenterInfo
+    type: object
+    properties:
+      renter_id:
+        type: string
+      renter_name:
+        type: string
   response.Status:
     title: Status
     type: string

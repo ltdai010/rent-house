@@ -17,7 +17,7 @@ func filterHouse(ctx *context.Context) {
 }
 
 func ownHouse(tokenString, houseID string) bool {
-	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, keyFunc)
+	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, KeyFunc)
 	if err != nil {
 		log.Println(err)
 		return false

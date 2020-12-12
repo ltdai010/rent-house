@@ -14,7 +14,7 @@ type TokenClaims struct {
 }
 
 var(
-	keyFunc = func(token *jwt.Token) (interface{}, error) {
+	KeyFunc = func(token *jwt.Token) (interface{}, error) {
 		return []byte(consts.SECRET_KEY), nil
 	}
 )

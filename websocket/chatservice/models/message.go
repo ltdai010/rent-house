@@ -1,7 +1,13 @@
 package models
 
-type Message struct {
+type BroadCastToAdmin struct {
 	OwnerID			string `json:"owner_id"`
 	SendTime		int64  `json:"send_time"`
-	MessageContent	string `json:"message_content"`
+	OwnerMessage
+}
+
+type BroadCastToOwner struct {
+	AdminID  string `json:"admin_id"`
+	SendTime int64  `json:"send_time"`
+	AdminMessage
 }

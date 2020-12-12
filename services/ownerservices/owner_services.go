@@ -8,6 +8,7 @@ import (
 	"rent-house/models"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
+	"time"
 )
 
 func AddOwner(o *request.OwnerPost) error {
@@ -38,6 +39,7 @@ func AddOwner(o *request.OwnerPost) error {
 		Profile:       o.Profile,
 		Address:       *a,
 		Activate:      false,
+		PasswordChanged: time.Now().Unix(),
 	}
 	err = ob.PutItem()
 	if err != nil {

@@ -16,7 +16,7 @@ func filterOwner(ctx *context.Context) {
 }
 
 func isOwner(ctx *context.Context) bool {
-	token, err := jwt.ParseWithClaims(ctx.Input.Header("token"), &TokenClaims{}, keyFunc)
+	token, err := jwt.ParseWithClaims(ctx.Input.Header("token"), &TokenClaims{}, KeyFunc)
 	if err != nil {
 		log.Println(err)
 		return false
@@ -27,8 +27,27 @@ func isOwner(ctx *context.Context) bool {
 		if err != nil {
 			return false
 		}
+		if claim.IssuedAt < owner.PasswordChanged {
+			return false
+		}
 		ctx.Request.Header.Set("ownername", claim.Username)
 		return true
 	}
 	return false
+}
+
+func GetOwnernameFromToken(tokenString string) string {
+	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, KeyFunc)
+	if err != nil {
+		return ""
+	}
+	if claim, ok := token.Claims.(*TokenClaims); ok && token.Valid {
+		owner := &models.Owner{}
+		err = owner.GetFromKey(claim.Username)
+		if err != nil {
+			return ""
+		}
+		return claim.Username
+	}
+	return ""
 }

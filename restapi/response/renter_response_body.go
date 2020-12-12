@@ -7,3 +7,8 @@ type Renter struct {
 	Email			string 		`json:"email"`
 	ListFavourite	[]string	`json:"list_favourite"`
 }
+
+type RenterInfo struct {
+	RenterID 	    string		`json:"renter_id"`
+	RenterName 		string 		`json:"renter_name"`
+}

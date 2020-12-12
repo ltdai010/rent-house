@@ -121,17 +121,7 @@ func (this *House) PutItem() (string, error) {
 		Header:         this.Header,
 		Content:        this.Content,
 	})
-	//add to in active
-	go Client.Collection(consts.HOUSE_WAIT_LIST).Doc(res.ID).Set(ctx, map[string]string{
-		"HouseID" : res.ID,
-	})
 	return res.ID, err
-}
-
-func (this *House) AddToWaitList(time PostTime) error {
-	//add to wait list
-	_, err := this.GetCollection().Doc(time.HouseID).Set(ctx, time)
-	return err
 }
 
 func (this *House) Public(time PostTime) error {
@@ -158,11 +148,6 @@ func (this *House) Delete(id string) error {
 		return err
 	}
 	_, err = searchIndex.Delete(id)
-	return err
-}
-
-func (this *House) DeleteWaitList(id string) error {
-	_, err := Client.Collection(consts.HOUSE_WAIT_LIST).Doc(id).Delete(ctx)
 	return err
 }
 
@@ -296,7 +281,7 @@ func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]res
 }
 
 func (this *House) GetAllWaitList() ([]response.House, error) {
-	listdoc := Client.Collection(consts.HOUSE_WAIT_LIST).Documents(ctx)
+	listdoc := Client.Collection(consts.HOUSE).Where("Status", "==", InActivated).Documents(ctx)
 	listHouse := []response.House{}
 	for {
 		doc, err := listdoc.Next()
@@ -306,39 +291,37 @@ func (this *House) GetAllWaitList() ([]response.House, error) {
 		if err != nil {
 			return nil, err
 		}
-		i, err := doc.DataAt("HouseID")
-		if err != nil {
-			continue
-		}
 		h := response.House{}
-		it, err := Client.Collection(consts.HOUSE).Doc(i.(string)).Get(ctx)
+		err = doc.DataTo(&h)
 		if err != nil {
 			continue
 		}
-		err = it.DataTo(&h)
-		if err != nil {
-			continue
-		}
-		h.HouseID = it.Ref.ID
+		h.HouseID = doc.Ref.ID
 		listHouse = append(listHouse, h)
 	}
 	return listHouse, nil
 }
 
-func (this *House) GetPaginateWaitList(page int, count int) ([]string, error) {
-	listOwner := []string{}
-	listDoc, err := Client.Collection(consts.HOUSE_WAIT_LIST).OrderBy("HouseID", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
-	if err != nil {
-		return nil, err
-	}
-	for _, i := range listDoc {
-		s, err := i.DataAt("HouseID")
+func (this *House) GetPaginateWaitList(page int, count int) ([]response.House, error) {
+	listHouse := []response.House{}
+	listDoc := Client.Collection(consts.HOUSE).Where("Status", "==", InActivated).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx)
+	for  {
+		doc, err := listDoc.Next()
+		if err == iterator.Done {
+			break
+		}
 		if err != nil {
 			return nil, err
 		}
-		listOwner = append(listOwner, s.(string))
+		h := response.House{}
+		err = doc.DataTo(&h)
+		if err != nil {
+			continue
+		}
+		h.HouseID = doc.Ref.ID
+		listHouse = append(listHouse, h)
 	}
-	return listOwner, nil
+	return listHouse, nil
 }
 
 func (this *House) UpdateItem(id string) error {
