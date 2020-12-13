@@ -36,3 +36,8 @@ type HousePut struct {
 	Content        string         		 `json:"content"`
 }
 
+type DeniedComment struct {
+	HouseID string `json:"house_id"`
+	Comment string `json:"comment"`
+}
+

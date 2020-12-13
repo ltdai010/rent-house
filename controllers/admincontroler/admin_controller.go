@@ -115,13 +115,19 @@ func (u *AdminController) ActivateHouse() {
 // @Title DeniedHouse
 // @Description active house
 // @Param	token			header	string	true		"admin key"
-// @Param	houseID		    query 	string	true		"houseID"
+// @Param	body		    body 	request.DeniedComment	true		"houseID"
 // @Success 200 {string} success
 // @Failure 403 body is empty
 // @router /denied-house/ [post]
 func (u *AdminController) DeniedHouse() {
-	houseID := u.GetString("houseID")
-	err := houseservices.DenyHouse(houseID)
+	rq := request.DeniedComment{}
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &rq)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	err = houseservices.DenyHouse(rq)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

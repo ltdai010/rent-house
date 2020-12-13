@@ -208,11 +208,13 @@
                         "type": "string"
                     },
                     {
-                        "in": "query",
-                        "name": "houseID",
+                        "in": "body",
+                        "name": "body",
                         "description": "houseID",
                         "required": true,
-                        "type": "string"
+                        "schema": {
+                            "$ref": "#/definitions/request.DeniedComment"
+                        }
                     }
                 ],
                 "responses": {
@@ -2277,6 +2279,18 @@
                 "star": {
                     "type": "integer",
                     "format": "int64"
+                }
+            }
+        },
+        "request.DeniedComment": {
+            "title": "DeniedComment",
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "house_id": {
+                    "type": "string"
                 }
             }
         },

@@ -140,11 +140,12 @@ paths:
         description: admin key
         required: true
         type: string
-      - in: query
-        name: houseID
+      - in: body
+        name: body
         description: houseID
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/request.DeniedComment'
       responses:
         "200":
           description: '{string} success'
@@ -1528,6 +1529,14 @@ definitions:
       star:
         type: integer
         format: int64
+  request.DeniedComment:
+    title: DeniedComment
+    type: object
+    properties:
+      comment:
+        type: string
+      house_id:
+        type: string
   request.HousePost:
     title: HousePost
     type: object

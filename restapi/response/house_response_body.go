@@ -76,3 +76,4 @@ const (
 	FullHouse
 	Apartment
 )
+

@@ -102,15 +102,16 @@ func AdminAddHouse(ownerID string, house *request.HousePost) (string, error) {
 	return h.PutItem()
 }
 
-func DenyHouse(id string) error {
+func DenyHouse(comment request.DeniedComment) error {
 	house := &models.House{}
-	err := house.GetFromKey(id)
+	err := house.GetFromKey(comment.HouseID)
 	if err != nil {
 		return err
 	}
+	house.AdminComment = comment.Comment
 	house.Status = models.Denied
 	house.ExpiredTime = 0
-	return house.UpdateItem(id)
+	return house.UpdateItem(comment.HouseID)
 }
 
 func ActiveHouse(id string) error {

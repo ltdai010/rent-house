@@ -11,3 +11,4 @@ type CommentPut struct {
 	Header    string `json:"header"`
 	Star      int    `json:"star"`
 }
+
