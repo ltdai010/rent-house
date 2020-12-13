@@ -14,11 +14,11 @@ type Mail struct {
 
 
 
-func (m *Mail) SendMail() error {
+func (m *Mail) SendMail(receiver string) error {
 	to := "To: " + m.To +"\r\n"
 	subject := "Subject: " + m.Subject  +"\r\n"
 	message := []byte(to + subject + "\n" + m.Msg + "\r\n")
-	err := smtp.SendMail(beego.AppConfig.String("gmail::host_port"), EmailAuth, EmailFrom, []string{"luongdai246@gmail.com"}, message)
+	err := smtp.SendMail(beego.AppConfig.String("gmail::host_port"), EmailAuth, EmailFrom, []string{receiver}, message)
 	if err != nil {
 		log.Println(err)
 	}

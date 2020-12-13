@@ -3,6 +3,7 @@ package models
 import (
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
+	"log"
 	"rent-house/consts"
 	"rent-house/restapi/response"
 )
@@ -44,12 +45,6 @@ func (this *Owner) GetPaginate(page int, count int) ([]response.Owner, error) {
 
 func (this *Owner) PutItem() error {
 	_, err := Client.Collection(this.GetCollectionKey()).Doc(this.OwnerName).Set(ctx, *this)
-	if err != nil {
-		return err
-	}
-	_, err = Client.Collection(consts.OWNER_WAIT_LIST).Doc(this.OwnerName).Set(ctx, map[string]string{
-		"OwnerName" : this.OwnerName,
-	})
 	return err
 }
 
@@ -63,10 +58,6 @@ func (this *Owner) Delete(id string) error {
 	return err
 }
 
-func (this *Owner) DeleteWaitList(id string) error {
-	_, err := Client.Collection(consts.OWNER_WAIT_LIST).Doc(id).Delete(ctx)
-	return err
-}
 
 func (this *Owner) GetFromKey(key string) error {
 	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
@@ -77,35 +68,45 @@ func (this *Owner) GetFromKey(key string) error {
 	return err
 }
 
-func (this *Owner) GetAllWaitList() ([]string, error) {
-	listdoc := Client.Collection(consts.OWNER_WAIT_LIST).Documents(ctx)
-	listOwner := []string{}
+func (this *Owner) GetAllWaitList() ([]response.Owner, error) {
+	listdoc := Client.Collection(consts.OWNER).Where("Activate", "==", false).Documents(ctx)
+	listOwner := []response.Owner{}
 	for {
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
 		}
-		i, err := doc.DataAt("OwnerName")
 		if err != nil {
 			return nil, err
 		}
-		listOwner = append(listOwner, i.(string))
+		o := response.Owner{}
+		err = doc.DataTo(&o)
+		if err != nil {
+			return nil, err
+		}
+		listOwner = append(listOwner, o)
 	}
 	return listOwner, nil
 }
 
-func (this *Owner) GetPaginateWaitList(page int, count int) ([]string, error) {
-	listOwner := []string{}
-	listDoc, err := Client.Collection(consts.OWNER_WAIT_LIST).OrderBy("OwnerName", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
-	if err != nil {
-		return nil, err
-	}
-	for _, i := range listDoc {
-		s, err := i.DataAt("OwnerName")
+func (this *Owner) GetPaginateWaitList(page int, count int) ([]response.Owner, error) {
+	listDoc := Client.Collection(consts.OWNER).Where("Activate", "==", false).OrderBy("OwnerName", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx)
+	listOwner := []response.Owner{}
+	for {
+		doc, err := listDoc.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		o := response.Owner{}
+		err = doc.DataTo(&o)
 		if err != nil {
 			return nil, err
 		}
-		listOwner = append(listOwner, s.(string))
+		listOwner = append(listOwner, o)
 	}
 	return listOwner, nil
 }
@@ -118,6 +119,9 @@ func (this *Owner) GetAll() ([]response.Owner, error) {
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
+		}
+		if err != nil {
+			return nil, err
 		}
 		err = doc.DataTo(&q)
 		if err != nil {

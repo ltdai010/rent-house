@@ -47,6 +47,24 @@ func (u *OwnerController) CreateHouse() {
 	u.ServeJSON()
 }
 
+// @Title ChangePass
+// @Description update the user
+// @Param	token		header		string	true		"The token"
+// @Param	password	body 	    string	true		"body password"
+// @Success 200 {object} models.User
+// @Failure 403 :renterID is not int
+// @router /password [put]
+func (u *OwnerController) ChangePass() {
+	id := u.Ctx.Input.Header("ownername")
+	err := ownerservices.ChangePassword(id, string(u.Ctx.Input.RequestBody))
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
 // @Title CreateOwner
 // @Description create users
 // @Param	body		body 	request.OwnerPost	true		"body for user content"

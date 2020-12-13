@@ -112,6 +112,24 @@ func (u *AdminController) ActivateHouse() {
 	u.ServeJSON()
 }
 
+// @Title DeniedHouse
+// @Description active house
+// @Param	token			header	string	true		"admin key"
+// @Param	houseID		    query 	string	true		"houseID"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /denied-house/ [post]
+func (u *AdminController) DeniedHouse() {
+	houseID := u.GetString("houseID")
+	err := houseservices.DenyHouse(houseID)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
 // @Title ExtendHouse
 // @Description extend house time
 // @Param	token			header	string	true		"admin key"
@@ -154,7 +172,7 @@ func (u *AdminController) ActivateComment() {
 // @Success 200 {object} models.House
 // @router /wait-houses/ [get]
 func (u *AdminController) GetAllWaitHouse() {
-	obs, err := houseservices.GetAllWaitHouse()
+	obs, err := houseservices.GetAllHouseHouseByStatus(models.InActivated)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.ErrSystem)
 	} else {
@@ -186,7 +204,109 @@ func (u *AdminController) GetPageWaitHouse() {
 		u.ServeJSON()
 		return
 	}
-	obs, err := houseservices.GetPageWaitHouse(page, count)
+	obs, err := houseservices.GetPageHouseByStatus(models.InActivated, page, count)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+
+// @Title GetAllExtendHouse
+// @Description get all renters
+// @Param	token			header	string	true		"admin key"
+// @Success 200 {object} models.House
+// @router /extend-houses/ [get]
+func (u *AdminController) GetAllExtendHouse() {
+	obs, err := houseservices.GetAllHouseHouseByStatus(models.Extend)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.ErrSystem)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetPageExtendHouse
+// @Description get page comment
+// @Param	token		header	string	true		"admin key"
+// @Param	page		query	int		true	"the page"
+// @Param	count		query	int		true	"the count"
+// @Success 200 {object} models.House
+// @router /page-extend-houses/ [get]
+func (u *AdminController) GetPageExtendHouse() {
+	page, err := u.GetInt("page")
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	count, err := u.GetInt("count")
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	obs, err := houseservices.GetPageHouseByStatus(models.Extend, page, count)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+
+// @Title GetAllDeniedHouse
+// @Description get all renters
+// @Param	token			header	string	true		"admin key"
+// @Success 200 {object} models.House
+// @router /denied-houses/ [get]
+func (u *AdminController) GetAllDeniedHouse() {
+	obs, err := houseservices.GetAllHouseHouseByStatus(models.Denied)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.ErrSystem)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: obs,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetPageDeniedHouse
+// @Description get page comment
+// @Param	token		header	string	true		"admin key"
+// @Param	page		query	int		true	"the page"
+// @Param	count		query	int		true	"the count"
+// @Success 200 {object} models.House
+// @router /page-denied-houses/ [get]
+func (u *AdminController) GetPageDeniedHouse() {
+	page, err := u.GetInt("page")
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	count, err := u.GetInt("count")
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	obs, err := houseservices.GetPageHouseByStatus(models.Denied, page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

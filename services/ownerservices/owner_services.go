@@ -59,23 +59,23 @@ func ActiveOwner(ownerID string) error {
 	if err != nil {
 		return err
 	}
-	return owner.DeleteWaitList(ownerID)
+	return nil
 }
 
-func GetAllWaitOwner() ([]string, error) {
+func GetAllWaitOwner() ([]response.Owner, error) {
 	h := &models.Owner{}
 	list, err := h.GetAllWaitList()
 	if err != nil {
-		return []string{}, err
+		return nil, err
 	}
 	return list, nil
 }
 
-func GetPageWaitOwner(page int, count int) ([]string, error) {
+func GetPageWaitOwner(page int, count int) ([]response.Owner, error) {
 	h := &models.Owner{}
 	list, err := h.GetPaginateWaitList(page, count)
 	if err != nil {
-		return []string{}, err
+		return nil, err
 	}
 	return list, nil
 }
@@ -120,13 +120,13 @@ func AverageStar(ownerID string) float32 {
 		n := i.Review["0"] + i.Review["1"] + i.Review["2"] + i.Review["3"] + i.Review["4"] + i.Review["5"]
 		s := i.Review["1"]*1 + i.Review["2"]*2 + i.Review["3"]*3 + i.Review["4"]*4 + i.Review["5"]*5
 		if n == 0 {
-			n = 1
+			continue
 		}
 		sum += float32(s)/float32(n)
 		num++
 	}
 	if num == 0 {
-		num = 1
+		return 5
 	}
 	return sum / num
 }
@@ -188,4 +188,19 @@ func LoginOwner(login models.Login) (string, error) {
 		return middlewares.CreateToken(login.Username)
 	}
 	return "", errors.New("not authorized")
+}
+
+func ChangePassword(ownerID string, password string) error {
+	owner := &models.Owner{}
+	err := owner.GetFromKey(ownerID)
+	if err != nil {
+		return err
+	}
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil
+	}
+	owner.PasswordChanged = time.Now().Unix()
+	owner.Password = string(hashed)
+	return owner.PutItem()
 }

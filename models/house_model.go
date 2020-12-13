@@ -2,7 +2,6 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
-	"fmt"
 	"github.com/algolia/algoliasearch-client-go/v3/algolia/opt"
 	"google.golang.org/api/iterator"
 	"io"
@@ -43,7 +42,7 @@ type House struct {
 type HouseSearch struct {
 	ObjectID 	   string 		  `json:"objectID"`
 	OwnerID        string         `json:"owner_id"`
-	NearBy         []string         `json:"near_by"`
+	NearBy         []string       `json:"near_by"`
 	Header         string         `json:"header"`
 	Content        string         `json:"content"`
 }
@@ -190,7 +189,7 @@ func (this *House) GetResponse(key string) (response.House, error) {
 }
 
 func (this *House) GetAllActivate() ([]response.House, error) {
-	listdoc := Client.Collection(this.GetCollectionKey()).Where("ExpiredTime", ">", fmt.Sprint(time.Now().Unix())).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Where("ExpiredTime", ">", time.Now().Unix()).Documents(ctx)
 	listHouse := []response.House{}
 	for {
 		var q response.House
@@ -287,8 +286,8 @@ func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]res
 	return listHouse, nil
 }
 
-func (this *House) GetAllWaitList() ([]response.House, error) {
-	listdoc := Client.Collection(consts.HOUSE).Where("Status", "==", InActivated).Documents(ctx)
+func (this *House) GetAllByStatus(status Status) ([]response.House, error) {
+	listdoc := Client.Collection(consts.HOUSE).Where("Status", "==", status).Documents(ctx)
 	listHouse := []response.House{}
 	for {
 		doc, err := listdoc.Next()
@@ -309,9 +308,9 @@ func (this *House) GetAllWaitList() ([]response.House, error) {
 	return listHouse, nil
 }
 
-func (this *House) GetPaginateWaitList(page int, count int) ([]response.House, error) {
+func (this *House) GetPaginateByStatus(status Status, page int, count int) ([]response.House, error) {
 	listHouse := []response.House{}
-	listDoc := Client.Collection(consts.HOUSE).Where("Status", "==", InActivated).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx)
+	listDoc := Client.Collection(consts.HOUSE).Where("Status", "==", status).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx)
 	for  {
 		doc, err := listDoc.Next()
 		if err == iterator.Done {

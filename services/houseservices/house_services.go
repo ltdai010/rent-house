@@ -102,6 +102,16 @@ func AdminAddHouse(ownerID string, house *request.HousePost) (string, error) {
 	return h.PutItem()
 }
 
+func DenyHouse(id string) error {
+	house := &models.House{}
+	err := house.GetFromKey(id)
+	if err != nil {
+		return err
+	}
+	house.Status = models.Denied
+	house.ExpiredTime = 0
+	return house.UpdateItem(id)
+}
 
 func ActiveHouse(id string) error {
 	house := &models.House{}
@@ -127,7 +137,7 @@ func ActiveHouse(id string) error {
 		Subject: "Active house",
 		Msg:     "Your house name "+ house.Header + " has been active for everyone to see.\nIt will last since " + time.Unix(house.ExpiredTime, 0).String(),
 	}
-	go mail.SendMail()
+	go mail.SendMail(o.Profile.Email)
 	return nil
 }
 
@@ -314,9 +324,9 @@ func ViewHouse(id string) (error) {
 	return err
 }
 
-func GetAllWaitHouse() ([]response.House, error) {
+func GetAllHouseHouseByStatus(status models.Status) ([]response.House, error) {
 	h := &models.House{}
-	list, err := h.GetAllWaitList()
+	list, err := h.GetAllByStatus(status)
 	if err != nil {
 		log.Println(err)
 		return []response.House{}, err
@@ -324,9 +334,9 @@ func GetAllWaitHouse() ([]response.House, error) {
 	return list, nil
 }
 
-func GetPageWaitHouse(page int, count int) ([]response.House, error) {
+func GetPageHouseByStatus(status models.Status, page int, count int) ([]response.House, error) {
 	h := &models.House{}
-	list, err := h.GetPaginateWaitList(page, count)
+	list, err := h.GetPaginateByStatus(status, page, count)
 	if err != nil {
 		return list, err
 	}

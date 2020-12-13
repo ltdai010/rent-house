@@ -10,7 +10,7 @@ import (
 func filterHouse(ctx *context.Context) {
 	if ctx.Input.Method() == "GET" {
 		return
-	} else if ownHouse(ctx.Input.Header("token"), ctx.Input.Param(":houseID")) {
+	} else if ownHouse(ctx.Input.Header("token"), ctx.Input.Param(":houseID")) || ValidAdmin(ctx) {
 		return
 	}
 	ctx.ResponseWriter.WriteHeader(403)

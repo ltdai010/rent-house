@@ -128,6 +128,45 @@ paths:
           description: '{string} success'
         "403":
           description: body is empty
+  /admin/denied-house/:
+    post:
+      tags:
+      - admin
+      description: active house
+      operationId: AdminController.DeniedHouse
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      - in: query
+        name: houseID
+        description: houseID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} success'
+        "403":
+          description: body is empty
+  /admin/denied-houses/:
+    get:
+      tags:
+      - admin
+      description: get all renters
+      operationId: AdminController.GetAllDeniedHouse
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.House'
   /admin/extend-house/:
     post:
       tags:
@@ -150,6 +189,23 @@ paths:
           description: '{string} success'
         "403":
           description: body is empty
+  /admin/extend-houses/:
+    get:
+      tags:
+      - admin
+      description: get all renters
+      operationId: AdminController.GetAllExtendHouse
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.House'
   /admin/house/:
     post:
       tags:
@@ -208,6 +264,64 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.Owner'
+  /admin/page-denied-houses/:
+    get:
+      tags:
+      - admin
+      description: get page comment
+      operationId: AdminController.GetPageDeniedHouse
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      - in: query
+        name: page
+        description: the page
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: count
+        description: the count
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.House'
+  /admin/page-extend-houses/:
+    get:
+      tags:
+      - admin
+      description: get page comment
+      operationId: AdminController.GetPageExtendHouse
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      - in: query
+        name: page
+        description: the page
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: count
+        description: the count
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.House'
   /admin/page-wait-comments/:
     get:
       tags:
@@ -791,6 +905,32 @@ paths:
           description: '{string} token'
         "403":
           description: body is empty
+  /owner/password:
+    put:
+      tags:
+      - owner
+      description: update the user
+      operationId: OwnerController.ChangePass
+      parameters:
+      - in: header
+        name: token
+        description: The token
+        required: true
+        type: string
+      - in: body
+        name: password
+        description: body password
+        required: true
+        schema:
+          type: string
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+        "403":
+          description: :renterID is not int
   /owner/sign-up/:
     post:
       tags:
