@@ -9,7 +9,7 @@ import (
 )
 
 func filterOwner(ctx *context.Context) {
-	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/login/") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/sign-up/") || ctx.Input.Method() == "GET" || isOwner(ctx) {
+	if strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/login") || strings.HasPrefix(ctx.Input.URL(), "/v1/rent-house/owner/sign-up") || ctx.Input.Method() == "GET" || isOwner(ctx) {
 		return
 	}
 	ctx.ResponseWriter.WriteHeader(403)
@@ -31,6 +31,11 @@ func isOwner(ctx *context.Context) bool {
 			return false
 		}
 		ctx.Request.Header.Set("ownername", claim.Username)
+		if ctx.Input.Method() == "PUT" {
+			return true
+		} else if !owner.Activate {
+			return false
+		}
 		return true
 	}
 	return false

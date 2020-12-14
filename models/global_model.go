@@ -139,9 +139,9 @@ func (this *Address) FindAddress(communeCode string) (error) {
 	if err != nil {
 		return err
 	}
-	this.Province = p.NameWithType
-	this.District = d.NameWithType
-	this.Commune = c.NameWithType
+	this.Province = p.Name
+	this.District = d.Name
+	this.Commune = c.Name
 	return  err
 }
 
