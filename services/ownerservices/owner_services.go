@@ -33,12 +33,13 @@ func AddOwner(o *request.OwnerPost) error {
 		return response.ErrSystem
 	}
 	ob = &models.Owner{
-		OwnerName:     o.OwnerName,
-		Password:      string(hashed),
-		OwnerFullName: o.OwnerFullName,
-		Profile:       o.Profile,
-		Address:       *a,
-		Activate:      false,
+		OwnerName:       o.OwnerName,
+		Password:        string(hashed),
+		OwnerFullName:   o.OwnerFullName,
+		Profile:         o.Profile,
+		Address:         *a,
+		Activate:        false,
+		PostTime:        time.Now().Unix(),
 		PasswordChanged: time.Now().Unix(),
 	}
 	err = ob.PutItem()
@@ -55,6 +56,22 @@ func ActiveOwner(ownerID string) error {
 		return err
 	}
 	owner.Activate = true
+	owner.PostTime = time.Now().Unix()
+	err = owner.UpdateItem(ownerID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeactiveOwner(ownerID string) error {
+	owner := &models.Owner{}
+	err := owner.GetFromKey(ownerID)
+	if err != nil {
+		return err
+	}
+	owner.Activate = false
+	owner.PostTime = time.Now().Unix()
 	err = owner.UpdateItem(ownerID)
 	if err != nil {
 		return err
@@ -109,7 +126,7 @@ func AverageStar(ownerID string) float32 {
 	house := &models.House{}
 	list, err := house.GetAllHouseOfOwner(ownerID)
 	if err != nil {
-		return 0
+		return 5
 	}
 	var num float32
 	var sum float32

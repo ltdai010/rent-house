@@ -36,6 +36,24 @@ func (u *AdminController) ActivateOwner() {
 	u.ServeJSON()
 }
 
+// @Title DeactivateOwner
+// @Description create users
+// @Param	token		header	string	true		"admin key"
+// @Param	ownerID		query 	string	true		"ownerID"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /inactive-owner/ [post]
+func (u *AdminController) DeactivateOwner() {
+	ownerID := u.GetString("ownerID")
+	err := ownerservices.DeactiveOwner(ownerID)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
 // @Title CreateHouse
 // @Description create users month = 0|| quarter = 1|| year = 2
 // @Param	token		header	    string			true			"The token string"
@@ -391,6 +409,27 @@ func (u *AdminController) GetAllOwner() {
 	}
 	u.ServeJSON()
 }
+
+// @Title GetPageOwner
+// @Description get all owners
+// @Param	token			header	string	true		"admin key"
+// @Param	page			query	int64	true		"page"
+// @Param	length			query	int64	true		"length"
+// @Success 200 {object} models.Owner
+// @router /page-owner [get]
+func (u *AdminController) GetPageOwner(page, length int64) {
+	users, err := ownerservices.GetPageOwner(int(page), int(length))
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: users,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
 
 // @Title GetAllRenter
 // @Description get all renters

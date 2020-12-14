@@ -230,6 +230,28 @@ paths:
           description: '{int} models.House'
         "403":
           description: body is empty
+  /admin/inactive-owner/:
+    post:
+      tags:
+      - admin
+      description: create users
+      operationId: AdminController.DeactivateOwner
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      - in: query
+        name: ownerID
+        description: ownerID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} success'
+        "403":
+          description: body is empty
   /admin/login/:
     post:
       tags:
@@ -323,6 +345,35 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.House'
+  /admin/page-owner:
+    get:
+      tags:
+      - admin
+      description: get all owners
+      operationId: AdminController.GetPageOwner
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      - in: query
+        name: page
+        description: page
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: length
+        description: length
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Owner'
   /admin/page-wait-comments/:
     get:
       tags:
@@ -1444,6 +1495,9 @@ definitions:
     properties:
       activate:
         type: boolean
+      active_time:
+        type: integer
+        format: int64
       address:
         $ref: '#/definitions/models.Address'
       owner_full_name:

@@ -9,13 +9,14 @@ import (
 )
 
 type Owner struct {
-	OwnerName 		string  	`json:"owner_name"`
-	Password		string		`json:"password"`
-	OwnerFullName	string		`json:"owner_full_name"`
-	Profile   		Profile 	`json:"profile"`
-	Address   		Address 	`json:"address"`
-	PasswordChanged int64		`json:"password_changed"`
-	Activate  		bool	 	`json:"activate"`
+	OwnerName       string  `json:"owner_name"`
+	Password        string  `json:"password"`
+	OwnerFullName   string  `json:"owner_full_name"`
+	Profile         Profile `json:"profile"`
+	Address         Address `json:"address"`
+	PasswordChanged int64   `json:"password_changed"`
+	PostTime        int64   `json:"active_time"`
+	Activate        bool    `json:"activate"`
 }
 
 
