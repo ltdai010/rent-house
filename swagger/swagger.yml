@@ -270,6 +270,28 @@ paths:
           description: '{string} token'
         "403":
           description: body is empty
+  /admin/owner/:
+    delete:
+      tags:
+      - admin
+      description: delete owner
+      operationId: AdminController.DeleteOwner
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      - in: query
+        name: ownerID
+        description: ownerID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} success'
+        "403":
+          description: body is empty
   /admin/owners/:
     get:
       tags:
@@ -1640,9 +1662,6 @@ definitions:
     title: HousePut
     type: object
     properties:
-      appear_time:
-        type: integer
-        format: int64
       commune_code:
         type: string
       content:
@@ -1690,6 +1709,8 @@ definitions:
         type: string
       profile:
         $ref: '#/definitions/models.Profile'
+      street:
+        type: string
   request.OwnerPut:
     title: OwnerPut
     type: object
@@ -1700,6 +1721,8 @@ definitions:
         type: string
       profile:
         $ref: '#/definitions/models.Profile'
+      street:
+        type: string
   request.RenterPost:
     title: RenterPost
     type: object

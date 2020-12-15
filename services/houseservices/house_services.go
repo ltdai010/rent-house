@@ -96,8 +96,8 @@ func AdminAddHouse(ownerID string, house *request.HousePost) (string, error) {
 		PostTime:       time.Now().Unix(),
 		Status:         models.Activated,
 		Review: 		map[string]int{},
-		AppearTime:     house.AppearTime*7*3600*24,
-		ExpiredTime:    time.Now().Unix() + house.AppearTime*7*3600*24,
+		AppearTime:     999999*3600*24,
+		ExpiredTime:    time.Now().Unix() + 999999*3600*24,
 	}
 	return h.PutItem()
 }
@@ -335,13 +335,9 @@ func GetAllHouseHouseByStatus(status models.Status) ([]response.House, error) {
 	return list, nil
 }
 
-func GetPageHouseByStatus(status models.Status, page int, count int) ([]response.House, error) {
+func GetPageHouseByStatus(status models.Status, page int, count int) ([]response.House, int, error) {
 	h := &models.House{}
-	list, err := h.GetPaginateByStatus(status, page, count)
-	if err != nil {
-		return list, err
-	}
-	return list, nil
+	return h.GetPaginateByStatus(status, page, count)
 }
 
 func GetAllHouse() ([]response.House, error) {
@@ -353,13 +349,9 @@ func GetAllHouse() ([]response.House, error) {
 	return list, nil
 }
 
-func GetPageHouse(page, count int) ([]response.House, error) {
+func GetPageHouse(page, count int) ([]response.House, int, error) {
 	o := &models.House{}
-	list, err :=  o.GetPageActivate(page, count)
-	if err != nil {
-		return []response.House{}, err
-	}
-	return list, nil
+	return o.GetPageActivate(page, count)
 }
 
 func GetAllHouseOfOwner(userID string) ([]response.House, error) {
@@ -371,13 +363,9 @@ func GetAllHouseOfOwner(userID string) ([]response.House, error) {
 	return list, nil
 }
 
-func GetPageHouseOfOwner(ownerID string, page int, count int) ([]response.House, error) {
+func GetPageHouseOfOwner(ownerID string, page int, count int) ([]response.House, int, error) {
 	o := &models.House{}
-	list, err := o.GetPaginateHouseOfUser(ownerID, page, count)
-	if err != nil {
-		return []response.House{}, err
-	}
-	return list, nil
+	return o.GetPaginateHouseOfUser(ownerID, page, count)
 }
 
 func UpdateHouse(id string, ob *request.HousePut) error {
@@ -415,7 +403,6 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	h.Infrastructure = ob.Infrastructure
 	h.Address = *a
 	h.ImageLink = ob.ImageLink
-	h.AppearTime = ob.AppearTime*7*3600*24
 	h.Price = ob.Price/divide
 	h.Unit = ob.Unit
 	h.HouseType = ob.HouseType
@@ -428,7 +415,7 @@ func PutExtendTime(houseID string, extendTime int64) error {
 	if err != nil {
 		return err
 	}
-	h.AppearTime = extendTime
+	h.AppearTime = extendTime*3600*7*24
 	h.Status = models.Extend
 	return h.UpdateItem(houseID)
 }
@@ -442,13 +429,9 @@ func SearchHouse(key, provinceID, districtID, communeID string) ([]response.Hous
 	return	FilterSearchResult(res, provinceID, districtID, communeID)
 }
 
-func SearchPageHouse(key, provinceID, districtID, communeID string, page, count int) ([]response.House, error) {
+func SearchPageHouse(key, provinceID, districtID, communeID string, page, count int) ([]response.House, int, error) {
 	h := &models.House{}
-	res, err := h.SearchPaginateItem(key, page, count)
-	if err != nil {
-		return []response.House{}, err
-	}
-	return	FilterSearchResult(res, provinceID, districtID, communeID)
+	return h.SearchPaginateItem(key, page, count)
 }
 
 func DeleteHouse(id string) error {

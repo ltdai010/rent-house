@@ -30,7 +30,6 @@ type HousePut struct {
 	Infrastructure models.Infrastructure `json:"infrastructure"`
 	ImageLink      []string       		 `json:"image_link"`
 	NearBy         []string        		 `json:"near_by"`
-	AppearTime	   int64		  		 `json:"appear_time"`
 	WithOwner      bool           		 `json:"with_owner"`
 	Header         string         		 `json:"header"`
 	Content        string         		 `json:"content"`

@@ -51,13 +51,14 @@ func (u *HouseController) GetPageActivateHouse() {
 		u.ServeJSON()
 		return
 	}
-	users, err := houseservices.GetPageHouse(page, count)
+	users, total, err := houseservices.GetPageHouse(page, count)
 	if err != nil {
 		log.Println(err)
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: users,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}

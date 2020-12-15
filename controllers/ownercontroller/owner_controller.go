@@ -176,12 +176,13 @@ func (u *OwnerController) GetAllHouse(ownerID string) {
 // @Success 200 {object} models.House
 // @router /:ownerID/page-houses/ [get]
 func (u *OwnerController) GetPageHouse(ownerID string, page int, count int) {
-	houses, err := houseservices.GetPageHouseOfOwner(ownerID, page, count)
+	houses, total, err := houseservices.GetPageHouseOfOwner(ownerID, page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: houses,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}

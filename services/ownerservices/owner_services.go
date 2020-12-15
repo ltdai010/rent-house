@@ -28,6 +28,7 @@ func AddOwner(o *request.OwnerPost) error {
 		log.Println(err)
 		return err
 	}
+	a.Street = o.Street
 	hashed, err := bcrypt.GenerateFromPassword([]byte(o.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return response.ErrSystem

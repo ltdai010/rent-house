@@ -54,6 +54,24 @@ func (u *AdminController) DeactivateOwner() {
 	u.ServeJSON()
 }
 
+// @Title DeleteOwner
+// @Description delete owner
+// @Param	token		header	string	true		"admin key"
+// @Param	ownerID		query 	string	true		"ownerID"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /owner/ [delete]
+func (u *AdminController) DeleteOwner() {
+	ownerID := u.GetString("ownerID")
+	err := ownerservices.DeleteOwner(ownerID)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
 // @Title CreateHouse
 // @Description create users month = 0|| quarter = 1|| year = 2
 // @Param	token		header	    string			true			"The token string"
@@ -228,12 +246,13 @@ func (u *AdminController) GetPageWaitHouse() {
 		u.ServeJSON()
 		return
 	}
-	obs, err := houseservices.GetPageHouseByStatus(models.InActivated, page, count)
+	obs, total, err := houseservices.GetPageHouseByStatus(models.InActivated, page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: obs,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}
@@ -279,12 +298,13 @@ func (u *AdminController) GetPageExtendHouse() {
 		u.ServeJSON()
 		return
 	}
-	obs, err := houseservices.GetPageHouseByStatus(models.Extend, page, count)
+	obs, total, err := houseservices.GetPageHouseByStatus(models.Extend, page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: obs,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}
@@ -330,12 +350,13 @@ func (u *AdminController) GetPageDeniedHouse() {
 		u.ServeJSON()
 		return
 	}
-	obs, err := houseservices.GetPageHouseByStatus(models.Denied, page, count)
+	obs, total, err := houseservices.GetPageHouseByStatus(models.Denied, page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: obs,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}

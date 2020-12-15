@@ -408,6 +408,39 @@
                 }
             }
         },
+        "/admin/owner/": {
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "delete owner",
+                "operationId": "AdminController.DeleteOwner",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "ownerID",
+                        "description": "ownerID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
         "/admin/owners/": {
             "get": {
                 "tags": [
@@ -2435,10 +2468,6 @@
             "title": "HousePut",
             "type": "object",
             "properties": {
-                "appear_time": {
-                    "type": "integer",
-                    "format": "int64"
-                },
                 "commune_code": {
                     "type": "string"
                 },
@@ -2507,6 +2536,9 @@
                 },
                 "profile": {
                     "$ref": "#/definitions/models.Profile"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },
@@ -2522,6 +2554,9 @@
                 },
                 "profile": {
                     "$ref": "#/definitions/models.Profile"
+                },
+                "street": {
+                    "type": "string"
                 }
             }
         },

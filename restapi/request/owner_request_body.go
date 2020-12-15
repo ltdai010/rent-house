@@ -8,10 +8,12 @@ type OwnerPost struct {
 	OwnerFullName	string		`json:"owner_full_name"`
 	Profile   		models.Profile 	`json:"profile"`
 	CommuneCode     string       `json:"commune_code"`
+	Street 			string		`json:"street"`
 }
 
 type OwnerPut struct {
 	OwnerFullName	string		`json:"owner_full_name"`
 	Profile   		models.Profile 	`json:"profile"`
 	CommuneCode     string       `json:"commune_code"`
+	Street 			string		`json:"street"`
 }

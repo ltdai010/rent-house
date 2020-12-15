@@ -210,12 +210,14 @@ func (this *House) GetAllActivate() ([]response.House, error) {
 	return listHouse, nil
 }
 
-func (this *House) GetPageActivate(page, count int) ([]response.House, error) {
-	listdoc, err := Client.Collection(this.GetCollectionKey()).OrderBy("PostTime", firestore.Asc).StartAfter(page * count).Limit(count).Documents(ctx).GetAll()
+func (this *House) GetPageActivate(page, count int) ([]response.House, int, error) {
+	l, err := Client.Collection(this.GetCollectionKey()).Where("ExpiredTime", ">", time.Now().Unix()).Documents(ctx).GetAll()
+	total := len(l)
+	listdoc, err := Client.Collection(this.GetCollectionKey()).Where("ExpiredTime", ">", time.Now().Unix()).OrderBy("PostTime", firestore.Asc).StartAfter(page * count).Limit(count).Documents(ctx).GetAll()
 	listHouse := []response.House{}
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return nil, 0, err
 	}
 	now := time.Now().Unix()
 	for _, i := range listdoc {
@@ -226,7 +228,7 @@ func (this *House) GetPageActivate(page, count int) ([]response.House, error) {
 			listHouse = append(listHouse, q)
 		}
 	}
-	return listHouse, nil
+	return listHouse, total, nil
 }
 
 func (this *House) GetAll() ([]response.House, error) {
@@ -270,12 +272,17 @@ func (this *House) GetAllHouseOfOwner(id string) ([]response.House, error) {
 	return listHouse, nil
 }
 
-func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]response.House, error) {
+func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]response.House, int, error) {
+	r, err := this.GetCollection().Where("OwnerID", "==", id).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, 0, err
+	}
+	total := len(r)
 	listDoc, err := this.GetCollection().Where("OwnerID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
 	listHouse := []response.House{}
 	if err != nil {
 		log.Println(err)
-		return listHouse, err
+		return listHouse, 0, err
 	}
 	for _, i := range listDoc {
 		var q response.House
@@ -283,7 +290,7 @@ func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]res
 		q.HouseID = i.Ref.ID
 		listHouse = append(listHouse, q)
 	}
-	return listHouse, nil
+	return listHouse, total, nil
 }
 
 func (this *House) GetAllByStatus(status Status) ([]response.House, error) {
@@ -308,8 +315,13 @@ func (this *House) GetAllByStatus(status Status) ([]response.House, error) {
 	return listHouse, nil
 }
 
-func (this *House) GetPaginateByStatus(status Status, page int, count int) ([]response.House, error) {
+func (this *House) GetPaginateByStatus(status Status, page int, count int) ([]response.House, int, error) {
 	listHouse := []response.House{}
+	l, err := this.GetCollection().Where("Status", "==", status).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, 0, err
+	}
+	total := len(l)
 	listDoc := Client.Collection(consts.HOUSE).Where("Status", "==", status).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx)
 	for  {
 		doc, err := listDoc.Next()
@@ -317,7 +329,7 @@ func (this *House) GetPaginateByStatus(status Status, page int, count int) ([]re
 			break
 		}
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		h := response.House{}
 		err = doc.DataTo(&h)
@@ -327,7 +339,7 @@ func (this *House) GetPaginateByStatus(status Status, page int, count int) ([]re
 		h.HouseID = doc.Ref.ID
 		listHouse = append(listHouse, h)
 	}
-	return listHouse, nil
+	return listHouse, total, nil
 }
 
 func (this *House) UpdateItem(id string) error {
@@ -360,27 +372,32 @@ func (this *House) SearchAllItem(key string) ([]response.House, error) {
 	return list, nil
 }
 
-func (this *House) SearchPaginateItem(key string, page, count int) ([]response.House, error) {
+func (this *House) SearchPaginateItem(key string, page, count int) ([]response.House, int, error) {
+	r, err := searchIndex.Search(key)
+	if err != nil {
+		return nil, 0, err
+	}
+	total := len(r.Hits)
 	res, err := searchIndex.Search(key, opt.Page(page), opt.HitsPerPage(count))
 	if err != nil {
-		return []response.House{}, err
+		return []response.House{}, 0, err
 	}
 	list := []response.House{}
 	results := []HouseSearch{}
 	err = res.UnmarshalHits(&results)
 	if err != nil {
-		return []response.House{}, err
+		return []response.House{}, 0, err
 	}
 	now := time.Now().Unix()
 	for _, i := range results {
 		h := &House{}
 		resH, err := h.GetResponse(i.ObjectID)
 		if err != nil {
-			return []response.House{}, err
+			return []response.House{}, 0, err
 		}
 		if h.ExpiredTime > now {
 			list = append(list, resH)
 		}
 	}
-	return list, nil
+	return list, total, nil
 }
