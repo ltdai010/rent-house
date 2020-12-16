@@ -62,13 +62,9 @@ func GetAllWaitComment() ([]response.Comment, error) {
 	return list, nil
 }
 
-func GetPageWaitComment(page int, count int) ([]response.Comment, error) {
+func GetPageWaitComment(page int, count int) ([]response.Comment, int, error) {
 	h := &models.Comment{}
-	list, err := h.GetPaginateWaitList(page, count)
-	if err != nil {
-		return nil, err
-	}
-	return list, nil
+	return h.GetPaginateWaitList(page, count)
 }
 
 func GetComment(id string) (models.Comment, error) {
@@ -89,6 +85,20 @@ func GetAllComment() ([]response.Comment, error) {
 	return list, nil
 }
 
+func GetAllCommentActiveOfHouse(houseID string) ([]response.Comment, error) {
+	o := &models.Comment{}
+	list, err := o.GetAllCommentActiveInHouse(houseID)
+	if err != nil {
+		return []response.Comment{}, err
+	}
+	return list, nil
+}
+
+func GetPageActiveCommentOfHouse(houseID string, page int, count int) ([]response.Comment, int, error) {
+	o := &models.Comment{}
+	return o.GetPaginateCommentActiveInHouse(houseID, page, count)
+}
+
 func GetAllCommentOfHouse(houseID string) ([]response.Comment, error) {
 	o := &models.Comment{}
 	list, err := o.GetAllCommentInHouse(houseID)
@@ -98,13 +108,9 @@ func GetAllCommentOfHouse(houseID string) ([]response.Comment, error) {
 	return list, nil
 }
 
-func GetPageCommentOfHouse(houseID string, page int, count int) ([]response.Comment, error) {
+func GetPageCommentOfHouse(houseID string, page int, count int) ([]response.Comment, int, error) {
 	o := &models.Comment{}
-	list, err := o.GetPaginateCommentActiveInHouse(houseID, page, count)
-	if err != nil {
-		return []response.Comment{}, err
-	}
-	return list, nil
+	return o.GetPaginateCommentInHouse(houseID, page, count)
 }
 
 func UpdateComment(id string, ob *request.CommentPut) error {

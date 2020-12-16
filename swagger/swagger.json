@@ -823,6 +823,88 @@
                 }
             }
         },
+        "/admin/{houseID}/comments/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get all renters",
+                "operationId": "AdminController.GetAllComment",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "houseID",
+                        "description": "the house-id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Comment"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/{houseID}/page-comments/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get page comment",
+                "operationId": "AdminController.GetPageComment",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "houseID",
+                        "description": "the houseID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "the count",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Comment"
+                        }
+                    }
+                }
+            }
+        },
         "/chat/": {
             "get": {
                 "tags": [
@@ -1657,6 +1739,32 @@
                     },
                     "403": {
                         "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/renter/favorite": {
+            "get": {
+                "tags": [
+                    "renter"
+                ],
+                "description": "get all favorite house",
+                "operationId": "RenterController.GetAllFavoriteHouse",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The renter favorite house",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
                     }
                 }
             }

@@ -26,19 +26,27 @@ func (g *Comment) GetCollection() *firestore.CollectionRef {
 	return Client.Collection(g.GetCollectionKey())
 }
 
-func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, error) {
+func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, int, error) {
 	listComment := []response.Comment{}
-	listDoc, err := this.GetCollection().OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().Documents(ctx).GetAll()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	for _, i := range listDoc {
+	total := len(listDoc)
+	if page * count > total {
+		return nil, 0, response.BadRequest
+	}
+	end := (page + 1) * count
+	if end > total {
+		end = total
+	}
+	for _, i := range listDoc[page * count : end]{
 		var q response.Comment
 		err = i.DataTo(&q)
 		q.CommentID = i.Ref.ID
 		listComment = append(listComment, q)
 	}
-	return listComment, nil
+	return listComment, total, nil
 }
 
 func (this *Comment) PutItem() error {
@@ -129,6 +137,32 @@ func (this *Comment) GetAllCommentInHouse(id string) ([]response.Comment, error)
 	return listComment, nil
 }
 
+func (this *Comment) GetPaginateCommentInHouse( id string, page, count int) ([]response.Comment, int, error) {
+	listdoc, err := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, 0, err
+	}
+	total := len(listdoc)
+	if page * count > total {
+		return nil, 0, response.BadRequest
+	}
+	end := (page + 1) * count
+	if end > total {
+		end = total
+	}
+	listComment := []response.Comment{}
+	for _, i := range listdoc[page * count : end]{
+		var q response.Comment
+		err = i.DataTo(&q)
+		if err != nil {
+			return nil, 0, err
+		}
+		q.CommentID = i.Ref.ID
+		listComment = append(listComment, q)
+	}
+	return listComment, total, nil
+}
+
 func (this *Comment) GetAllWaitList() ([]response.Comment, error) {
 	listdoc := Client.Collection(consts.COMMENT).Where("Activate", "==", false).Documents(ctx)
 	listComment := []response.Comment{}
@@ -151,52 +185,57 @@ func (this *Comment) GetAllWaitList() ([]response.Comment, error) {
 	return listComment, nil
 }
 
-func (this *Comment) GetPaginateWaitList(page int, count int) ([]response.Comment, error) {
-	listDoc := Client.Collection(consts.COMMENT).Where("Activate", "==", false).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx)
-	listComment := []response.Comment{}
-	for {
-		doc, err := listDoc.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		c := response.Comment{}
-		err = doc.DataTo(&c)
-		if err != nil {
-			return nil, err
-		}
-		c.CommentID = doc.Ref.ID
-		listComment = append(listComment, c)
+func (this *Comment) GetPaginateWaitList(page int, count int) ([]response.Comment, int, error) {
+	listDoc, err := Client.Collection(consts.COMMENT).Where("Activate", "==", false).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, 0, err
 	}
-	return listComment, nil
-}
-
-func (this *Comment) GetPaginateCommentActiveInHouse(id string, page int, count int) ([]response.Comment, error) {
-	listDoc := this.GetCollection().Where("HouseID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(ctx)
+	total := len(listDoc)
+	if page * count > total {
+		return nil, 0,  response.BadRequest
+	}
+	end := (page + 1) * count
+	if end > total {
+		end = total
+	}
 	listComment := []response.Comment{}
-	for {
-		doc, err := listDoc.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
+	for _, i := range listDoc[page * count : end]{
 		c := response.Comment{}
-		err = doc.DataTo(&c)
+		err = i.DataTo(&c)
 		if err != nil {
-			return nil, err
-		}
-		if !c.Activate {
 			continue
 		}
-		c.CommentID = doc.Ref.ID
+		c.CommentID = i.Ref.ID
 		listComment = append(listComment, c)
 	}
-	return listComment, nil
+	return listComment, total, nil
+}
+
+func (this *Comment) GetPaginateCommentActiveInHouse(id string, page int, count int) ([]response.Comment, int, error) {
+	list, err := this.GetCollection().Where("Activate", "==", true).Where("HouseID", "==", id).Documents(ctx).GetAll()
+	if err != nil {
+		log.Println(err)
+		return nil, 0, err
+	}
+	total := len(list)
+	if page * count > total {
+		return nil, 0, response.BadRequest
+	}
+	end := (page + 1) * count
+	if end > total {
+		end = total
+	}
+	listComment := []response.Comment{}
+	for _, i := range list[page * count : end]{
+		c := response.Comment{}
+		err = i.DataTo(&c)
+		if err != nil {
+			return nil, 0, err
+		}
+		c.CommentID = i.Ref.ID
+		listComment = append(listComment, c)
+	}
+	return listComment, total, nil
 }
 
 func (this *Comment) UpdateItem(id string) error {

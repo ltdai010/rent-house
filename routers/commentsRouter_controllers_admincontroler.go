@@ -9,6 +9,24 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
         beego.ControllerComments{
+            Method: "GetAllComment",
+            Router: "/:houseID/comments/",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
+        beego.ControllerComments{
+            Method: "GetPageComment",
+            Router: "/:houseID/page-comments/",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
+        beego.ControllerComments{
             Method: "ActivateComment",
             Router: "/active-comment/",
             AllowHTTPMethods: []string{"post"},

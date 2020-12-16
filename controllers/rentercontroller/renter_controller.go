@@ -56,7 +56,8 @@ func (u *RenterController) Login() {
 	}
 	token, err := renterservices.LoginRenter(ob)
 	if err != nil {
-		u.Data["json"] = response.NewErr(response.NotPermission)
+		log.Println(err)
+		u.Data["json"] = response.NewErr(response.ErrLogin)
 	} else {
 		u.Data["json"] = response.ResponseCommonSingle{
 			Data: token,
@@ -211,6 +212,25 @@ func (u *RenterController) Delete() {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
 		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
+// @Title GetAllFavoriteHouse
+// @Description get all favorite house
+// @Param	token		header 	string	true		"The renter favorite house"
+// @Success 200 {object} models.House
+// @router /favorite [get]
+func (u *RenterController) GetAllFavoriteHouse() {
+	renterName := u.Ctx.Input.Header("rentername")
+	users, err := houseservices.GetAllFavoriteHouse(renterName)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: users,
+			Err:  response.NewErr(response.Success),
+		}
 	}
 	u.ServeJSON()
 }

@@ -443,6 +443,16 @@ func DeleteHouse(id string) error {
 	return u.Delete(id)
 }
 
+func GetAllFavoriteHouse(renterID string) ([]response.House, error) {
+	house := &models.House{}
+	renter := &models.Renter{}
+	err := renter.GetFromKey(renterID)
+	if err != nil {
+		return nil, err
+	}
+	return house.GetActiveHouseByListID(renter.ListFavourite)
+}
+
 func AddToFavourite(renterID, houseID string) error {
 	r := &models.Renter{}
 	err := r.GetFromKey(renterID)

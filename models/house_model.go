@@ -70,6 +70,27 @@ func (this *House) GetMaxViewHouseInMonth() (response.House, error) {
 	return res, nil
 }
 
+func (this *House) GetActiveHouseByListID(ids []string) ([]response.House, error) {
+	res := []response.House{}
+	for _,i := range ids {
+		h := response.House{}
+		doc, err := this.GetCollection().Doc(i).Get(ctx)
+		if err != nil {
+			continue
+		}
+		err = doc.DataTo(&h)
+		if err != nil {
+			continue
+		}
+		if h.ExpiredTime < time.Now().Unix() {
+			continue
+		}
+		h.HouseID = doc.Ref.ID
+		res = append(res, h)
+	}
+	return res, nil
+}
+
 func (this *House) FindMaxViewHouse() (response.House, error) {
 	ref := Client.Collection(consts.HOUSE).OrderBy("View", firestore.Asc).Limit(1).Documents(ctx)
 	doc, err := ref.Next()

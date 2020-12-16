@@ -194,7 +194,7 @@ func (u *HouseController) Delete() {
 // @router /:houseID/comments/ [get]
 func (u *HouseController) GetAllComment() {
 	id := u.Ctx.Input.Param(":houseID")
-	comments, err := commentservices.GetAllCommentOfHouse(id)
+	comments, err := commentservices.GetAllCommentActiveOfHouse(id)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -227,12 +227,13 @@ func (u *HouseController) GetPageComment() {
 		u.ServeJSON()
 		return
 	}
-	users, err := commentservices.GetPageCommentOfHouse(id, page, count)
+	users, total, err := commentservices.GetPageActiveCommentOfHouse(id, page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: users,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}

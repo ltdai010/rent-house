@@ -401,12 +401,13 @@ func (u *AdminController) GetPageWaitComment() {
 		u.ServeJSON()
 		return
 	}
-	obs, err := commentservices.GetPageWaitComment(page, count)
+	obs, total, err := commentservices.GetPageWaitComment(page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: obs,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}
@@ -520,3 +521,57 @@ func (u *AdminController) GetPageWaitOwner() {
 	u.ServeJSON()
 }
 
+// @Title GetAllComment
+// @Description get all renters
+// @Param	token			header	string	true		"admin key"
+// @Param	houseID	path	string	true	"the house-id
+// @Success 200 {object} response.Comment
+// @router /:houseID/comments/ [get]
+func (u *AdminController) GetAllComment() {
+	id := u.Ctx.Input.Param(":houseID")
+	comments, err := commentservices.GetAllCommentOfHouse(id)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: comments,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetPageComment
+// @Description get page comment
+// @Param	token			header	string	true		"admin key"
+// @Param	houseID	path	string	true	"the houseID"
+// @Param	page		query	int		true	"the page"
+// @Param	count		query	int		true	"the count"
+// @Success 200 {object} response.Comment
+// @router /:houseID/page-comments/ [get]
+func (u *AdminController) GetPageComment() {
+	id := u.Ctx.Input.Param(":houseID")
+	page, err := u.GetInt("page")
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	count, err := u.GetInt("count")
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	users, total, err := commentservices.GetPageCommentOfHouse(id, page, count)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonArray{
+			Data: users,
+			TotalCount: int64(total),
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
