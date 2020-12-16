@@ -1050,6 +1050,42 @@
                 }
             }
         },
+        "/house/favorite-desc": {
+            "get": {
+                "tags": [
+                    "house"
+                ],
+                "description": "get user by uid",
+                "operationId": "HouseController.GetByLike",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "The house id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "count",
+                        "description": "page length",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.House"
+                        }
+                    },
+                    "403": {
+                        "description": ":houseID is empty"
+                    }
+                }
+            }
+        },
         "/house/images": {
             "post": {
                 "tags": [

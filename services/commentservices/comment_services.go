@@ -21,21 +21,6 @@ func AddComment(houseID string, ownerID string, ob *request.CommentPost) error {
 		Star:     ob.Star,
 		Activate: false,
 	}
-	h := &models.House{}
-	err := h.GetFromKey(houseID)
-	if err != nil {
-		return err
-	}
-	if h.Review == nil {
-		h.Review = map[string]int{}
-	}
-	if v, ok := h.Review[strconv.Itoa(ob.Star)]; ok {
-		h.Review[strconv.Itoa(ob.Star)] = v + 1
-	} else {
-		h.Review[strconv.Itoa(ob.Star)] = 1
-	}
-	//update
-	go h.UpdateItem(houseID)
 	return c.PutItem()
 }
 
@@ -50,6 +35,22 @@ func ActiveComment(id string) error {
 	if err != nil {
 		return err
 	}
+	//update house
+	h := &models.House{}
+	err = h.GetFromKey(comment.HouseID)
+	if err != nil {
+		return err
+	}
+	if h.Review == nil {
+		h.Review = map[string]int{}
+	}
+	if v, ok := h.Review[strconv.Itoa(comment.Star)]; ok {
+		h.Review[strconv.Itoa(comment.Star)] = v + 1
+	} else {
+		h.Review[strconv.Itoa(comment.Star)] = 1
+	}
+	//update
+	go h.UpdateItem(comment.HouseID)
 	return nil
 }
 
@@ -118,6 +119,9 @@ func UpdateComment(id string, ob *request.CommentPut) error {
 	err := c.GetFromKey(id)
 	if err != nil {
 		return err
+	}
+	if c.Activate {
+		return response.NotPermission
 	}
 	c.Header = ob.Header
 	c.Content = ob.Content

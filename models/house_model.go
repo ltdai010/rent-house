@@ -129,6 +129,45 @@ func (this *House) GetPaginate(page int, count int) ([]*House, error) {
 	return listHouse, nil
 }
 
+func (this *House) GetPaginateByLike(page int, count int) ([]response.House, int, error) {
+	listHouse := []response.House{}
+	listDoc, err := this.GetCollection().Where("ExpiredTime", ">", time.Now().Unix()).OrderBy("ExpiredTime", firestore.Asc).OrderBy("Like", firestore.Desc).Documents(ctx).GetAll()
+	if err != nil {
+		log.Println(err)
+		return nil, 0, err
+	}
+	total := len(listDoc)
+	if page * count > total {
+		return nil, 0, response.BadRequest
+	}
+	end := (page + 1) * count
+	if end > total {
+		end = total
+	}
+	for _, i := range listDoc[page * count : end] {
+		var q response.House
+		err = i.DataTo(&q)
+		q.HouseID = i.Ref.ID
+		listHouse = append(listHouse, q)
+	}
+	return listHouse, total, nil
+}
+
+func (this *House) GetAllByLike() ([]response.House, error) {
+	listHouse := []response.House{}
+	listDoc, err := this.GetCollection().Where("ExpiredTime", ">", time.Now().Unix()).OrderBy("ExpiredTime", firestore.Asc).OrderBy("Like", firestore.Desc).Documents(ctx).GetAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, i := range listDoc {
+		var q response.House
+		err = i.DataTo(&q)
+		q.HouseID = i.Ref.ID
+		listHouse = append(listHouse, q)
+	}
+	return listHouse, nil
+}
+
 func (this *House) PutItem() (string, error) {
 	//add to collection
 	res, _, err := Client.Collection(this.GetCollectionKey()).Add(ctx, *this)

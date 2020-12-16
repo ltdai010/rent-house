@@ -95,6 +95,29 @@ func (u *HouseController) Get() {
 	u.ServeJSON()
 }
 
+// @Title GetByLike
+// @Description get user by uid
+// @Param	page		query 	int	false		"The house id"
+// @Param	count		query	int	false		"page length"
+// @Success 200 {object} models.House
+// @Failure 403 :houseID is empty
+// @router /favorite-desc [get]
+func (u *HouseController) GetByLike(page, count int) {
+	//get house
+	house, total, err := houseservices.GetHouseArrangeByLike(page, count)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	u.Data["json"] = response.ResponseCommonArray{
+		Data: house,
+		TotalCount: int64(total),
+		Err:  response.NewErr(response.Success),
+	}
+	u.ServeJSON()
+}
+
 // @Title Update
 // @Description update the user
 // @Param	token		header	string	true		"The token string"

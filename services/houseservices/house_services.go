@@ -168,6 +168,18 @@ func GetHouse(id string) (response.House, error) {
 	return res, nil
 }
 
+func GetHouseArrangeByLike(page, count int) ([]response.House, int, error) {
+	o := &models.House{}
+	if count > 0 {
+		return o.GetPaginateByLike(page, count)
+	}
+	list, err := o.GetAllByLike()
+	if err != nil {
+		return nil, 0, err
+	}
+	return list, len(list), nil
+}
+
 func FilterSearchResult(res []response.House, provinceID, districtID, communeID string) ([]response.House, error) {
 	list := []response.House{}
 	if communeID != "" {
