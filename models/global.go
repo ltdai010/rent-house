@@ -19,7 +19,7 @@ var (
 	clientSearch *search.Client
 	searchIndex  *search.Index
 	bucket       *storage.BucketHandle
-	ctx          context.Context
+	Ctx          context.Context
 	EmailAuth    smtp.Auth
 	EmailFrom    string
 )
@@ -34,13 +34,13 @@ func InitDataBase() {
 }
 
 func initCloudStore() {
-	ctx = context.Background()
+	Ctx = context.Background()
 	sa := option.WithCredentialsFile(beego.AppConfig.String("firebase::key_path"))
-	app, err := firebase.NewApp(ctx, nil, sa)
+	app, err := firebase.NewApp(Ctx, nil, sa)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	Client, err = app.Firestore(ctx)
+	Client, err = app.Firestore(Ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}

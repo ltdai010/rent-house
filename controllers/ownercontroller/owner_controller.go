@@ -9,6 +9,7 @@ import (
 	"rent-house/restapi/response"
 	"rent-house/services/houseservices"
 	"rent-house/services/ownerservices"
+	"rent-house/websocket/notificationservice/services"
 )
 
 // Operations about Owner
@@ -163,6 +164,41 @@ func (u *OwnerController) GetAllHouse(ownerID string) {
 		u.Data["json"] = response.ResponseCommonSingle{
 			Data: houses,
 			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetNotice
+// @Description get all renters
+// @Param	token		header	string	true		"The owner name string"
+// @Param	page		query	int	false			"The page"
+// @Param	length		query	int	false			"Page length"
+// @Success 200 {object} models.ResNotification
+// @router /notification/ [get]
+func (u *OwnerController) GetAllNotice(page, length int) {
+	ownername := u.Ctx.Input.Header("ownername")
+	if length > 0 {
+		notes, total, err := services.GetPageNotificationOfOwner(ownername, page, length)
+		if err != nil {
+			log.Println(err)
+			u.Data["json"] = response.NewErr(response.BadRequest)
+		} else {
+			u.Data["json"] = response.ResponseCommonArray{
+				Data: notes,
+				TotalCount: int64(total),
+				Err:  response.NewErr(response.Success),
+			}
+		}
+	} else {
+		notes, err := services.GetAllNotificationOfOwner(ownername)
+		if err != nil {
+			u.Data["json"] = response.NewErr(response.BadRequest)
+		} else {
+			u.Data["json"] = response.ResponseCommonSingle{
+				Data: notes,
+				Err:  response.NewErr(response.Success),
+			}
 		}
 	}
 	u.ServeJSON()

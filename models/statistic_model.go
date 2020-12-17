@@ -29,7 +29,7 @@ func (g *Statistic) GetCollection() *firestore.CollectionRef {
 
 func (this *Statistic) PutItem() error {
 	key := strconv.Itoa(time.Now().Year()) + "-" + time.Now().Month().String()
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(key).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(key).Set(Ctx, *this)
 	if err != nil {
 		return err
 	}
@@ -37,18 +37,18 @@ func (this *Statistic) PutItem() error {
 }
 
 func (this *Statistic) UpdateItem(id string) error {
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(Ctx, *this)
 	return err
 }
 
 func (this *Statistic) Delete(id string) error {
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(Ctx)
 	return err
 }
 
 
 func (this *Statistic) GetFromKey(key string) error {
-	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
+	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(Ctx)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (this *Statistic) GetFromKey(key string) error {
 
 
 func (this *Statistic) GetAll() ([]Statistic, error) {
-	listdoc := Client.Collection(this.GetCollectionKey()).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Documents(Ctx)
 	list := []Statistic{}
 	for {
 		var q Statistic

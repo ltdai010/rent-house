@@ -22,7 +22,7 @@ func (g *Admin) GetCollection() *firestore.CollectionRef {
 
 func (g *Admin) GetFromKey(id string) (error) {
 	log.Println(id)
-	doc, err := g.GetCollection().Doc(id).Get(ctx)
+	doc, err := g.GetCollection().Doc(id).Get(Ctx)
 	if err != nil {
 		return err
 	}

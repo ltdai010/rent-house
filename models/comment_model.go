@@ -28,7 +28,7 @@ func (g *Comment) GetCollection() *firestore.CollectionRef {
 
 func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, int, error) {
 	listComment := []response.Comment{}
-	listDoc, err := this.GetCollection().Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -50,17 +50,17 @@ func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, int, 
 }
 
 func (this *Comment) PutItem() error {
-	_, _, err := Client.Collection(this.GetCollectionKey()).Add(ctx, *this)
+	_, _, err := Client.Collection(this.GetCollectionKey()).Add(Ctx, *this)
 	return err
 }
 
 func (this *Comment) Delete(id string) error {
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(Ctx)
 	return err
 }
 
 func (this *Comment) GetFromKey(key string) error {
-	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
+	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(Ctx)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (this *Comment) GetFromKey(key string) error {
 }
 
 func (this *Comment) GetAll() ([]response.Comment, error) {
-	listdoc := Client.Collection(this.GetCollectionKey()).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Documents(Ctx)
 	listComment := []response.Comment{}
 	for {
 		var q response.Comment
@@ -91,7 +91,7 @@ func (this *Comment) GetAll() ([]response.Comment, error) {
 }
 
 func (this *Comment) GetAllCommentActiveInHouse(id string) ([]response.Comment, error) {
-	listdoc := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(Ctx)
 	listComment := []response.Comment{}
 	for {
 		var q response.Comment
@@ -116,7 +116,7 @@ func (this *Comment) GetAllCommentActiveInHouse(id string) ([]response.Comment, 
 }
 
 func (this *Comment) GetAllCommentInHouse(id string) ([]response.Comment, error) {
-	listdoc := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(Ctx)
 	listComment := []response.Comment{}
 	for {
 		var q response.Comment
@@ -138,7 +138,7 @@ func (this *Comment) GetAllCommentInHouse(id string) ([]response.Comment, error)
 }
 
 func (this *Comment) GetPaginateCommentInHouse( id string, page, count int) ([]response.Comment, int, error) {
-	listdoc, err := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(ctx).GetAll()
+	listdoc, err := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -164,7 +164,7 @@ func (this *Comment) GetPaginateCommentInHouse( id string, page, count int) ([]r
 }
 
 func (this *Comment) GetAllWaitList() ([]response.Comment, error) {
-	listdoc := Client.Collection(consts.COMMENT).Where("Activate", "==", false).Documents(ctx)
+	listdoc := Client.Collection(consts.COMMENT).Where("Activate", "==", false).Documents(Ctx)
 	listComment := []response.Comment{}
 	for {
 		doc, err := listdoc.Next()
@@ -186,7 +186,7 @@ func (this *Comment) GetAllWaitList() ([]response.Comment, error) {
 }
 
 func (this *Comment) GetPaginateWaitList(page int, count int) ([]response.Comment, int, error) {
-	listDoc, err := Client.Collection(consts.COMMENT).Where("Activate", "==", false).Documents(ctx).GetAll()
+	listDoc, err := Client.Collection(consts.COMMENT).Where("Activate", "==", false).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -212,7 +212,7 @@ func (this *Comment) GetPaginateWaitList(page int, count int) ([]response.Commen
 }
 
 func (this *Comment) GetPaginateCommentActiveInHouse(id string, page int, count int) ([]response.Comment, int, error) {
-	list, err := this.GetCollection().Where("Activate", "==", true).Where("HouseID", "==", id).Documents(ctx).GetAll()
+	list, err := this.GetCollection().Where("Activate", "==", true).Where("HouseID", "==", id).Documents(Ctx).GetAll()
 	if err != nil {
 		log.Println(err)
 		return nil, 0, err
@@ -239,6 +239,6 @@ func (this *Comment) GetPaginateCommentActiveInHouse(id string, page int, count 
 }
 
 func (this *Comment) UpdateItem(id string) error {
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(Ctx, *this)
 	return err
 }

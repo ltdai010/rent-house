@@ -3,9 +3,11 @@ package houseservices
 import (
 	"log"
 	"mime/multipart"
+	"rent-house/controllers/notificationcontroller"
 	"rent-house/models"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
+	models2 "rent-house/websocket/notificationservice/models"
 	"strconv"
 	"time"
 )
@@ -120,6 +122,9 @@ func ActiveHouse(id string) error {
 	if err != nil {
 		return err
 	}
+	if house.AppearTime == 0 {
+		return nil
+	}
 	house.Status = models.Activated
 	house.PostTime = time.Now().Unix()
 	house.ExpiredTime = house.PostTime + house.AppearTime
@@ -133,6 +138,21 @@ func ActiveHouse(id string) error {
 	if err != nil {
 		return err
 	}
+
+	//send notification
+	noti := models2.Notification{
+		Content:  "Your house name: " + house.Header + " has been activated. Expired in " + time.Unix(house.ExpiredTime, 0 ).String(),
+		OwnerID:  house.OwnerID,
+		SendTime: time.Now().Unix(),
+		Seen: false,
+	}
+	go noti.PutItem()
+	if notificationcontroller.Broadcast != nil {
+		if notificationcontroller.Broadcast[noti.OwnerID] != nil {
+			notificationcontroller.Broadcast[noti.OwnerID] <- noti
+		}
+	}
+
 	//mail := &models.Mail{
 	//	To:      o.Profile.Email,
 	//	Subject: "Active house",
@@ -348,11 +368,14 @@ func GetAllHouseHouseByStatus(status models.Status) ([]response.House, error) {
 }
 
 func GetPageHouseByStatus(status models.Status, page int, count int) ([]response.House, int, error) {
+	if page < 0 || count < 0 {
+		return nil, 0, response.BadRequest
+	}
 	h := &models.House{}
 	return h.GetPaginateByStatus(status, page, count)
 }
 
-func GetAllHouse() ([]response.House, error) {
+func GetAllActiveHouse() ([]response.House, error) {
 	o := &models.House{}
 	list, err := o.GetAllActivate()
 	if err != nil {
@@ -361,7 +384,10 @@ func GetAllHouse() ([]response.House, error) {
 	return list, nil
 }
 
-func GetPageHouse(page, count int) ([]response.House, int, error) {
+func GetPageActiveHouse(page, count int) ([]response.House, int, error) {
+	if page < 0 || count < 0 {
+		return nil, 0, response.BadRequest
+	}
 	o := &models.House{}
 	return o.GetPageActivate(page, count)
 }
@@ -376,6 +402,9 @@ func GetAllHouseOfOwner(userID string) ([]response.House, error) {
 }
 
 func GetPageHouseOfOwner(ownerID string, page int, count int) ([]response.House, int, error) {
+	if page < 0 || count < 0 {
+		return nil, 0, response.BadRequest
+	}
 	o := &models.House{}
 	return o.GetPaginateHouseOfUser(ownerID, page, count)
 }

@@ -28,7 +28,7 @@ func (g *Renter) GetCollection() *firestore.CollectionRef {
 
 func (this *Renter) GetPaginate(page int, count int) ([]*Renter, error) {
 	listRenter := []*Renter{}
-	listDoc, err := this.GetCollection().OrderBy("RenterName", firestore.Asc).StartAt(page*count).StartAt(page * count).Limit(count).Documents(ctx).GetAll()
+	listDoc, err := this.GetCollection().OrderBy("RenterName", firestore.Asc).StartAt(page*count).StartAt(page * count).Limit(count).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -41,17 +41,17 @@ func (this *Renter) GetPaginate(page int, count int) ([]*Renter, error) {
 }
 
 func (this *Renter) PutItem() error {
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(this.RenterName).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(this.RenterName).Set(Ctx, *this)
 	return err
 }
 
 func (this *Renter) Delete(id string) error {
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(ctx)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(Ctx)
 	return err
 }
 
 func (this *Renter) GetFromKey(key string) error {
-	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(ctx)
+	doc, err := Client.Collection(this.GetCollectionKey()).Doc(key).Get(Ctx)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -61,7 +61,7 @@ func (this *Renter) GetFromKey(key string) error {
 }
 
 func (this *Renter) GetAll() ([]response.Renter, error) {
-	listdoc := Client.Collection(this.GetCollectionKey()).Documents(ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Documents(Ctx)
 	listRenter := []response.Renter{}
 	for {
 		var q response.Renter
@@ -83,6 +83,6 @@ func (this *Renter) GetAll() ([]response.Renter, error) {
 }
 
 func (this *Renter) UpdateItem(id string) error {
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(ctx, *this)
+	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(Ctx, *this)
 	return err
 }

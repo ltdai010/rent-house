@@ -912,6 +912,12 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.House'
+  /notification/:
+    get:
+      tags:
+      - notification
+      description: WebSocket
+      operationId: WebsocketController.WebSocket
   /owner/:
     put:
       tags:
@@ -1059,6 +1065,33 @@ paths:
           description: '{string} token'
         "403":
           description: body is empty
+  /owner/notification/:
+    get:
+      tags:
+      - owner
+      description: get all renters
+      operationId: OwnerController.GetNotice
+      parameters:
+      - in: header
+        name: token
+        description: The owner name string
+        required: true
+        type: string
+      - in: query
+        name: page
+        description: The page
+        type: integer
+        format: int64
+      - in: query
+        name: length
+        description: Page length
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.ResNotification'
   /owner/password:
     put:
       tags:
@@ -1608,6 +1641,19 @@ definitions:
         type: string
       username:
         type: string
+  models.Notification:
+    title: Notification
+    type: object
+    properties:
+      content:
+        type: string
+      owner_id:
+        type: string
+      seen:
+        type: boolean
+      send_time:
+        type: integer
+        format: int64
   models.Owner:
     title: Owner
     type: object
@@ -1675,6 +1721,21 @@ definitions:
         type: string
       renter_name:
         type: string
+  models.ResNotification:
+    title: ResNotification
+    type: object
+    properties:
+      content:
+        type: string
+      notification_id:
+        type: string
+      owner_id:
+        type: string
+      seen:
+        type: boolean
+      send_time:
+        type: integer
+        format: int64
   models.Status:
     title: Status
     type: string

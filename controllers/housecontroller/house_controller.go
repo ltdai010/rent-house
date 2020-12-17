@@ -20,7 +20,7 @@ type HouseController struct {
 // @Success 200 {object} models.House
 // @router / [get]
 func (u *HouseController) GetAllActivateHouse() {
-	users, err := houseservices.GetAllHouse()
+	users, err := houseservices.GetAllActiveHouse()
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -51,7 +51,7 @@ func (u *HouseController) GetPageActivateHouse() {
 		u.ServeJSON()
 		return
 	}
-	users, total, err := houseservices.GetPageHouse(page, count)
+	users, total, err := houseservices.GetPageActiveHouse(page, count)
 	if err != nil {
 		log.Println(err)
 		u.Data["json"] = response.NewErr(response.BadRequest)
@@ -81,16 +81,10 @@ func (u *HouseController) Get() {
 		return
 	}
 	//raise view
-	err = houseservices.ViewHouse(id)
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.ErrUnknown)
-	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
-			Data: house,
-			Err:  response.NewErr(response.Success),
-		}
-		u.ServeJSON()
-		return
+	go houseservices.ViewHouse(id)
+	u.Data["json"] = response.ResponseCommonSingle{
+		Data: house,
+		Err:  response.NewErr(response.Success),
 	}
 	u.ServeJSON()
 }

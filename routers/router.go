@@ -14,6 +14,7 @@ import (
 	"rent-house/controllers/chatcontroller"
 	"rent-house/controllers/commentcontroller"
 	"rent-house/controllers/housecontroller"
+	"rent-house/controllers/notificationcontroller"
 	"rent-house/controllers/ownercontroller"
 	"rent-house/controllers/rentercontroller"
 	"rent-house/controllers/searchcontroller"
@@ -65,6 +66,11 @@ func init() {
 		beego.NSNamespace("/statistic",
 			beego.NSInclude(
 				&statisticcontroller.StatisticController{},
+			),
+		),
+		beego.NSNamespace("/notification",
+			beego.NSInclude(
+				&notificationcontroller.WebsocketController{},
 			),
 		),
 	)
