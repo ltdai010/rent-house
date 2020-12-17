@@ -1,0 +1,5 @@
+package reportservices
+
+func AddReport() {
+
+}

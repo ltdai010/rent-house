@@ -130,6 +130,8 @@ func (w *WebsocketController) JoinAdmin() {
 			ws.Close()
 			return
 		}
+
+
 		// Send the newly received messagebody to the broadcastbody channel
 		BcOwner[adminID] <- models.BroadCastToOwner{
 			AdminID:      adminID,

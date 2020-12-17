@@ -115,18 +115,29 @@ func (this *House) FindMaxLikeHouse() (response.House, error) {
 	return response.House{}, err
 }
 
-func (this *House) GetPaginate(page int, count int) ([]*House, error) {
-	listHouse := []*House{}
-	listDoc, err := this.GetCollection().OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(Ctx).GetAll()
+func (this *House) GetPaginate(page int, count int) ([]response.House, int, error) {
+	listHouse := []response.House{}
+	start := page * count
+	end := start + count
+
+	listDoc, err := this.GetCollection().OrderBy("PostTime", firestore.Asc).Documents(Ctx).GetAll()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	for _, i := range listDoc {
-		var q House
+
+	if start > len(listDoc) {
+		return nil, 0 , response.BadRequest
+	}
+	if end > len(listDoc) {
+		end = len(listDoc)
+	}
+	for _, i := range listDoc[start : end] {
+		var q response.House
 		err = i.DataTo(&q)
-		listHouse = append(listHouse, &q)
+		q.HouseID = i.Ref.ID
+		listHouse = append(listHouse, q)
 	}
-	return listHouse, nil
+	return listHouse, len(listDoc), nil
 }
 
 func (this *House) GetPaginateByLike(page int, count int) ([]response.House, int, error) {
@@ -302,6 +313,9 @@ func (this *House) GetAll() ([]response.House, error) {
 		if err == iterator.Done {
 			break
 		}
+		if err != nil {
+			continue
+		}
 		err = doc.DataTo(&q)
 		if err != nil {
 			return nil, err
@@ -335,18 +349,23 @@ func (this *House) GetAllHouseOfOwner(id string) ([]response.House, error) {
 }
 
 func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]response.House, int, error) {
-	r, err := this.GetCollection().Where("OwnerID", "==", id).Documents(Ctx).GetAll()
+	listHouse := []response.House{}
+	start := page * count
+	end := start + count
+
+	list, err := this.GetCollection().Where("OwnerID", "==", id).OrderBy("PostTime", firestore.Asc).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
-	total := len(r)
-	listDoc, err := this.GetCollection().Where("OwnerID", "==", id).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(Ctx).GetAll()
-	listHouse := []response.House{}
-	if err != nil {
-		log.Println(err)
-		return listHouse, 0, err
+
+	if start > len(list) {
+		return nil, 0 , response.BadRequest
 	}
-	for _, i := range listDoc {
+	if end > len(list) {
+		end = len(list)
+	}
+	total := len(list)
+	for _, i := range list[start : end] {
 		var q response.House
 		err = i.DataTo(&q)
 		q.HouseID = i.Ref.ID
@@ -379,29 +398,30 @@ func (this *House) GetAllByStatus(status Status) ([]response.House, error) {
 
 func (this *House) GetPaginateByStatus(status Status, page int, count int) ([]response.House, int, error) {
 	listHouse := []response.House{}
-	l, err := this.GetCollection().Where("Status", "==", status).Documents(Ctx).GetAll()
+	start := page * count
+	end := start + count
+
+	l, err := this.GetCollection().Where("Status", "==", status).OrderBy("PostTime", firestore.Asc).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
-	total := len(l)
-	listDoc := Client.Collection(consts.HOUSE).Where("Status", "==", status).OrderBy("PostTime", firestore.Asc).StartAt(page * count).Limit(count).Documents(Ctx)
-	for  {
-		doc, err := listDoc.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return nil, 0, err
-		}
+
+	if start > len(l) {
+		return nil, 0 , response.BadRequest
+	}
+	if end > len(l) {
+		end = len(l)
+	}
+	for _, i := range l[start : end] {
 		h := response.House{}
-		err = doc.DataTo(&h)
+		err = i.DataTo(&h)
 		if err != nil {
 			continue
 		}
-		h.HouseID = doc.Ref.ID
+		h.HouseID = i.Ref.ID
 		listHouse = append(listHouse, h)
 	}
-	return listHouse, total, nil
+	return listHouse, len(l), nil
 }
 
 func (this *House) UpdateItem(id string) error {

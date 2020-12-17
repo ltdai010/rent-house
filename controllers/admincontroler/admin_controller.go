@@ -440,12 +440,13 @@ func (u *AdminController) GetAllOwner() {
 // @Success 200 {object} models.Owner
 // @router /page-owner [get]
 func (u *AdminController) GetPageOwner(page, length int64) {
-	users, err := ownerservices.GetPageOwner(int(page), int(length))
+	users, total, err := ownerservices.GetPageOwner(int(page), int(length))
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: users,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}
@@ -509,12 +510,13 @@ func (u *AdminController) GetPageWaitOwner() {
 		u.ServeJSON()
 		return
 	}
-	obs, err := ownerservices.GetPageWaitOwner(page, count)
+	obs, total, err := ownerservices.GetPageWaitOwner(page, count)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
-		u.Data["json"] = response.ResponseCommonSingle{
+		u.Data["json"] = response.ResponseCommonArray{
 			Data: obs,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}

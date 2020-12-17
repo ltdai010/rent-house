@@ -89,13 +89,9 @@ func GetAllWaitOwner() ([]response.Owner, error) {
 	return list, nil
 }
 
-func GetPageWaitOwner(page int, count int) ([]response.Owner, error) {
+func GetPageWaitOwner(page int, count int) ([]response.Owner, int, error) {
 	h := &models.Owner{}
-	list, err := h.GetPaginateWaitList(page, count)
-	if err != nil {
-		return nil, err
-	}
-	return list, nil
+	return h.GetPaginateWaitList(page, count)
 }
 
 func GetOwner(ownerID string) (response.Owner, error) {
@@ -158,13 +154,9 @@ func GetAllOwner() ([]response.Owner, error) {
 	return list, nil
 }
 
-func GetPageOwner(page, count int) ([]response.Owner, error) {
+func GetPageOwner(page, count int) ([]response.Owner, int, error) {
 	u := &models.Owner{}
-	list, err := u.GetPaginate(page, count)
-	if err != nil {
-		return []response.Owner{}, err
-	}
-	return list, nil
+	return u.GetPaginate(page, count)
 }
 
 func UpdateOwner(id string, ob *request.OwnerPut) error {

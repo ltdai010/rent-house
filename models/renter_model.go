@@ -10,7 +10,7 @@ import (
 
 type Renter struct {
 	RenterName 		string 			`json:"renter_name"`
-	RenterFullName 		string 		`json:"renter_full_name"`
+	RenterFullName 	string 		`json:"renter_full_name"`
 	Password		string			`json:"password"`
 	PhoneNumber		string 			`json:"phone_number"`
 	Email			string 			`json:"email"`
@@ -26,18 +26,26 @@ func (g *Renter) GetCollection() *firestore.CollectionRef {
 	return Client.Collection(g.GetCollectionKey())
 }
 
-func (this *Renter) GetPaginate(page int, count int) ([]*Renter, error) {
-	listRenter := []*Renter{}
-	listDoc, err := this.GetCollection().OrderBy("RenterName", firestore.Asc).StartAt(page*count).StartAt(page * count).Limit(count).Documents(Ctx).GetAll()
+func (this *Renter) GetPaginate(page int, count int) ([]response.Renter, int, error) {
+	listRenter := []response.Renter{}
+	start := page * count
+	end := start + count
+	listDoc, err := this.GetCollection().OrderBy("RenterName", firestore.Asc).StartAt(page*count).Documents(Ctx).GetAll()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	for _, i := range listDoc {
-		var q Renter
+	if start > len(listDoc) {
+		return nil, 0, response.BadRequest
+	}
+	if end > len(listDoc) {
+		end = len(listDoc)
+	}
+	for _, i := range listDoc[start : end] {
+		var q response.Renter
 		err = i.DataTo(&q)
-		listRenter = append(listRenter, &q)
+		listRenter = append(listRenter, q)
 	}
-	return listRenter, nil
+	return listRenter, len(listDoc), nil
 }
 
 func (this *Renter) PutItem() error {
