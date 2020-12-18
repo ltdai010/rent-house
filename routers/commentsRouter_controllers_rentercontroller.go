@@ -90,6 +90,15 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"] = append(beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"],
         beego.ControllerComments{
+            Method: "AddReport",
+            Router: "/report/:houseID",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"] = append(beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"],
+        beego.ControllerComments{
             Method: "Post",
             Router: "/sign-up/",
             AllowHTTPMethods: []string{"post"},

@@ -15,7 +15,6 @@ func AddComment(houseID string, ownerID string, ob *request.CommentPost) error {
 	c := &models.Comment{
 		Content:  ob.Content,
 		RenterID: ownerID,
-		Header:   ob.Header,
 		HouseID:  houseID,
 		PostTime: time.Now().Unix(),
 		Star:     ob.Star,
@@ -123,7 +122,6 @@ func UpdateComment(id string, ob *request.CommentPut) error {
 	if c.Activate {
 		return response.NotPermission
 	}
-	c.Header = ob.Header
 	c.Content = ob.Content
 	return c.UpdateItem(id)
 }

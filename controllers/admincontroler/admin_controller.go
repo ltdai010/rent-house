@@ -12,6 +12,7 @@ import (
 	"rent-house/services/houseservices"
 	"rent-house/services/ownerservices"
 	"rent-house/services/renterservices"
+	"rent-house/services/reportservices"
 )
 
 type AdminController struct {
@@ -571,6 +572,49 @@ func (u *AdminController) GetPageComment() {
 	} else {
 		u.Data["json"] = response.ResponseCommonArray{
 			Data: users,
+			TotalCount: int64(total),
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetReport
+// @Description get all renters
+// @Param	houseID	path	string	true	"the house-id
+// @Param	page	query	int		true	"the page"
+// @Param	length	query	int		true	"the length"
+// @Success 200 {object} response.Report
+// @router /:houseID/reports/ [get]
+func (u *AdminController) GetReportInHouse(page, length int) {
+	id := u.Ctx.Input.Param(":houseID")
+	comments, total, err := reportservices.GetPageInHouse(id, page, length)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonArray{
+			Data: comments,
+			TotalCount: int64(total),
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetReport
+// @Description get all renters
+// @Param	page	query	int		true	"the page"
+// @Param	length	query	int		true	"the length"
+// @Param	status	query	int		true	"-1: unseen| 0: all|1: seen"
+// @Success 200 {object} response.Report
+// @router /reports/ [get]
+func (u *AdminController) GetReport(page, length, status int) {
+	comments, total, err := reportservices.GetPageWithFlag(page, length, status)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonArray{
+			Data: comments,
 			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}

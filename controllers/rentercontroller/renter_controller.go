@@ -10,6 +10,7 @@ import (
 	"rent-house/services/commentservices"
 	"rent-house/services/houseservices"
 	"rent-house/services/renterservices"
+	"rent-house/services/reportservices"
 )
 
 // Operations about Renter
@@ -87,6 +88,35 @@ func (u *RenterController) AddComment() {
 	houseID := u.Ctx.Input.Param(":houseID")
 	renterID := u.Ctx.Input.Header("rentername")
 	err = commentservices.AddComment(houseID, renterID, &ob)
+	if err != nil {
+
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
+// @Title AddReport
+// @Description create comment
+// @Param	token			header			string				true		"The token string"
+// @Param	houseID			path			string				true		"the house id"
+// @Param	body			body 			request.ReportPost	true		"body for user content"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /report/:houseID [post]
+func (u *RenterController) AddReport() {
+	var ob request.ReportPost
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &ob)
+	if err != nil {
+		log.Println(err)
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	houseID := u.Ctx.Input.Param(":houseID")
+	renterID := u.Ctx.Input.Header("rentername")
+	err = reportservices.AddReport(houseID, renterID, ob)
 	if err != nil {
 
 		u.Data["json"] = response.NewErr(response.BadRequest)

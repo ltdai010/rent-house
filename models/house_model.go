@@ -254,8 +254,8 @@ func (this *House) GetResponse(key string) (response.House, error) {
 		return response.House{}, err
 	}
 	res := response.House{}
-	res.HouseID = doc.Ref.ID
 	err = doc.DataTo(&res)
+	res.HouseID = doc.Ref.ID
 	return res, err
 }
 
@@ -447,7 +447,7 @@ func (this *House) SearchAllItem(key string) ([]response.House, error) {
 		if err != nil {
 			return []response.House{}, err
 		}
-		if h.ExpiredTime > now {
+		if resH.ExpiredTime > now {
 			list = append(list, resH)
 		}
 	}
@@ -477,7 +477,7 @@ func (this *House) SearchPaginateItem(key string, page, count int) ([]response.H
 		if err != nil {
 			return []response.House{}, 0, err
 		}
-		if h.ExpiredTime > now {
+		if resH.ExpiredTime > now {
 			list = append(list, resH)
 		}
 	}

@@ -467,12 +467,29 @@ func SearchHouse(key, provinceID, districtID, communeID string) ([]response.Hous
 	if err != nil {
 		return []response.House{}, err
 	}
-	return	FilterSearchResult(res, provinceID, districtID, communeID)
+	return FilterSearchResult(res, provinceID, districtID, communeID)
 }
 
 func SearchPageHouse(key, provinceID, districtID, communeID string, page, count int) ([]response.House, int, error) {
 	h := &models.House{}
-	return h.SearchPaginateItem(key, page, count)
+	start := page * count
+	end := start + count
+
+	res, err := h.SearchAllItem(key)
+	if err != nil {
+		return nil, 0, err
+	}
+	r, err := FilterSearchResult(res, provinceID, districtID, communeID)
+	if err != nil {
+		return nil, 0, nil
+	}
+	if start > len(r) {
+		return nil, 0, response.BadRequest
+	}
+	if end > len(r) {
+		end = len(r)
+	}
+	return r[start:end], len(r), nil
 }
 
 func DeleteHouse(id string) error {

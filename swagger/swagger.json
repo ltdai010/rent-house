@@ -745,6 +745,49 @@
                 }
             }
         },
+        "/admin/reports/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get all renters",
+                "operationId": "AdminController.GetReport",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "length",
+                        "description": "the length",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "description": "-1: unseen| 0: all|1: seen",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Report"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/wait-comments/": {
             "get": {
                 "tags": [
@@ -900,6 +943,48 @@
                         "description": "",
                         "schema": {
                             "$ref": "#/definitions/response.Comment"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/{houseID}/reports/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get all renters",
+                "operationId": "AdminController.GetReport",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "houseID",
+                        "description": "the house-id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "length",
+                        "description": "the length",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Report"
                         }
                     }
                 }
@@ -1983,6 +2068,48 @@
                 }
             }
         },
+        "/renter/report/{houseID}": {
+            "post": {
+                "tags": [
+                    "renter"
+                ],
+                "description": "create comment",
+                "operationId": "RenterController.AddReport",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "houseID",
+                        "description": "the house id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ReportPost"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
         "/renter/sign-up/": {
             "post": {
                 "tags": [
@@ -2046,12 +2173,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "priceRange",
-                        "description": "price range",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
                         "name": "page",
                         "description": "page",
                         "required": true,
@@ -2101,12 +2222,6 @@
                         "in": "query",
                         "name": "district",
                         "description": "district id",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "priceRange",
-                        "description": "price range",
                         "type": "string"
                     },
                     {
@@ -2239,9 +2354,6 @@
                     "type": "boolean"
                 },
                 "content": {
-                    "type": "string"
-                },
-                "header": {
                     "type": "string"
                 },
                 "house_id": {
@@ -2603,9 +2715,6 @@
                 "content": {
                     "type": "string"
                 },
-                "header": {
-                    "type": "string"
-                },
                 "star": {
                     "type": "integer",
                     "format": "int64"
@@ -2617,9 +2726,6 @@
             "type": "object",
             "properties": {
                 "content": {
-                    "type": "string"
-                },
-                "header": {
                     "type": "string"
                 },
                 "star": {
@@ -2833,6 +2939,25 @@
                 }
             }
         },
+        "request.ReportPost": {
+            "title": "ReportPost",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "post_time": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "seen": {
+                    "type": "boolean"
+                },
+                "tittle": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Address": {
             "title": "Address",
             "type": "object",
@@ -2862,9 +2987,6 @@
                     "type": "string"
                 },
                 "content": {
-                    "type": "string"
-                },
-                "header": {
                     "type": "string"
                 },
                 "house_id": {
@@ -3032,6 +3154,34 @@
                     "type": "string"
                 },
                 "renter_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Report": {
+            "title": "Report",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "house_id": {
+                    "type": "string"
+                },
+                "renter_id": {
+                    "type": "string"
+                },
+                "report_id": {
+                    "type": "string"
+                },
+                "seen": {
+                    "type": "boolean"
+                },
+                "send_time": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "tittle": {
                     "type": "string"
                 }
             }

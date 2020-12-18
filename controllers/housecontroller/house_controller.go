@@ -89,6 +89,8 @@ func (u *HouseController) Get() {
 	u.ServeJSON()
 }
 
+
+
 // @Title GetByLike
 // @Description get user by uid
 // @Param	page		query 	int	false		"The house id"

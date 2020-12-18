@@ -27,6 +27,18 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
         beego.ControllerComments{
+            Method: "GetReportInHouse",
+            Router: "/:houseID/reports/",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(
+				param.New("page", param.IsRequired),
+				param.New("length", param.IsRequired),
+			),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
+        beego.ControllerComments{
             Method: "ActivateComment",
             Router: "/active-comment/",
             AllowHTTPMethods: []string{"post"},
@@ -196,6 +208,19 @@ func init() {
             Router: "/renters/",
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
+        beego.ControllerComments{
+            Method: "GetReport",
+            Router: "/reports/",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(
+				param.New("page", param.IsRequired),
+				param.New("length", param.IsRequired),
+				param.New("status", param.IsRequired),
+			),
             Filters: nil,
             Params: nil})
 

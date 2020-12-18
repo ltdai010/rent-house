@@ -15,7 +15,6 @@ type SearchController struct {
 // @Param	province	query	string	false	"province id"
 // @Param	commune		query	string	false	"commune id"
 // @Param	district	query	string	false	"district id"
-// @Param	priceRange	query	string	false	"price range"
 // @Param	key			query	string	true	"key"
 // @Success 200 {object} models.House
 // @Failure 403 :houseID is empty
@@ -43,7 +42,6 @@ func (u *SearchController) GetAllSearchHouse() {
 // @Param	province	query	string 	false		"province id"
 // @Param	commune		query	string	false		"commune id"
 // @Param	district	query	string	false		"distric id"
-// @Param	priceRange	query	string	false		"price range"
 // @Param	page		query	int		true		"page"
 // @Param	count		query	int		true		"count"
 // @Success 200 {object} models.House

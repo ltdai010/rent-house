@@ -28,6 +28,11 @@ func (g *Report) PutItem() error {
 	return err
 }
 
+func (g *Report) UpdateItem(id string) error {
+	_, err := g.GetCollection().Doc(id).Set(Ctx, g)
+	return err
+}
+
 func (g *Report) GetFromKey(id string) error {
 	doc, err := g.GetCollection().Doc(id).Get(Ctx)
 	if err != nil {
