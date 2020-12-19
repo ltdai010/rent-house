@@ -85,6 +85,9 @@ func (this *Renter) GetAll() ([]response.Renter, error) {
 			return nil, err
 		}
 		q.RenterID = doc.Ref.ID
+		if q.ListFavourite == nil {
+			q.ListFavourite = []string{}
+		}
 		listRenter = append(listRenter, q)
 	}
 	return listRenter, nil

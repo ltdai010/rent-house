@@ -39,6 +39,9 @@ func GetRenter(id string) (models.Renter, error) {
 	if err != nil {
 		return models.Renter{}, err
 	}
+	if o.ListFavourite == nil {
+		o.ListFavourite = []string{}
+	}
 	return *o, err
 }
 
