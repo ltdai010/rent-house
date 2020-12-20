@@ -599,7 +599,7 @@ func (u *AdminController) GetPageComment() {
 
 // @Title GetReport
 // @Description get all renters
-// @Param	token			header	string	true		"admin key"
+// @Param	token	header	string	true	"admin key"
 // @Param	houseID	path	string	true	"the house-id
 // @Param	page	query	int		true	"the page"
 // @Param	length	query	int		true	"the length"
@@ -622,6 +622,7 @@ func (u *AdminController) GetReportInHouse(page, length int) {
 
 // @Title GetReport
 // @Description get all renters
+// @Param	token	header	string	true	"report"
 // @Param	page	query	int		true	"the page"
 // @Param	length	query	int		true	"the length"
 // @Param	status	query	int		true	"-1: unseen| 0: all|1: seen"

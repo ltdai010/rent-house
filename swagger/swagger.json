@@ -787,6 +787,13 @@
                 "operationId": "AdminController.GetReport",
                 "parameters": [
                     {
+                        "in": "header",
+                        "name": "token",
+                        "description": "report",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "query",
                         "name": "page",
                         "description": "the page",
@@ -2974,7 +2981,7 @@
                 "content": {
                     "type": "string"
                 },
-                "tittle": {
+                "title": {
                     "type": "string"
                 }
             }
@@ -3202,7 +3209,7 @@
                     "type": "integer",
                     "format": "int64"
                 },
-                "tittle": {
+                "title": {
                     "type": "string"
                 }
             }

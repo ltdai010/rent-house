@@ -275,7 +275,7 @@ func ConvertCommentResponse(id string, comment Comment) response.Comment {
 	return response.Comment{
 		CommentID:  id,
 		Content:    comment.Content,
-		RenterName: renter.RenterName,
+		RenterName: renter.RenterFullName,
 		HouseID:    comment.HouseID,
 		PostTime:   comment.PostTime,
 		Star:       comment.Star,

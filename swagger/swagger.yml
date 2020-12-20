@@ -619,6 +619,11 @@ paths:
       description: get all renters
       operationId: AdminController.GetReport
       parameters:
+      - in: header
+        name: token
+        description: report
+        required: true
+        type: string
       - in: query
         name: page
         description: the page
@@ -2005,7 +2010,7 @@ definitions:
     properties:
       content:
         type: string
-      tittle:
+      title:
         type: string
   response.Address:
     title: Address
@@ -2163,7 +2168,7 @@ definitions:
       send_time:
         type: integer
         format: int64
-      tittle:
+      title:
         type: string
   response.Status:
     title: Status

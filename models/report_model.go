@@ -2,12 +2,13 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
+	"log"
 	"rent-house/consts"
 	"rent-house/restapi/response"
 )
 
 type Report struct {
-	Tittle   string `json:"tittle"`
+	Title   string `json:"title"`
 	Content  string `json:"content"`
 	RenterID string `json:"renter_id"`
 	HouseID  string `json:"house_id"`
@@ -46,7 +47,8 @@ func (g *Report) GetPageAll(page, count int) ([]response.Report, int, error) {
 	start := page * count
 	end := start + count
 
-	list, err := g.GetCollection().OrderBy("PostTime", firestore.Desc).Documents(Ctx).GetAll()
+	list, err := g.GetCollection().OrderBy("SendTime", firestore.Desc).Documents(Ctx).GetAll()
+	log.Println(len(list))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -64,7 +66,8 @@ func (g *Report) GetPageAll(page, count int) ([]response.Report, int, error) {
 			continue
 		}
 		result := ConvertReportResponse(i.Ref.ID, r)
-		if result.Tittle == "" {
+		if result.Title == "" {
+			log.Println(" models/report_model.go:70")
 			continue
 		}
 		res = append(res, result)
@@ -77,7 +80,7 @@ func (g *Report) GetPageStatus(page, count int, seen bool) ([]response.Report, i
 	start := page * count
 	end := start + count
 
-	list, err := g.GetCollection().Where("Seen", "==", seen).OrderBy("PostTime", firestore.Desc).Documents(Ctx).GetAll()
+	list, err := g.GetCollection().Where("Seen", "==", seen).OrderBy("SendTime", firestore.Desc).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -95,7 +98,7 @@ func (g *Report) GetPageStatus(page, count int, seen bool) ([]response.Report, i
 			continue
 		}
 		result := ConvertReportResponse(i.Ref.ID, r)
-		if result.Tittle == "" {
+		if result.Title == "" {
 			continue
 		}
 		res = append(res, result)
@@ -108,7 +111,7 @@ func (g *Report) GetPageAllInHouse(houseID string, page, count int) ([]response.
 	start := page * count
 	end := start + count
 
-	list, err := g.GetCollection().Where("HouseID", "==", houseID).OrderBy("PostTime", firestore.Desc).Documents(Ctx).GetAll()
+	list, err := g.GetCollection().Where("HouseID", "==", houseID).OrderBy("SendTime", firestore.Desc).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -126,7 +129,7 @@ func (g *Report) GetPageAllInHouse(houseID string, page, count int) ([]response.
 			continue
 		}
 		result := ConvertReportResponse(i.Ref.ID, r)
-		if result.Tittle == "" {
+		if result.Title == "" {
 			continue
 		}
 		res = append(res, result)
@@ -141,13 +144,14 @@ func (r *Report) Delete(id string) error {
 
 func ConvertReportResponse(id string, report Report) response.Report {
 	house := House{}
+	log.Println(report)
 	res, err := house.GetResponse(report.HouseID)
 	if err != nil {
 		return response.Report{}
 	}
 	return response.Report{
 		ReportID: id,
-		Tittle:   report.Tittle,
+		Title:    report.Title,
 		Content:  report.Content,
 		RenterID: report.RenterID,
 		House:    res,

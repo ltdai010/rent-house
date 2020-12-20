@@ -17,7 +17,7 @@ func AddReport(houseID, renterID string, request request.ReportPost) error {
 
 	//make report
 	rep := &models.Report{
-		Tittle:   request.Tittle,
+		Title:   request.Title,
 		Content:  request.Content,
 		RenterID: renterID,
 		HouseID:  houseID,
