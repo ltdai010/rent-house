@@ -8,16 +8,24 @@ import (
 )
 
 type Notification struct {
-	Content  string `json:"content"`
-	OwnerID  string `json:"owner_id"`
-	SendTime int64  `json:"send_time"`
-	Seen     bool   `json:"seen"`
+	Type     NotificationType `json:"type"`
+	OwnerID  string           `json:"owner_id"`
+	House    response.House   `json:"house_id"`
+	SendTime int64            `json:"send_time"`
+	Seen     bool             `json:"seen"`
 }
 
 type ResNotification struct {
 	NotificationID string `json:"notification_id"`
 	Notification
 }
+
+type NotificationType string
+
+const (
+	Denied = "denied"
+	Activated = "activated"
+)
 
 func (this *Notification) GetCollectionKey() string {
 	return notificationservice.NOTIFICATION
@@ -71,13 +79,13 @@ func (this *Notification) GetPaginateRecentOfOwner(ownerID string, page, count i
 	}
 	total := len(list)
 	end := (page + 1) * count
-	if page * count > total {
+	if page*count > total {
 		return nil, 0, response.BadRequest
 	}
 	if end > total {
 		end = total
 	}
-	for _, i := range list[page * count : end] {
+	for _, i := range list[page*count : end] {
 		r := ResNotification{}
 		err = i.DataTo(&r)
 		if err != nil {

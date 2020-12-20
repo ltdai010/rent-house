@@ -113,7 +113,66 @@ func DenyHouse(comment request.DeniedComment) error {
 	house.AdminComment = comment.Comment
 	house.Status = models.Denied
 	house.ExpiredTime = 0
-	return house.UpdateItem(comment.HouseID)
+	err = house.UpdateItem(comment.HouseID)
+	if err != nil {
+		return err
+	}
+	//send notification
+	noti := models2.Notification{
+		Type: models2.Denied,
+		OwnerID:  house.OwnerID,
+		SendTime: time.Now().Unix(),
+		House: response.House{
+			HouseID:        comment.HouseID,
+			OwnerID:        house.OwnerID,
+			HouseType:      response.HouseType(house.HouseType),
+			Price:          house.Price,
+			Unit:           response.Unit(house.Unit),
+			Address:        response.Address{
+				Province: house.Address.Province,
+				District: house.Address.District,
+				Commune:  house.Address.Commune,
+				Street:   house.Address.Street,
+			},
+			Infrastructure: response.Infrastructure{
+				PrivateBathroom: house.Infrastructure.PrivateBathroom,
+				Heater:          house.Infrastructure.Heater,
+				AirCondition:    house.Infrastructure.AirCondition,
+				Balcony:         house.Infrastructure.Balcony,
+				ElectricPrice:   house.Infrastructure.ElectricPrice,
+				WaterPrice:      house.Infrastructure.WaterPrice,
+				NumberOfRoom:    house.Infrastructure.NumberOfRoom,
+				Kitchen:         house.Infrastructure.Kitchen,
+				Other:           house.Infrastructure.Other,
+			},
+			NearBy:         house.NearBy,
+			PreOrder:       house.PreOrder,
+			Surface:        house.Surface,
+			WithOwner:      house.WithOwner,
+			ImageLink:      house.ImageLink,
+			LastViewed:     house.LastViewed,
+			MonthlyView:    house.MonthlyView,
+			Header:         house.Header,
+			View:           house.View,
+			Like:           house.Like,
+			Rented:         house.Rented,
+			Content:        house.Content,
+			PostTime:       house.PostTime,
+			Status:         response.Status(house.Status),
+			Review:         house.Review,
+			AppearTime:     house.AppearTime,
+			ExpiredTime:    house.ExpiredTime,
+			AdminComment:   house.AdminComment,
+		},
+		Seen: false,
+	}
+	go noti.PutItem()
+	if notificationcontroller.Broadcast != nil {
+		if notificationcontroller.Broadcast[noti.OwnerID] != nil {
+			notificationcontroller.Broadcast[noti.OwnerID] <- noti
+		}
+	}
+	return  nil
 }
 
 func ActiveHouse(id string) error {
@@ -141,10 +200,52 @@ func ActiveHouse(id string) error {
 
 	//send notification
 	noti := models2.Notification{
-		Content:  "Your house name: " + house.Header + " has been activated. Expired in " + time.Unix(house.ExpiredTime, 0 ).String(),
+		Type:     models2.Activated,
 		OwnerID:  house.OwnerID,
 		SendTime: time.Now().Unix(),
-		Seen: false,
+		Seen:     false,
+		House: response.House{
+			HouseID:   id,
+			OwnerID:   house.OwnerID,
+			HouseType: response.HouseType(house.HouseType),
+			Price:     house.Price,
+			Unit:      response.Unit(house.Unit),
+			Address: response.Address{
+				Province: house.Address.Province,
+				District: house.Address.District,
+				Commune:  house.Address.Commune,
+				Street:   house.Address.Street,
+			},
+			Infrastructure: response.Infrastructure{
+				PrivateBathroom: house.Infrastructure.PrivateBathroom,
+				Heater:          house.Infrastructure.Heater,
+				AirCondition:    house.Infrastructure.AirCondition,
+				Balcony:         house.Infrastructure.Balcony,
+				ElectricPrice:   house.Infrastructure.ElectricPrice,
+				WaterPrice:      house.Infrastructure.WaterPrice,
+				NumberOfRoom:    house.Infrastructure.NumberOfRoom,
+				Kitchen:         house.Infrastructure.Kitchen,
+				Other:           house.Infrastructure.Other,
+			},
+			NearBy:       house.NearBy,
+			PreOrder:     house.PreOrder,
+			Surface:      house.Surface,
+			WithOwner:    house.WithOwner,
+			ImageLink:    house.ImageLink,
+			LastViewed:   house.LastViewed,
+			MonthlyView:  house.MonthlyView,
+			Header:       house.Header,
+			View:         house.View,
+			Like:         house.Like,
+			Rented:       house.Rented,
+			Content:      house.Content,
+			PostTime:     house.PostTime,
+			Status:       response.Status(house.Status),
+			Review:       house.Review,
+			AppearTime:   house.AppearTime,
+			ExpiredTime:  house.ExpiredTime,
+			AdminComment: house.AdminComment,
+		},
 	}
 	go noti.PutItem()
 	if notificationcontroller.Broadcast != nil {

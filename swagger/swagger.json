@@ -2559,8 +2559,8 @@
             "title": "Notification",
             "type": "object",
             "properties": {
-                "content": {
-                    "type": "string"
+                "house_id": {
+                    "$ref": "#/definitions/response.House"
                 },
                 "owner_id": {
                     "type": "string"
@@ -2571,8 +2571,15 @@
                 "send_time": {
                     "type": "integer",
                     "format": "int64"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.NotificationType"
                 }
             }
+        },
+        "models.NotificationType": {
+            "title": "NotificationType",
+            "type": "string"
         },
         "models.Owner": {
             "title": "Owner",
@@ -2677,8 +2684,8 @@
             "title": "ResNotification",
             "type": "object",
             "properties": {
-                "content": {
-                    "type": "string"
+                "house_id": {
+                    "$ref": "#/definitions/response.House"
                 },
                 "notification_id": {
                     "type": "string"
@@ -2692,6 +2699,9 @@
                 "send_time": {
                     "type": "integer",
                     "format": "int64"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.NotificationType"
                 }
             }
         },
@@ -2945,13 +2955,6 @@
             "properties": {
                 "content": {
                     "type": "string"
-                },
-                "post_time": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "seen": {
-                    "type": "boolean"
                 },
                 "tittle": {
                     "type": "string"
