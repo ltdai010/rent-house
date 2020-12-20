@@ -2152,7 +2152,7 @@ definitions:
     properties:
       content:
         type: string
-      house_id:
+      house:
         $ref: '#/definitions/response.House'
       renter_name:
         type: string

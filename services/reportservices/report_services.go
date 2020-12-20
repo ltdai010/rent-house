@@ -22,7 +22,7 @@ func AddReport(houseID, renterID string, request request.ReportPost) error {
 		RenterID: renterID,
 		HouseID:  houseID,
 		Seen:     false,
-		PostTime: time.Now().Unix(),
+		SendTime: time.Now().Unix(),
 	}
 
 	return rep.PutItem()
