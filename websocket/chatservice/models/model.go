@@ -10,6 +10,7 @@ import (
 
 type MessageConversation struct {
 	MapMessage map[string]interface{}	`json:"map_message"`
+	LatestMsgTime int64	`json:"latest_msg_time"`
 }
 
 type ResMessageConversation struct {
@@ -33,7 +34,7 @@ func (this *MessageConversation) GetCollection() *firestore.CollectionRef {
 
 func (this *MessageConversation) GetAllChattingOwner() ([]response.Owner, int, error) {
 	res := []response.Owner{}
-	list, err := this.GetCollection().Documents(models.Ctx).GetAll()
+	list, err := this.GetCollection().OrderBy("LatestMsgTime", firestore.Desc).Documents(models.Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -115,7 +116,7 @@ func (this *MessageConversation) GetAllByTimeOfOwner(ownerID string) (ResMessage
 	if err != nil {
 		return ResMessageConversation{}, 0, err
 	}
-	err = doc.DataTo(mc)
+	err = doc.DataTo(&mc)
 	if err != nil {
 		return ResMessageConversation{}, 0, err
 	}

@@ -35,6 +35,7 @@ func (this *BroadCastToAdmin) PutItem() error {
 			return err
 		}
 		mc.MapMessage[fmt.Sprint(len(mc.MapMessage))] = *this
+		mc.LatestMsgTime = this.SendTime
 	}
 	_, err = this.GetCollection().Doc(this.OwnerID).Set(models.Ctx, mc)
 	if err != nil {
