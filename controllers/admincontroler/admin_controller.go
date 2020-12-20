@@ -73,6 +73,24 @@ func (u *AdminController) DeleteOwner() {
 	u.ServeJSON()
 }
 
+// @Title DeleteReport
+// @Description delete owner
+// @Param	token		header	string	true		"admin key"
+// @Param	reportID	query 	string	true		"reportID"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /report/ [delete]
+func (u *AdminController) DeleteReport() {
+	reportID := u.GetString("reportID")
+	err := reportservices.DeleteReport(reportID)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
 // @Title CreateHouse
 // @Description create users month = 0|| quarter = 1|| year = 2
 // @Param	token		header	    string			true			"The token string"
@@ -581,6 +599,7 @@ func (u *AdminController) GetPageComment() {
 
 // @Title GetReport
 // @Description get all renters
+// @Param	token			header	string	true		"admin key"
 // @Param	houseID	path	string	true	"the house-id
 // @Param	page	query	int		true	"the page"
 // @Param	length	query	int		true	"the length"

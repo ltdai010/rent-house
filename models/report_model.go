@@ -124,3 +124,8 @@ func (g *Report) GetPageAllInHouse(houseID string, page, count int) ([]response.
 	}
 	return res, len(list), nil
 }
+
+func (r *Report) Delete(id string) error {
+	_, err := r.GetCollection().Doc(id).Delete(Ctx)
+	return err
+}

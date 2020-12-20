@@ -69,3 +69,8 @@ func SeenMultiple(list []response.Report) {
 		go r.UpdateItem(i.ReportID)
 	}
 }
+
+func DeleteReport(id string) error {
+	r := &models.Report{}
+	return r.Delete(id)
+}

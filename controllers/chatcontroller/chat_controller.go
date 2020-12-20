@@ -56,7 +56,7 @@ func (w *WebsocketController) Join() {
 	}
 	Clients[ownerID] = ws
 	BcAdmin[ownerID] = make(chan models.BroadCastToAdmin)
-	ws.WriteJSON(response.Success)
+	ws.WriteJSON(response.NewErr(response.Success))
 	go broadcastToAdmin(BcAdmin[ownerID])
 	for {
 		var msg models.OwnerMessage
@@ -110,12 +110,13 @@ func (w *WebsocketController) JoinAdmin() {
 	tokenString := string(b)
 	adminID := middlewares.GetAdminFromToken(tokenString)
 	if adminID == "" {
-		ws.WriteJSON(response.BadRequest)
+		ws.WriteJSON(response.NewErr(response.BadRequest))
 		return
 	}
 	Admin[adminID] = ws
-	err = ws.WriteJSON(response.Success)
+	err = ws.WriteJSON(response.NewErr(response.Success))
 	if err != nil {
+		delete(Admin, adminID)
 		return
 	}
 	BcOwner[adminID] = make(chan models.BroadCastToOwner)

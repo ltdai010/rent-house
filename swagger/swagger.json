@@ -745,6 +745,39 @@
                 }
             }
         },
+        "/admin/report/": {
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "delete owner",
+                "operationId": "AdminController.DeleteReport",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportID",
+                        "description": "reportID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
         "/admin/reports/": {
             "get": {
                 "tags": [
@@ -956,6 +989,13 @@
                 "description": "get all renters",
                 "operationId": "AdminController.GetReport",
                 "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "admin key",
+                        "required": true,
+                        "type": "string"
+                    },
                     {
                         "in": "path",
                         "name": "houseID",
