@@ -1745,21 +1745,6 @@ definitions:
         type: string
       username:
         type: string
-  models.Notification:
-    title: Notification
-    type: object
-    properties:
-      house_id:
-        $ref: '#/definitions/response.House'
-      owner_id:
-        type: string
-      seen:
-        type: boolean
-      send_time:
-        type: integer
-        format: int64
-      type:
-        $ref: '#/definitions/models.NotificationType'
   models.NotificationType:
     title: NotificationType
     type: string
@@ -1834,7 +1819,7 @@ definitions:
     title: ResNotification
     type: object
     properties:
-      house_id:
+      house:
         $ref: '#/definitions/response.House'
       notification_id:
         type: string
@@ -2049,7 +2034,7 @@ definitions:
       post_time:
         type: integer
         format: int64
-      renter_id:
+      renter_name:
         type: string
       star:
         type: integer
@@ -2168,8 +2153,8 @@ definitions:
       content:
         type: string
       house_id:
-        type: string
-      renter_id:
+        $ref: '#/definitions/response.House'
+      renter_name:
         type: string
       report_id:
         type: string

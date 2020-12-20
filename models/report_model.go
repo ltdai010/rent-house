@@ -12,7 +12,7 @@ type Report struct {
 	RenterID string `json:"renter_id"`
 	HouseID  string `json:"house_id"`
 	Seen	 bool	`json:"seen"`
-	PostTime int64  `json:"post_time"`
+	SendTime int64  `json:"send_time"`
 }
 
 func (g *Report) GetCollectionKey() string {
@@ -58,13 +58,16 @@ func (g *Report) GetPageAll(page, count int) ([]response.Report, int, error) {
 		end = len(list)
 	}
 	for _, i := range list[start : end]{
-		r := response.Report{}
+		r := Report{}
 		err = i.DataTo(&r)
 		if err != nil {
 			continue
 		}
-		r.ReportID = i.Ref.ID
-		res = append(res, r)
+		result := ConvertReportResponse(i.Ref.ID, r)
+		if result.Tittle == "" {
+			continue
+		}
+		res = append(res, result)
 	}
 	return res, len(list), nil
 }
@@ -86,13 +89,16 @@ func (g *Report) GetPageStatus(page, count int, seen bool) ([]response.Report, i
 		end = len(list)
 	}
 	for _, i := range list[start : end] {
-		r := response.Report{}
+		r := Report{}
 		err = i.DataTo(&r)
 		if err != nil {
 			continue
 		}
-		r.ReportID = i.Ref.ID
-		res = append(res, r)
+		result := ConvertReportResponse(i.Ref.ID, r)
+		if result.Tittle == "" {
+			continue
+		}
+		res = append(res, result)
 	}
 	return res, len(list), nil
 }
@@ -114,13 +120,16 @@ func (g *Report) GetPageAllInHouse(houseID string, page, count int) ([]response.
 	}
 
 	for _, i := range list[start : end] {
-		r := response.Report{}
+		r := Report{}
 		err = i.DataTo(&r)
 		if err != nil {
 			continue
 		}
-		r.ReportID = i.Ref.ID
-		res = append(res, r)
+		result := ConvertReportResponse(i.Ref.ID, r)
+		if result.Tittle == "" {
+			continue
+		}
+		res = append(res, result)
 	}
 	return res, len(list), nil
 }
@@ -128,4 +137,21 @@ func (g *Report) GetPageAllInHouse(houseID string, page, count int) ([]response.
 func (r *Report) Delete(id string) error {
 	_, err := r.GetCollection().Doc(id).Delete(Ctx)
 	return err
+}
+
+func ConvertReportResponse(id string, report Report) response.Report {
+	house := House{}
+	res, err := house.GetResponse(report.HouseID)
+	if err != nil {
+		return response.Report{}
+	}
+	return response.Report{
+		ReportID: id,
+		Tittle:   report.Tittle,
+		Content:  report.Content,
+		RenterID: report.RenterID,
+		House:    res,
+		Seen:     report.Seen,
+		SendTime: report.SendTime,
+	}
 }

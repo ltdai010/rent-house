@@ -3,6 +3,7 @@ package models
 import (
 	"cloud.google.com/go/firestore"
 	"rent-house/models"
+	"rent-house/restapi/convert"
 	"rent-house/restapi/response"
 	"rent-house/websocket/notificationservice"
 )
@@ -10,14 +11,18 @@ import (
 type Notification struct {
 	Type     NotificationType `json:"type"`
 	OwnerID  string           `json:"owner_id"`
-	House    response.House   `json:"house_id"`
+	HouseID  string		      `json:"house_id"`
 	SendTime int64            `json:"send_time"`
 	Seen     bool             `json:"seen"`
 }
 
 type ResNotification struct {
-	NotificationID string `json:"notification_id"`
-	Notification
+	NotificationID string 	  `json:"notification_id"`
+	Type     NotificationType `json:"type"`
+	OwnerID  string           `json:"owner_id"`
+	House    response.House   `json:"house"`
+	SendTime int64            `json:"send_time"`
+	Seen     bool             `json:"seen"`
 }
 
 type NotificationType string
@@ -60,13 +65,25 @@ func (this *Notification) GetAllByTimeOfOwner(ownerID string) ([]ResNotification
 		return nil, err
 	}
 	for _, i := range list {
-		r := ResNotification{}
+		r := Notification{}
 		err = i.DataTo(&r)
 		if err != nil {
 			continue
 		}
-		r.NotificationID = i.Ref.ID
-		res = append(res, r)
+		house := models.House{}
+		err = house.GetFromKey(r.HouseID)
+		if err != nil {
+			continue
+		}
+		result := ResNotification{
+			NotificationID: i.Ref.ID,
+			Type:           r.Type,
+			OwnerID:        r.OwnerID,
+			House:          convert.ConvertHouseReponse(r.HouseID, house),
+			SendTime:       r.SendTime,
+			Seen:           r.Seen,
+		}
+		res = append(res, result)
 	}
 	return res, nil
 }
@@ -86,13 +103,25 @@ func (this *Notification) GetPaginateRecentOfOwner(ownerID string, page, count i
 		end = total
 	}
 	for _, i := range list[page*count : end] {
-		r := ResNotification{}
+		r := Notification{}
 		err = i.DataTo(&r)
 		if err != nil {
 			continue
 		}
-		r.NotificationID = i.Ref.ID
-		res = append(res, r)
+		house := models.House{}
+		err = house.GetFromKey(r.HouseID)
+		if err != nil {
+			continue
+		}
+		result := ResNotification{
+			NotificationID: i.Ref.ID,
+			Type:           r.Type,
+			OwnerID:        r.OwnerID,
+			House:          convert.ConvertHouseReponse(r.HouseID, house),
+			SendTime:       r.SendTime,
+			Seen:           r.Seen,
+		}
+		res = append(res, result)
 	}
 	return res, total, nil
 }

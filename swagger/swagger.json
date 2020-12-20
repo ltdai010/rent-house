@@ -2595,28 +2595,6 @@
                 }
             }
         },
-        "models.Notification": {
-            "title": "Notification",
-            "type": "object",
-            "properties": {
-                "house_id": {
-                    "$ref": "#/definitions/response.House"
-                },
-                "owner_id": {
-                    "type": "string"
-                },
-                "seen": {
-                    "type": "boolean"
-                },
-                "send_time": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "type": {
-                    "$ref": "#/definitions/models.NotificationType"
-                }
-            }
-        },
         "models.NotificationType": {
             "title": "NotificationType",
             "type": "string"
@@ -2724,7 +2702,7 @@
             "title": "ResNotification",
             "type": "object",
             "properties": {
-                "house_id": {
+                "house": {
                     "$ref": "#/definitions/response.House"
                 },
                 "notification_id": {
@@ -3039,7 +3017,7 @@
                     "type": "integer",
                     "format": "int64"
                 },
-                "renter_id": {
+                "renter_name": {
                     "type": "string"
                 },
                 "star": {
@@ -3209,9 +3187,9 @@
                     "type": "string"
                 },
                 "house_id": {
-                    "type": "string"
+                    "$ref": "#/definitions/response.House"
                 },
-                "renter_id": {
+                "renter_name": {
                     "type": "string"
                 },
                 "report_id": {

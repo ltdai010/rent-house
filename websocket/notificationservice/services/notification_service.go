@@ -24,7 +24,12 @@ func GetPageNotificationOfOwner(ownerID string, page, count int) ([]models.ResNo
 
 func SeenMultiple(list []models.ResNotification) {
 	for _, i := range list {
-		i.Notification.Seen = true
-		go i.Notification.UpdateItem(i.NotificationID)
+		i.Seen = true
+		not := &models.Notification{}
+		err := not.GetFromKey(i.NotificationID)
+		if err != nil {
+			continue
+		}
+		go not.UpdateItem(i.NotificationID)
 	}
 }

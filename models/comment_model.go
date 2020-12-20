@@ -40,10 +40,13 @@ func (this *Comment) GetPaginate(page int, count int) ([]response.Comment, int, 
 		end = total
 	}
 	for _, i := range listDoc[page * count : end]{
-		var q response.Comment
+		var q Comment
 		err = i.DataTo(&q)
-		q.CommentID = i.Ref.ID
-		listComment = append(listComment, q)
+		if err != nil {
+			continue
+		}
+		result := ConvertCommentResponse(i.Ref.ID, q)
+		listComment = append(listComment, result)
 	}
 	return listComment, total, nil
 }
@@ -71,7 +74,6 @@ func (this *Comment) GetAll() ([]response.Comment, error) {
 	listdoc := Client.Collection(this.GetCollectionKey()).Documents(Ctx)
 	listComment := []response.Comment{}
 	for {
-		var q response.Comment
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
@@ -79,12 +81,16 @@ func (this *Comment) GetAll() ([]response.Comment, error) {
 		if err != nil {
 			return nil, err
 		}
+		var q Comment
 		err = doc.DataTo(&q)
 		if err != nil {
-			return nil, err
+			continue
 		}
-		q.CommentID = doc.Ref.ID
-		listComment = append(listComment, q)
+		result := ConvertCommentResponse(doc.Ref.ID, q)
+		if result.Content == "" {
+			continue
+		}
+		listComment = append(listComment, result)
 	}
 	return listComment, nil
 }
@@ -93,7 +99,6 @@ func (this *Comment) GetAllCommentActiveInHouse(id string) ([]response.Comment, 
 	listdoc := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(Ctx)
 	listComment := []response.Comment{}
 	for {
-		var q response.Comment
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
@@ -101,15 +106,19 @@ func (this *Comment) GetAllCommentActiveInHouse(id string) ([]response.Comment, 
 		if err != nil {
 			return nil, err
 		}
+		var q Comment
 		err = doc.DataTo(&q)
 		if err != nil {
-			return nil, err
+			continue
 		}
 		if q.Activate == false {
 			continue
 		}
-		q.CommentID = doc.Ref.ID
-		listComment = append(listComment, q)
+		result := ConvertCommentResponse(doc.Ref.ID, q)
+		if result.Content == "" {
+			continue
+		}
+		listComment = append(listComment, result)
 	}
 	return listComment, nil
 }
@@ -118,7 +127,6 @@ func (this *Comment) GetAllCommentInHouse(id string) ([]response.Comment, error)
 	listdoc := Client.Collection(this.GetCollectionKey()).Where("HouseID", "==", id).Documents(Ctx)
 	listComment := []response.Comment{}
 	for {
-		var q response.Comment
 		doc, err := listdoc.Next()
 		if err == iterator.Done {
 			break
@@ -126,12 +134,16 @@ func (this *Comment) GetAllCommentInHouse(id string) ([]response.Comment, error)
 		if err != nil {
 			return nil, err
 		}
+		var q Comment
 		err = doc.DataTo(&q)
 		if err != nil {
-			return nil, err
+			continue
 		}
-		q.CommentID = doc.Ref.ID
-		listComment = append(listComment, q)
+		result := ConvertCommentResponse(doc.Ref.ID, q)
+		if result.Content == "" {
+			continue
+		}
+		listComment = append(listComment, result)
 	}
 	return listComment, nil
 }
@@ -151,13 +163,16 @@ func (this *Comment) GetPaginateCommentInHouse( id string, page, count int) ([]r
 	}
 	listComment := []response.Comment{}
 	for _, i := range listdoc[page * count : end]{
-		var q response.Comment
+		var q Comment
 		err = i.DataTo(&q)
 		if err != nil {
-			return nil, 0, err
+			continue
 		}
-		q.CommentID = i.Ref.ID
-		listComment = append(listComment, q)
+		result := ConvertCommentResponse(i.Ref.ID, q)
+		if result.Content == "" {
+			continue
+		}
+		listComment = append(listComment, result)
 	}
 	return listComment, total, nil
 }
@@ -173,13 +188,16 @@ func (this *Comment) GetAllWaitList() ([]response.Comment, error) {
 		if err != nil {
 			return nil, err
 		}
-		c := response.Comment{}
-		err = doc.DataTo(&c)
+		var q Comment
+		err = doc.DataTo(&q)
 		if err != nil {
-			return nil, err
+			continue
 		}
-		c.CommentID = doc.Ref.ID
-		listComment = append(listComment, c)
+		result := ConvertCommentResponse(doc.Ref.ID, q)
+		if result.Content == "" {
+			continue
+		}
+		listComment = append(listComment, result)
 	}
 	return listComment, nil
 }
@@ -199,13 +217,16 @@ func (this *Comment) GetPaginateWaitList(page int, count int) ([]response.Commen
 	}
 	listComment := []response.Comment{}
 	for _, i := range listDoc[page * count : end]{
-		c := response.Comment{}
-		err = i.DataTo(&c)
+		var q Comment
+		err = i.DataTo(&q)
 		if err != nil {
 			continue
 		}
-		c.CommentID = i.Ref.ID
-		listComment = append(listComment, c)
+		result := ConvertCommentResponse(i.Ref.ID, q)
+		if result.Content == "" {
+			continue
+		}
+		listComment = append(listComment, result)
 	}
 	return listComment, total, nil
 }
@@ -226,13 +247,16 @@ func (this *Comment) GetPaginateCommentActiveInHouse(id string, page int, count 
 	}
 	listComment := []response.Comment{}
 	for _, i := range list[page * count : end]{
-		c := response.Comment{}
-		err = i.DataTo(&c)
+		var q Comment
+		err = i.DataTo(&q)
 		if err != nil {
-			return nil, 0, err
+			continue
 		}
-		c.CommentID = i.Ref.ID
-		listComment = append(listComment, c)
+		result := ConvertCommentResponse(i.Ref.ID, q)
+		if result.Content == "" {
+			continue
+		}
+		listComment = append(listComment, result)
 	}
 	return listComment, total, nil
 }
@@ -240,4 +264,21 @@ func (this *Comment) GetPaginateCommentActiveInHouse(id string, page int, count 
 func (this *Comment) UpdateItem(id string) error {
 	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(Ctx, *this)
 	return err
+}
+
+func ConvertCommentResponse(id string, comment Comment) response.Comment {
+	renter := &Renter{}
+	err := renter.GetFromKey(comment.RenterID)
+	if err != nil {
+		return response.Comment{}
+	}
+	return response.Comment{
+		CommentID:  id,
+		Content:    comment.Content,
+		RenterName: renter.RenterName,
+		HouseID:    comment.HouseID,
+		PostTime:   comment.PostTime,
+		Star:       comment.Star,
+		Activate:   comment.Activate,
+	}
 }
