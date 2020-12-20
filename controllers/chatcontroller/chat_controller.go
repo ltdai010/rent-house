@@ -69,12 +69,15 @@ func (w *WebsocketController) Join() {
 			delete(Clients, ownerID)
 			return
 		}
-		// Send the newly received messagebody to the broadcastbody channel
-		BcAdmin[ownerID] <- models.BroadCastToAdmin{
+		bc := &models.BroadCastToAdmin{
 			OwnerID:      ownerID,
 			SendTime:     time.Now().Unix(),
 			OwnerMessage: msg,
+			Type: models.OWNER_MESSAGE,
 		}
+		go bc.PutItem()
+		// Send the newly received messagebody to the broadcastbody channel
+		BcAdmin[ownerID] <- *bc
 	}
 }
 
@@ -131,14 +134,17 @@ func (w *WebsocketController) JoinAdmin() {
 			ws.Close()
 			return
 		}
-
-
-		// Send the newly received messagebody to the broadcastbody channel
-		BcOwner[adminID] <- models.BroadCastToOwner{
+		bc := &models.BroadCastToOwner{
 			AdminID:      adminID,
 			SendTime:     time.Now().Unix(),
 			AdminMessage: msg,
+			Type: models.ADMIN_MESSAGE,
 		}
+
+		go bc.PutItem()
+
+		// Send the newly received messagebody to the broadcastbody channel
+		BcOwner[adminID] <- *bc
 	}
 }
 
@@ -156,3 +162,4 @@ func broadcastToOwner(msg <- chan models.BroadCastToOwner) {
 		// Send it out to every owner that is currently connected
 	}
 }
+

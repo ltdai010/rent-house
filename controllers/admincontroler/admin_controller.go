@@ -13,6 +13,7 @@ import (
 	"rent-house/services/ownerservices"
 	"rent-house/services/renterservices"
 	"rent-house/services/reportservices"
+	services2 "rent-house/websocket/chatservice/services"
 )
 
 type AdminController struct {
@@ -622,7 +623,7 @@ func (u *AdminController) GetReportInHouse(page, length int) {
 
 // @Title GetReport
 // @Description get all renters
-// @Param	token	header	string	true	"report"
+// @Param	token	header	string	true	"token admin"
 // @Param	page	query	int		true	"the page"
 // @Param	length	query	int		true	"the length"
 // @Param	status	query	int		true	"-1: unseen| 0: all|1: seen"
@@ -635,6 +636,57 @@ func (u *AdminController) GetReport(page, length, status int) {
 	} else {
 		u.Data["json"] = response.ResponseCommonArray{
 			Data: comments,
+			TotalCount: int64(total),
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetMessage
+// @Description get msg by uid
+// @Param	token	header	string	true	"token admin"
+// @Param	ownerID		path	    string			true		"The token string"
+// @Param	page		query		int				false		"the page number"
+// @Param	length		query		int				false		"the page  length"
+// @Success 200 {object} models.ResMessageConversation
+// @Failure 403 :ownerID is empty
+// @router /:ownerID/messages/ [get]
+func (u *AdminController) GetMessage() {
+	ownerID := u.Ctx.Input.Param(":ownerID")
+	page, _ := u.GetInt("page")
+	length, _ := u.GetInt("length")
+	user, total, err := services2.GetMessageOfOwner(ownerID, page, length)
+	if err != nil {
+		log.Println(err)
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonArray{
+			Data: user,
+			TotalCount: int64(total),
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetMessagingOwner
+// @Description get msg by uid
+// @Param	token	header	string	true	"token admin"
+// @Param	page	query	int		false	"page number"
+// @Param	length	query	int		false	"page length"
+// @Success 200 {object} response.Owner
+// @Failure 403 :ownerID is empty
+// @router /messages/owner [get]
+func (u *AdminController) GetMessagingOwner() {
+	page, _ := u.GetInt("page")
+	length, _ := u.GetInt("length")
+	user, total, err := services2.GetChattingOwner(page, length)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonArray{
+			Data: user,
 			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}

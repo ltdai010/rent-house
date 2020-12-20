@@ -408,6 +408,49 @@
                 }
             }
         },
+        "/admin/messages/owner": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get msg by uid",
+                "operationId": "AdminController.GetMessagingOwner",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "token admin",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "page number",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "length",
+                        "description": "page length",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Owner"
+                        }
+                    },
+                    "403": {
+                        "description": ":ownerID is empty"
+                    }
+                }
+            }
+        },
         "/admin/owner/": {
             "delete": {
                 "tags": [
@@ -789,7 +832,7 @@
                     {
                         "in": "header",
                         "name": "token",
-                        "description": "report",
+                        "description": "token admin",
                         "required": true,
                         "type": "string"
                     },
@@ -1033,6 +1076,56 @@
                         "schema": {
                             "$ref": "#/definitions/response.Report"
                         }
+                    }
+                }
+            }
+        },
+        "/admin/{ownerID}/messages/": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "description": "get msg by uid",
+                "operationId": "AdminController.GetMessage",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "token admin",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "ownerID",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page number",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "length",
+                        "description": "the page  length",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResMessageConversation"
+                        }
+                    },
+                    "403": {
+                        "description": ":ownerID is empty"
                     }
                 }
             }
@@ -1621,6 +1714,49 @@
                     },
                     "403": {
                         "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/owner/messages/": {
+            "get": {
+                "tags": [
+                    "owner"
+                ],
+                "description": "get user by uid",
+                "operationId": "OwnerController.GetMessage",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "the page number",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "length",
+                        "description": "the page  length",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResMessageConversation"
+                        }
+                    },
+                    "403": {
+                        "description": ":ownerID is empty"
                     }
                 }
             }
@@ -2375,6 +2511,10 @@
         }
     },
     "definitions": {
+        "2515.0xc000967bc0.false": {
+            "title": "false",
+            "type": "object"
+        },
         "models.Address": {
             "title": "Address",
             "type": "object",
@@ -2613,10 +2753,6 @@
                 "activate": {
                     "type": "boolean"
                 },
-                "active_time": {
-                    "type": "integer",
-                    "format": "int64"
-                },
                 "address": {
                     "$ref": "#/definitions/models.Address"
                 },
@@ -2630,6 +2766,10 @@
                     "type": "string"
                 },
                 "password_changed": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "post_time": {
                     "type": "integer",
                     "format": "int64"
                 },
@@ -2702,6 +2842,18 @@
                 },
                 "renter_name": {
                     "type": "string"
+                }
+            }
+        },
+        "models.ResMessageConversation": {
+            "title": "ResMessageConversation",
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/2515.0xc000967bc0.false"
+                    }
                 }
             }
         },
@@ -3171,6 +3323,50 @@
                 "water_price": {
                     "type": "integer",
                     "format": "int64"
+                }
+            }
+        },
+        "response.Owner": {
+            "title": "Owner",
+            "type": "object",
+            "properties": {
+                "activate": {
+                    "type": "boolean"
+                },
+                "address": {
+                    "$ref": "#/definitions/response.Address"
+                },
+                "average_star": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "owner_full_name": {
+                    "type": "string"
+                },
+                "owner_name": {
+                    "type": "string"
+                },
+                "post_time": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "profile": {
+                    "$ref": "#/definitions/response.Profile"
+                }
+            }
+        },
+        "response.Profile": {
+            "title": "Profile",
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id_card": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
                 }
             }
         },

@@ -18,7 +18,7 @@ var (
 	//connected client
 	Clients  = make(map[string]*websocket.Conn)     // connected Clients
 	//broadcast to owner
-	Broadcast = make(map[string]chan models.Notification) // broadcast channel
+	Broadcast = make(map[string]chan models.ResNotification) // broadcast channel
 	upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -49,7 +49,7 @@ func (w *WebsocketController) Join() {
 		return
 	}
 	Clients[ownerID] = ws
-	Broadcast[ownerID] = make(chan models.Notification)
+	Broadcast[ownerID] = make(chan models.ResNotification)
 	ws.WriteJSON(response.Success)
 	go broadcastToUser(Broadcast[ownerID])
 	for {
@@ -63,7 +63,7 @@ func (w *WebsocketController) Join() {
 	}
 }
 
-func broadcastToUser(msg <- chan models.Notification) {
+func broadcastToUser(msg <- chan models.ResNotification) {
 	for {
 		// Grab the next messagebody from the broadcastbody channel
 		for i := range msg {

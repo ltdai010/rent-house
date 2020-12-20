@@ -1,13 +1,13 @@
 package response
 
 type Owner struct {
-	OwnerName   string  `json:"owner_name"`
+	OwnerName     string  `json:"owner_name"`
 	OwnerFullName string  `json:"owner_full_name"`
-	Profile   Profile `json:"profile"`
-	Address   Address `json:"address"`
-	AverageStar float32 `json:"average_star"`
-	ActiveTime	int64	`json:"active_time"`
-	Activate  bool	  `json:"activate"`
+	Profile       Profile `json:"profile"`
+	Address       Address `json:"address"`
+	AverageStar   float32 `json:"average_star"`
+	PostTime      int64   `json:"post_time"`
+	Activate      bool    `json:"activate"`
 }
 
 type Profile struct {

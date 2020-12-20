@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 	"rent-house/controllers/notificationcontroller"
 	"rent-house/models"
+	"rent-house/restapi/convert"
 	"rent-house/restapi/request"
 	"rent-house/restapi/response"
 	models2 "rent-house/websocket/notificationservice/models"
@@ -117,6 +118,7 @@ func DenyHouse(comment request.DeniedComment) error {
 	if err != nil {
 		return err
 	}
+
 	//send notification
 	noti := models2.Notification{
 		Type: models2.Denied,
@@ -128,7 +130,13 @@ func DenyHouse(comment request.DeniedComment) error {
 	go noti.PutItem()
 	if notificationcontroller.Broadcast != nil {
 		if notificationcontroller.Broadcast[noti.OwnerID] != nil {
-			notificationcontroller.Broadcast[noti.OwnerID] <- noti
+			notificationcontroller.Broadcast[noti.OwnerID] <- models2.ResNotification{
+				Type: models2.Denied,
+				OwnerID:  house.OwnerID,
+				SendTime: time.Now().Unix(),
+				House: convert.ConvertHouseReponse(comment.HouseID, *house),
+				Seen: false,
+			}
 		}
 	}
 	return  nil
@@ -168,7 +176,13 @@ func ActiveHouse(id string) error {
 	go noti.PutItem()
 	if notificationcontroller.Broadcast != nil {
 		if notificationcontroller.Broadcast[noti.OwnerID] != nil {
-			notificationcontroller.Broadcast[noti.OwnerID] <- noti
+			notificationcontroller.Broadcast[noti.OwnerID] <- models2.ResNotification{
+				Type: models2.Denied,
+				OwnerID:  house.OwnerID,
+				SendTime: time.Now().Unix(),
+				House: convert.ConvertHouseReponse(id, *house),
+				Seen: false,
+			}
 		}
 	}
 

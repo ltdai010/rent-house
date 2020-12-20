@@ -14,7 +14,7 @@ type Owner struct {
 	Profile         Profile `json:"profile"`
 	Address         Address `json:"address"`
 	PasswordChanged int64   `json:"password_changed"`
-	PostTime        int64   `json:"active_time"`
+	PostTime        int64   `json:"post_time"`
 	Activate        bool    `json:"activate"`
 }
 

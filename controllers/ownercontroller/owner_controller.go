@@ -9,6 +9,7 @@ import (
 	"rent-house/restapi/response"
 	"rent-house/services/houseservices"
 	"rent-house/services/ownerservices"
+	services2 "rent-house/websocket/chatservice/services"
 	"rent-house/websocket/notificationservice/services"
 )
 
@@ -103,6 +104,29 @@ func (u *OwnerController) GetOwner(ownerID string) {
 	} else {
 		u.Data["json"] = response.ResponseCommonSingle{
 			Data: user,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetMessage
+// @Description get user by uid
+// @Param	token		header	    string			true		"The token string"
+// @Param	page		query		int				false		"the page number"
+// @Param	length		query		int				false		"the page  length"
+// @Success 200 {object} models.ResMessageConversation
+// @Failure 403 :ownerID is empty
+// @router /messages/ [get]
+func (u *OwnerController) GetMessage(page, length int) {
+	ownername := u.Ctx.Input.Header("ownername")
+	user, total, err := services2.GetMessageOfOwner(ownername, page, length)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.ResponseCommonArray{
+			Data: user,
+			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
 	}
