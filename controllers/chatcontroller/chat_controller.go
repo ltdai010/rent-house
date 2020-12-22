@@ -56,7 +56,12 @@ func (w *WebsocketController) Join() {
 	}
 	Clients[ownerID] = ws
 	BcAdmin[ownerID] = make(chan models.BroadCastToAdmin)
-	ws.WriteJSON(response.NewErr(response.Success))
+	err = ws.WriteJSON(response.NewErr(response.Success))
+	if err != nil {
+		ws.Close()
+		delete(Clients, ownerID)
+		return
+	}
 	go broadcastToAdmin(BcAdmin[ownerID])
 	for {
 		var msg models.OwnerMessage
@@ -64,10 +69,12 @@ func (w *WebsocketController) Join() {
 		_, b, err = ws.ReadMessage()
 		err = json.Unmarshal(b, &msg)
 		if err != nil {
-			ws.WriteJSON(response.BadRequest)
-			ws.Close()
-			delete(Clients, ownerID)
-			return
+			err = ws.WriteJSON(response.BadRequest)
+			if err != nil {
+				ws.Close()
+				delete(Clients, ownerID)
+				return
+			}
 		}
 		bc := &models.BroadCastToAdmin{
 			OwnerID:      ownerID,
@@ -77,7 +84,17 @@ func (w *WebsocketController) Join() {
 		}
 		go bc.PutItem()
 		// Send the newly received messagebody to the broadcastbody channel
-		BcAdmin[ownerID] <- *bc
+		if BcAdmin != nil {
+			if BcAdmin[ownerID] != nil {
+				BcAdmin[ownerID] <- *bc
+				err = ws.WriteJSON(response.NewErr(response.Success))
+				if err != nil {
+					ws.Close()
+					delete(Clients, ownerID)
+					return
+				}
+			}
+		}
 	}
 }
 
@@ -130,9 +147,13 @@ func (w *WebsocketController) JoinAdmin() {
 		_, b, err = ws.ReadMessage()
 		err = json.Unmarshal(b, &msg)
 		if err != nil {
-			ws.WriteJSON(response.BadRequest)
-			ws.Close()
-			return
+			err = ws.WriteJSON(response.BadRequest)
+			if err != nil {
+				ws.Close()
+				delete(Admin, adminID)
+				return
+			}
+			continue
 		}
 		bc := &models.BroadCastToOwner{
 			AdminID:      adminID,
@@ -144,7 +165,17 @@ func (w *WebsocketController) JoinAdmin() {
 		go bc.PutItem()
 
 		// Send the newly received messagebody to the broadcastbody channel
-		BcOwner[adminID] <- *bc
+		if BcOwner != nil {
+			if BcOwner[adminID] != nil {
+				BcOwner[adminID] <- *bc
+				err = ws.WriteJSON(response.NewErr(response.Success))
+				if err != nil {
+					ws.Close()
+					delete(Admin, adminID)
+					return
+				}
+			}
+		}
 	}
 }
 
@@ -156,6 +187,7 @@ func broadcastToOwner(msg <- chan models.BroadCastToOwner) {
 				err := Clients[i.OwnerID].WriteJSON(i)
 				if err != nil {
 					delete(Clients, i.OwnerID)
+					return
 				}
 			}
 		}
