@@ -8,12 +8,21 @@ import (
 )
 
 type MessageConversation struct {
-	Messages []interface{}	`json:"map_message"`
+	Messages []Message	`json:"map_message"`
 	LatestMsgTime int64	`json:"latest_msg_time"`
 }
 
 type ResMessageConversation struct {
-	Messages []interface{}	`json:"messages"`
+	Messages []Message	`json:"messages"`
+}
+
+type Message struct {
+	AdminID  string `json:"admin_id"`
+	SendTime int64  `json:"send_time"`
+	Type 	MessageType `json:"type"`
+	OwnerID	 string	`json:"owner_id"`
+	Message  string `json:"message"`
+	ImageLink string `json:"image_link"`
 }
 
 type MessageType string
@@ -110,7 +119,7 @@ func (this *MessageConversation) GetChattingOwner(page, length int) ([]response.
 func (this *MessageConversation) GetAllByTimeOfOwner(ownerID string) (ResMessageConversation, int, error) {
 	mc := MessageConversation{}
 	res := ResMessageConversation{}
-	res.Messages = []interface{}{}
+	res.Messages = []Message{}
 	doc, err := this.GetCollection().Doc(ownerID).Get(models.Ctx)
 	if err != nil {
 		return ResMessageConversation{}, 0, err
@@ -130,7 +139,7 @@ func (this *MessageConversation) GetAllByTimeOfOwner(ownerID string) (ResMessage
 func (this *MessageConversation) GetPaginateRecentOfOwner(ownerID string, page, count int) (ResMessageConversation, int, error) {
 	mc := MessageConversation{}
 	res := ResMessageConversation{}
-	res.Messages = []interface{}{}
+	res.Messages = []Message{}
 	start := page * count
 	end := start + count
 	tmp := start
@@ -142,7 +151,7 @@ func (this *MessageConversation) GetPaginateRecentOfOwner(ownerID string, page, 
 	if err != nil {
 		return ResMessageConversation{}, 0, err
 	}
-	list := []interface{}{}
+	list := []Message{}
 	if mc.Messages != nil {
 		for _, i := range mc.Messages {
 			list = append(list, i)

@@ -24,17 +24,31 @@ func (this *BroadCastToOwner) GetCollection() *firestore.CollectionRef {
 
 func (this *BroadCastToOwner) PutItem() error {
 	mc := &MessageConversation{
-		Messages: []interface{}{},
+		Messages: []Message{},
 	}
 	doc, err := this.GetCollection().Doc(this.OwnerID).Get(models.Ctx)
 	if err != nil {
-		mc.Messages = append(mc.Messages, *this)
+		mc.Messages = append(mc.Messages, Message{
+			AdminID:   this.AdminID,
+			SendTime:  this.SendTime,
+			Type:      this.Type,
+			OwnerID:   this.OwnerID,
+			Message:   this.Message,
+			ImageLink: this.ImageLink,
+		})
 	} else {
 		err = doc.DataTo(mc)
 		if err != nil {
 			return err
 		}
-		mc.Messages = append(mc.Messages, *this)
+		mc.Messages = append(mc.Messages, Message{
+			AdminID:   this.AdminID,
+			SendTime:  this.SendTime,
+			Type:      this.Type,
+			OwnerID:   this.OwnerID,
+			Message:   this.Message,
+			ImageLink: this.ImageLink,
+		})
 		mc.LatestMsgTime = this.SendTime
 	}
 	_, err = this.GetCollection().Doc(this.OwnerID).Set(models.Ctx, mc)

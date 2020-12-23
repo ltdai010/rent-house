@@ -1685,9 +1685,6 @@ paths:
         "403":
           description: ': is empty'
 definitions:
-  2579.0xc000a6e9f0.false:
-    title: "false"
-    type: object
   models.Address:
     title: Address
     type: object
@@ -1845,6 +1842,26 @@ definitions:
         type: string
       username:
         type: string
+  models.Message:
+    title: Message
+    type: object
+    properties:
+      admin_id:
+        type: string
+      image_link:
+        type: string
+      message:
+        type: string
+      owner_id:
+        type: string
+      send_time:
+        type: integer
+        format: int64
+      type:
+        $ref: '#/definitions/models.MessageType'
+  models.MessageType:
+    title: MessageType
+    type: string
   models.NotificationType:
     title: NotificationType
     type: string
@@ -1922,7 +1939,7 @@ definitions:
       messages:
         type: array
         items:
-          $ref: '#/definitions/2579.0xc000a6e9f0.false'
+          $ref: '#/definitions/models.Message'
   models.ResNotification:
     title: ResNotification
     type: object
