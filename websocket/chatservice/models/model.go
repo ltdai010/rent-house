@@ -2,14 +2,13 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
-	"log"
 	"rent-house/models"
 	"rent-house/restapi/response"
 	"rent-house/websocket/chatservice"
 )
 
 type MessageConversation struct {
-	MapMessage map[string]interface{}	`json:"map_message"`
+	Messages []interface{}	`json:"map_message"`
 	LatestMsgTime int64	`json:"latest_msg_time"`
 }
 
@@ -120,8 +119,8 @@ func (this *MessageConversation) GetAllByTimeOfOwner(ownerID string) (ResMessage
 	if err != nil {
 		return ResMessageConversation{}, 0, err
 	}
-	if mc.MapMessage != nil {
-		for _, i := range mc.MapMessage {
+	if mc.Messages != nil {
+		for _, i := range mc.Messages {
 			res.Messages = append(res.Messages, i)
 		}
 	}
@@ -137,22 +136,19 @@ func (this *MessageConversation) GetPaginateRecentOfOwner(ownerID string, page, 
 	tmp := start
 	doc, err := this.GetCollection().Doc(ownerID).Get(models.Ctx)
 	if err != nil {
-		log.Println(err, " websocket/chatservice/models/model.go:95")
 		return ResMessageConversation{}, 0, err
 	}
 	err = doc.DataTo(&mc)
 	if err != nil {
-		log.Println(err, " websocket/chatservice/models/model.go:100")
 		return ResMessageConversation{}, 0, err
 	}
 	list := []interface{}{}
-	if mc.MapMessage != nil {
-		for _, i := range mc.MapMessage {
+	if mc.Messages != nil {
+		for _, i := range mc.Messages {
 			list = append(list, i)
 		}
 	}
 	total := len(list)
-	log.Println(total)
 	start = total - end
 	end = total - tmp
 	if end < 0 {

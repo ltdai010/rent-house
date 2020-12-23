@@ -1685,7 +1685,7 @@ paths:
         "403":
           description: ': is empty'
 definitions:
-  2631.0xc000a8e120.false:
+  2579.0xc000a6e9f0.false:
     title: "false"
     type: object
   models.Address:
@@ -1922,7 +1922,7 @@ definitions:
       messages:
         type: array
         items:
-          $ref: '#/definitions/2631.0xc000a8e120.false'
+          $ref: '#/definitions/2579.0xc000a6e9f0.false'
   models.ResNotification:
     title: ResNotification
     type: object

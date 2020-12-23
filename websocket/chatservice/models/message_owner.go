@@ -2,7 +2,6 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
-	"fmt"
 	"rent-house/models"
 	"rent-house/websocket/chatservice"
 )
@@ -25,17 +24,17 @@ func (this *BroadCastToOwner) GetCollection() *firestore.CollectionRef {
 
 func (this *BroadCastToOwner) PutItem() error {
 	mc := &MessageConversation{
-		MapMessage: map[string]interface{}{},
+		Messages: []interface{}{},
 	}
 	doc, err := this.GetCollection().Doc(this.OwnerID).Get(models.Ctx)
 	if err != nil {
-		mc.MapMessage["0"] = *this
+		mc.Messages = append(mc.Messages, *this)
 	} else {
 		err = doc.DataTo(mc)
 		if err != nil {
 			return err
 		}
-		mc.MapMessage[fmt.Sprint(len(mc.MapMessage))] = *this
+		mc.Messages = append(mc.Messages, *this)
 		mc.LatestMsgTime = this.SendTime
 	}
 	_, err = this.GetCollection().Doc(this.OwnerID).Set(models.Ctx, mc)
