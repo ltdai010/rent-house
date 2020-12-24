@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"rent-house/consts"
 	"rent-house/restapi/response"
+	"strconv"
 	"time"
 )
 
@@ -45,6 +46,7 @@ type HouseSearch struct {
 	NearBy         []string       `json:"near_by"`
 	Header         string         `json:"header"`
 	Content        string         `json:"content"`
+	Price          float64		  `json:"price"`
 }
 
 func (g *House) GetCollectionKey() string {
@@ -55,8 +57,8 @@ func (g *House) GetCollection() *firestore.CollectionRef {
 	return Client.Collection(g.GetCollectionKey())
 }
 
-func (this *House) GetMaxViewHouseInMonth() (response.House, error) {
-	ref := Client.Collection(consts.HOUSE).OrderBy("MonthlyView", firestore.Asc).Limit(1).Documents(Ctx)
+func (this *House) GetMaxViewHouseInMonth(length int) (response.House, error) {
+	ref := Client.Collection(consts.HOUSE).OrderBy("MonthlyView", firestore.Desc).Limit(length).Documents(Ctx)
 	doc, err := ref.Next()
 	if err != nil {
 		return response.House{}, err
@@ -92,19 +94,7 @@ func (this *House) GetActiveHouseByListID(ids []string) ([]response.House, error
 }
 
 func (this *House) FindMaxViewHouse() (response.House, error) {
-	ref := Client.Collection(consts.HOUSE).OrderBy("View", firestore.Asc).Limit(1).Documents(Ctx)
-	doc, err := ref.Next()
-	if err != nil {
-		return response.House{}, err
-	}
-	res := response.House{}
-	err = doc.DataTo(&res)
-	res.HouseID = doc.Ref.ID
-	return response.House{}, err
-}
-
-func (this *House) FindMaxLikeHouse() (response.House, error) {
-	ref := Client.Collection(consts.HOUSE).OrderBy("Like", firestore.Asc).Limit(1).Documents(Ctx)
+	ref := Client.Collection(consts.HOUSE).OrderBy("View", firestore.Desc).Limit(1).Documents(Ctx)
 	doc, err := ref.Next()
 	if err != nil {
 		return response.House{}, err
@@ -120,7 +110,7 @@ func (this *House) GetPaginate(page int, count int) ([]response.House, int, erro
 	start := page * count
 	end := start + count
 
-	listDoc, err := this.GetCollection().OrderBy("PostTime", firestore.Asc).Documents(Ctx).GetAll()
+	listDoc, err := this.GetCollection().OrderBy("PostTime", firestore.Desc).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -182,17 +172,19 @@ func (this *House) GetAllByLike() ([]response.House, error) {
 func (this *House) PutItem() (string, error) {
 	//add to collection
 	res, _, err := Client.Collection(this.GetCollectionKey()).Add(Ctx, *this)
-	if err != nil {
-		return "", err
-	}
-	//add to search
 	go searchIndex.SaveObject(HouseSearch{
 		ObjectID:       res.ID,
 		OwnerID:        this.OwnerID,
 		NearBy:         this.NearBy,
 		Header:         this.Header,
 		Content:        this.Content,
+		Price: 			this.Price,
 	})
+	if err != nil {
+		return "", err
+	}
+	//add to search
+
 	return res.ID, err
 }
 
@@ -353,7 +345,7 @@ func (this *House) GetPaginateHouseOfUser(id string, page int, count int) ([]res
 	start := page * count
 	end := start + count
 
-	list, err := this.GetCollection().Where("OwnerID", "==", id).OrderBy("PostTime", firestore.Asc).Documents(Ctx).GetAll()
+	list, err := this.GetCollection().Where("OwnerID", "==", id).OrderBy("PostTime", firestore.Desc).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -401,7 +393,7 @@ func (this *House) GetPaginateByStatus(status Status, page int, count int) ([]re
 	start := page * count
 	end := start + count
 
-	l, err := this.GetCollection().Where("Status", "==", status).OrderBy("PostTime", firestore.Asc).Documents(Ctx).GetAll()
+	l, err := this.GetCollection().Where("Status", "==", status).OrderBy("PostTime", firestore.Desc).Documents(Ctx).GetAll()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -426,11 +418,22 @@ func (this *House) GetPaginateByStatus(status Status, page int, count int) ([]re
 
 func (this *House) UpdateItem(id string) error {
 	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Set(Ctx, *this)
-	return err
+	if err != nil {
+		return err
+	}
+	go searchIndex.SaveObject(HouseSearch{
+		ObjectID:       id,
+		OwnerID:        this.OwnerID,
+		NearBy:         this.NearBy,
+		Header:         this.Header,
+		Content:        this.Content,
+		Price: 			this.Price,
+	})
+	return nil
 }
 
-func (this *House) SearchAllItem(key string) ([]response.House, error) {
-	res, err := searchIndex.Search(key)
+func (this *House) SearchAllItem(key string, startPrice, endPrice int) ([]response.House, error) {
+	res, err := searchIndex.Search(key, opt.Filters("price:" + strconv.Itoa(startPrice) + " TO " + strconv.Itoa(endPrice)))
 	if err != nil {
 		return []response.House{}, err
 	}

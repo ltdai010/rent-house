@@ -1,42 +1,44 @@
 package statisticservices
 
 import (
+	"fmt"
 	"rent-house/models"
 	"rent-house/restapi/response"
+	"time"
 )
 
-func MostViewInMonth() (house response.House, err error) {
+func MostViewInMonth(length int) (house response.House, err error) {
 	h := &models.House{}
-	res, err := h.GetMaxViewHouseInMonth()
+	res, err := h.GetMaxViewHouseInMonth(length)
 	return res, err
 }
 
-func ViewInHourThisMonth() (mapTime map[string]int64, err error) {
+func TimelineViewThisMonth() (map[string]map[string]int64, error) {
 	stat := &models.Statistic{}
-	mapTime = map[string]int64{}
-	err = stat.GetFromKey(stat.GetKeyNow())
+	mapTime := MakeMonthMapNow()
+	err := stat.GetFromKey(stat.GetKeyNow())
 	if err != nil {
-		return nil, err
-	}
-	for _, dayView := range stat.ViewTime {
-		for i, j := range dayView {
-			mapTime[i] += j
-		}
-	}
-	return
-}
-
-func TimelineViewThisMonth() (mapTime map[string]int64, err error) {
-	stat := &models.Statistic{}
-	mapTime = map[string]int64{}
-	err = stat.GetFromKey(stat.GetKeyNow())
-	if err != nil {
-		return nil, err
+		return mapTime, err
 	}
 	for d, dayView := range stat.ViewTime {
-		for _, j := range dayView {
-			mapTime[d] += j
+		for h, j := range dayView {
+			mapTime[d][h] += j
 		}
 	}
-	return
+	return mapTime, nil
+}
+
+func MakeMonthMapNow() map[string]map[string]int64 {
+	res := map[string]map[string]int64{}
+	y := time.Now().Year()
+	m := time.Now().Month()
+	date := time.Date(y, m, 0, 0, 0, 0, 0, time.UTC)
+	maxDay := date.Day()
+	for i := 1; i <= maxDay; i++ {
+		res[fmt.Sprint(i)] = map[string]int64{}
+		for j := 0; j <= 24; j++ {
+			res[fmt.Sprint(i)][fmt.Sprint(j)] = 0
+		}
+	}
+	return res
 }

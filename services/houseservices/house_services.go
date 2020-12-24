@@ -494,21 +494,27 @@ func PutExtendTime(houseID string, extendTime int64) error {
 	return h.UpdateItem(houseID)
 }
 
-func SearchHouse(key, provinceID, districtID, communeID string) ([]response.House, error) {
+
+func SearchHouse(key, provinceID, districtID, communeID, price string) ([]response.House, error) {
 	h := &models.House{}
-	res, err := h.SearchAllItem(key)
+	priceRange := models.PriceRange(price)
+	startPrice, endPrice := priceRange.ToRange()
+	res, err := h.SearchAllItem(key, startPrice, endPrice)
 	if err != nil {
 		return []response.House{}, err
 	}
 	return FilterSearchResult(res, provinceID, districtID, communeID)
 }
 
-func SearchPageHouse(key, provinceID, districtID, communeID string, page, count int) ([]response.House, int, error) {
+func SearchPageHouse(key, provinceID, districtID, communeID, price string, page, count int) ([]response.House, int, error) {
 	h := &models.House{}
 	start := page * count
 	end := start + count
 
-	res, err := h.SearchAllItem(key)
+	priceRange := models.PriceRange(price)
+	startPrice, endPrice := priceRange.ToRange()
+
+	res, err := h.SearchAllItem(key, startPrice, endPrice)
 	if err != nil {
 		return nil, 0, err
 	}

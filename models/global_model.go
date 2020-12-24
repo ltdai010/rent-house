@@ -188,6 +188,29 @@ const (
 	More = "5000 - *"
 )
 
+func (p PriceRange) ToRange() (int, int) {
+	switch p {
+	case VeryLow:
+		return 0, 500
+	case DownLow:
+		return 500, 700
+	case UpLow:
+		return 700, 1000
+	case DownMedium:
+		return 1000, 1500
+	case UpMedium:
+		return 1500, 2000
+	case High:
+		return 2000, 2500
+	case VeryHigh:
+		return 2500, 3500
+	case ExHigh:
+		return 3500, 5000
+	default:
+		return 5000, 99999999
+	}
+}
+
 func PriceRangeFactory(price float64) PriceRange {
 	if price < 500 {
 		return VeryLow

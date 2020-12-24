@@ -765,13 +765,13 @@ paths:
     get:
       tags:
       - chat
-      description: WebSocket
+      description: this is WebSocket, don't try it
       operationId: WebsocketController.WebSocket
   /chat/admin:
     get:
       tags:
       - chat
-      description: WebSocket
+      description: this is WebSocket, don't try it
       operationId: WebsocketController.WebSocket
   /comment/{commentID}/:
     get:
@@ -1578,7 +1578,11 @@ paths:
         type: string
       - in: query
         name: district
-        description: distric id
+        description: district id
+        type: string
+      - in: query
+        name: price
+        description: price range
         type: string
       - in: query
         name: page
@@ -1597,40 +1601,6 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/models.House'
-  /search/search-results:
-    get:
-      tags:
-      - search
-      description: 'price range: VeryLow = "* - 500" DownLow = "500 - 700"  UpLow
-        = "700 - 1000" DownMedium = "1000 - 1500" UpMedium = "1500 - 2000" High =
-        "2000 - 2500" VeryHigh = "2500 - 3500" ExHigh = "3500 - 5000" More = "5000
-        - *""'
-      operationId: SearchController.GetAllSearchHouse
-      parameters:
-      - in: query
-        name: province
-        description: province id
-        type: string
-      - in: query
-        name: commune
-        description: commune id
-        type: string
-      - in: query
-        name: district
-        description: district id
-        type: string
-      - in: query
-        name: key
-        description: key
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.House'
-        "403":
-          description: :houseID is empty
   /statistic/most-view-this-month/:
     get:
       tags:
@@ -1638,11 +1608,17 @@ paths:
       description: get user by uid
       operationId: StatisticController.Get
       parameters:
-      - in: hear
+      - in: header
         name: key
         description: key
         required: true
         type: string
+      - in: query
+        name: length
+        description: page number
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
@@ -1657,24 +1633,7 @@ paths:
       description: get view in hour
       operationId: StatisticController.GetTimelineThisMonth
       parameters:
-      - in: hear
-        name: key
-        description: key
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{map} map[string]int64{}'
-        "403":
-          description: ': is empty'
-  /statistic/view-in-hour-this-month/:
-    get:
-      tags:
-      - statistic
-      description: get view in hour
-      operationId: StatisticController.GetViewInHour
-      parameters:
-      - in: hear
+      - in: header
         name: key
         description: key
         required: true

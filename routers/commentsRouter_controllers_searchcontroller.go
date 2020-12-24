@@ -16,13 +16,4 @@ func init() {
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["rent-house/controllers/searchcontroller:SearchController"] = append(beego.GlobalControllerRouter["rent-house/controllers/searchcontroller:SearchController"],
-        beego.ControllerComments{
-            Method: "GetAllSearchHouse",
-            Router: "/search-results",
-            AllowHTTPMethods: []string{"get"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
 }

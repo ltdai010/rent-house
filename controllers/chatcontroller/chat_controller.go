@@ -33,7 +33,7 @@ var (
 )
 
 // @Title WebSocket
-// @Description WebSocket
+// @Description this is WebSocket, don't try it
 // @router /
 func (w *WebsocketController) Join() {
 	ws, err := upgrader.Upgrade(w.Ctx.ResponseWriter, w.Ctx.Request, nil)
@@ -112,7 +112,7 @@ func broadcastToAdmin(msg <- chan models.BroadCastToAdmin) {
 
 
 // @Title WebSocket
-// @Description WebSocket
+// @Description this is WebSocket, don't try it
 // @router /admin
 func (w *WebsocketController) JoinAdmin() {
 	ws, err := upgrader.Upgrade(w.Ctx.ResponseWriter, w.Ctx.Request, nil)
