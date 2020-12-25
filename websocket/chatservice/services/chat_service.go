@@ -3,6 +3,7 @@ package services
 import (
 	"rent-house/restapi/response"
 	"rent-house/websocket/chatservice/models"
+	"time"
 )
 
 func GetMessageOfOwner(ownerID string, page, count int) (models.ResMessageConversation, int, error) {
@@ -25,4 +26,22 @@ func GetChattingOwner(page, length int) ([]response.Owner, int, error) {
 		return mes.GetChattingOwner(page, length)
 	}
 	return mes.GetAllChattingOwner()
+}
+
+func AdminSendMessage(adminID string, request models.AdminMessage) (error) {
+	bc := &models.BroadCastToOwner{
+		AdminID:      adminID,
+		SendTime:     time.Now().Unix(),
+		Type:         models.ADMIN_MESSAGE,
+		AdminMessage: request,
+	}
+
+	err := bc.PutItem()
+	if err != nil {
+		return err
+	}
+	if models.BcOwner[request.OwnerID] != nil {
+		models.BcOwner[request.OwnerID] <- *bc
+	}
+	return nil
 }

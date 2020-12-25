@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func MostViewInMonth(length int) (house response.House, err error) {
+func MostViewInMonth(length int) ([]response.House, error) {
 	h := &models.House{}
 	res, err := h.GetMaxViewHouseInMonth(length)
 	return res, err
@@ -41,4 +41,18 @@ func MakeMonthMapNow() map[string]map[string]int64 {
 		}
 	}
 	return res
+}
+
+func HouseInLocation() (map[string]map[string]int, error) {
+	statistic := &models.Statistic{}
+	return statistic.GetNumberHouseInLocation()
+}
+
+func ViewInLocation() (map[string]map[string]int64, error) {
+	statistic := &models.Statistic{}
+	err := statistic.GetFromKey(statistic.GetKeyNow())
+	if err != nil {
+		return map[string]map[string]int64{}, err
+	}
+	return statistic.ViewLocation, nil
 }

@@ -54,3 +54,47 @@ func (u *StatisticController) GetTimelineThisMonth() {
 	}
 	u.ServeJSON()
 }
+
+// @Title GetViewInLocation
+// @Description get view in hour
+// @Param	key		header	string	true		"key"
+// @Success 200 {map} map[string]int64{}
+// @Failure 403 : is empty
+// @router /view-in-location/ [get]
+func (u *StatisticController) GetViewInLocation() {
+	stat, err := statisticservices.ViewInLocation()
+	if err != nil {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: stat,
+			Err:  response.NewErr(response.NotExisted),
+		}
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: stat,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title GetHouseInLocation
+// @Description get view in hour
+// @Param	key		header	string	true		"key"
+// @Success 200 {map} map[string]int64{}
+// @Failure 403 : is empty
+// @router /number-house-in-location/ [get]
+func (u *StatisticController) GetHouseInLocation() {
+	stat, err := statisticservices.HouseInLocation()
+	if err != nil {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: stat,
+			Err:  response.NewErr(response.NotExisted),
+		}
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: stat,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}

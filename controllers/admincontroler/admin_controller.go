@@ -13,6 +13,7 @@ import (
 	"rent-house/services/ownerservices"
 	"rent-house/services/renterservices"
 	"rent-house/services/reportservices"
+	models2 "rent-house/websocket/chatservice/models"
 	services2 "rent-house/websocket/chatservice/services"
 )
 
@@ -184,6 +185,30 @@ func (u *AdminController) DeniedHouse() {
 		return
 	}
 	err = houseservices.DenyHouse(rq)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
+// @Title DeniedExtendingHouse
+// @Description active house
+// @Param	token			header	string	true		"admin key"
+// @Param	body		    body 	request.DeniedComment	true		"houseID"
+// @Success 200 {string} success
+// @Failure 403 body is empty
+// @router /denied-extending-house/ [post]
+func (u *AdminController) DeniedExtendingHouse() {
+	rq := request.DeniedComment{}
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &rq)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	err = houseservices.DenyExtendingTimeHouse(rq)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
@@ -690,6 +715,31 @@ func (u *AdminController) GetMessagingOwner() {
 			TotalCount: int64(total),
 			Err:  response.NewErr(response.Success),
 		}
+	}
+	u.ServeJSON()
+}
+
+// @Title SendMessageToOwner
+// @Description send msg to owner
+// @Param	token	header	string	true	"token admin"
+// @Param	body	body	models.AdminMessage true "admin message"
+// @Success 200 {object} response.Owner
+// @Failure 403 :ownerID is empty
+// @router /messages/owner [post]
+func (u *AdminController) SendMessageToOwner() {
+	admin := u.Ctx.Input.Header("admin")
+	req := models2.AdminMessage{}
+	err := json.Unmarshal(u.Ctx.Input.RequestBody, &req)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.ServeJSON()
+		return
+	}
+	err = services2.AdminSendMessage(admin, req)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
 	}
 	u.ServeJSON()
 }

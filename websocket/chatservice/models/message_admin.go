@@ -35,6 +35,7 @@ func (this *BroadCastToAdmin) PutItem() error {
 			Message:   this.Message,
 			ImageLink: this.ImageLink,
 		})
+		mc.LatestMsgTime = this.SendTime
 	} else {
 		err = doc.DataTo(mc)
 		if err != nil {

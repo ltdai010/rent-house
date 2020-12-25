@@ -148,7 +148,7 @@ func (u *HouseController) Update() {
 // @Param	time		query 	int64	true		"time"
 // @Success 200 {string} success
 // @Failure 403 :houseID is not int
-// @router /:houseID/expired-time [put]
+// @router /:houseID/extend-house [put]
 func (u *HouseController) UpdateExpiredTime(time int64) {
 	id := u.Ctx.Input.Param(":houseID")
 	err := houseservices.PutExtendTime(id, time)

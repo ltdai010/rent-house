@@ -476,6 +476,25 @@ func GetPageHouseOfOwner(ownerID string, page int, count int) ([]response.House,
 	return o.GetPaginateHouseOfUser(ownerID, page, count)
 }
 
+func DenyExtendingTimeHouse(request request.DeniedComment) error {
+	h := &models.House{}
+	err := h.GetFromKey(request.HouseID)
+	if err != nil {
+		return err
+	}
+	if h.Status != models.Extend {
+		return response.BadRequest
+	}
+	h.AppearTime = 0
+	if h.ExpiredTime < time.Now().Unix() {
+		h.Status = models.InActivated
+	} else {
+		h.Status = models.Activated
+	}
+	h.AdminComment = request.Comment
+	return h.UpdateItem(request.HouseID)
+}
+
 func UpdateHouse(id string, ob *request.HousePut) error {
 	h := &models.House{}
 	err := h.GetFromKey(id)

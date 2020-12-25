@@ -62,7 +62,17 @@ func (this *Owner) UpdateItem(id string) error {
 }
 
 func (this *Owner) Delete(id string) error {
-	_, err := Client.Collection(this.GetCollectionKey()).Doc(id).Delete(Ctx)
+	list, err := Client.Collection(consts.HOUSE).Where("OwnerID", "==", id).Documents(Ctx).GetAll()
+	if err != nil {
+		return err
+	}
+	for _, i := range list {
+		go Client.Collection(consts.HOUSE).Doc(i.Ref.ID).Delete(Ctx)
+	}
+	_, err = Client.Collection(this.GetCollectionKey()).Doc(id).Delete(Ctx)
+	if err != nil {
+		return err
+	}
 	return err
 }
 

@@ -3,9 +3,7 @@ package chatcontroller
 import (
 	"encoding/json"
 	"github.com/astaxie/beego"
-	"github.com/gorilla/websocket"
 	"log"
-	"net/http"
 	"rent-house/middlewares"
 	"rent-house/restapi/response"
 	"rent-house/websocket/chatservice/models"
@@ -16,27 +14,11 @@ type WebsocketController struct {
 	beego.Controller
 }
 
-var (
-	//connected client
-	Clients  = make(map[string]*websocket.Conn)     // connected Clients
-	//admin receiver
-	Admin    = make(map[string]*websocket.Conn)
-	//broadcast to admin channel
-	BcAdmin = make(map[string]chan models.BroadCastToAdmin) // broadcastbody channel
-	//broadcast to client channel
-	BcOwner = make(map[string]chan models.BroadCastToOwner)
-	upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-)
-
 // @Title WebSocket
 // @Description this is WebSocket, don't try it
 // @router /
 func (w *WebsocketController) Join() {
-	ws, err := upgrader.Upgrade(w.Ctx.ResponseWriter, w.Ctx.Request, nil)
+	ws, err := models.Upgrader.Upgrade(w.Ctx.ResponseWriter, w.Ctx.Request, nil)
 	if err != nil {
 		log.Println(err)
 	}
@@ -54,15 +36,15 @@ func (w *WebsocketController) Join() {
 		ws.WriteJSON(response.BadRequest)
 		return
 	}
-	Clients[ownerID] = ws
-	BcAdmin[ownerID] = make(chan models.BroadCastToAdmin)
+	models.Clients[ownerID] = ws
+	models.BcAdmin[ownerID] = make(chan models.BroadCastToAdmin)
 	err = ws.WriteJSON(response.NewErr(response.Success))
 	if err != nil {
 		ws.Close()
-		delete(Clients, ownerID)
+		delete(models.Clients, ownerID)
 		return
 	}
-	go broadcastToAdmin(BcAdmin[ownerID])
+	go broadcastToAdmin(models.BcAdmin[ownerID])
 	for {
 		var msg models.OwnerMessage
 		// Read in a new messagebody as JSON and map it to a MoveMessage object
@@ -72,7 +54,7 @@ func (w *WebsocketController) Join() {
 			err = ws.WriteJSON(response.BadRequest)
 			if err != nil {
 				ws.Close()
-				delete(Clients, ownerID)
+				delete(models.Clients, ownerID)
 				return
 			}
 		}
@@ -84,13 +66,13 @@ func (w *WebsocketController) Join() {
 		}
 		go bc.PutItem()
 		// Send the newly received messagebody to the broadcastbody channel
-		if BcAdmin != nil {
-			if BcAdmin[ownerID] != nil {
-				BcAdmin[ownerID] <- *bc
+		if models.BcAdmin != nil {
+			if models.BcAdmin[ownerID] != nil {
+				models.BcAdmin[ownerID] <- *bc
 				err = ws.WriteJSON(response.NewErr(response.Success))
 				if err != nil {
 					ws.Close()
-					delete(Clients, ownerID)
+					delete(models.Clients, ownerID)
 					return
 				}
 			}
@@ -102,7 +84,7 @@ func broadcastToAdmin(msg <- chan models.BroadCastToAdmin) {
 	for {
 		// Grab the next messagebody from the broadcastbody channel
 		for i := range msg {
-			for _, v := range Admin {
+			for _, v := range models.Admin {
 				v.WriteJSON(i)
 			}
 		}
@@ -115,7 +97,7 @@ func broadcastToAdmin(msg <- chan models.BroadCastToAdmin) {
 // @Description this is WebSocket, don't try it
 // @router /admin
 func (w *WebsocketController) JoinAdmin() {
-	ws, err := upgrader.Upgrade(w.Ctx.ResponseWriter, w.Ctx.Request, nil)
+	ws, err := models.Upgrader.Upgrade(w.Ctx.ResponseWriter, w.Ctx.Request, nil)
 	if err != nil {
 		log.Println(err)
 	}
@@ -133,14 +115,14 @@ func (w *WebsocketController) JoinAdmin() {
 		ws.WriteJSON(response.NewErr(response.BadRequest))
 		return
 	}
-	Admin[adminID] = ws
+	models.Admin[adminID] = ws
 	err = ws.WriteJSON(response.NewErr(response.Success))
 	if err != nil {
-		delete(Admin, adminID)
+		delete(models.Admin, adminID)
 		return
 	}
-	BcOwner[adminID] = make(chan models.BroadCastToOwner)
-	go broadcastToOwner(BcOwner[adminID])
+	models.BcOwner[adminID] = make(chan models.BroadCastToOwner)
+	go broadcastToOwner(models.BcOwner[adminID])
 	for {
 		var msg models.AdminMessage
 		// Read in a new messagebody as JSON and map it to a MoveMessage object
@@ -150,7 +132,7 @@ func (w *WebsocketController) JoinAdmin() {
 			err = ws.WriteJSON(response.BadRequest)
 			if err != nil {
 				ws.Close()
-				delete(Admin, adminID)
+				delete(models.Admin, adminID)
 				return
 			}
 			continue
@@ -165,13 +147,13 @@ func (w *WebsocketController) JoinAdmin() {
 		go bc.PutItem()
 
 		// Send the newly received messagebody to the broadcastbody channel
-		if BcOwner != nil {
-			if BcOwner[adminID] != nil {
-				BcOwner[adminID] <- *bc
+		if models.BcOwner != nil {
+			if models.BcOwner[adminID] != nil {
+				models.BcOwner[adminID] <- *bc
 				err = ws.WriteJSON(response.NewErr(response.Success))
 				if err != nil {
 					ws.Close()
-					delete(Admin, adminID)
+					delete(models.Admin, adminID)
 					return
 				}
 			}
@@ -183,10 +165,10 @@ func broadcastToOwner(msg <- chan models.BroadCastToOwner) {
 	for {
 		// Grab the next messagebody from the broadcastbody channel
 		for i := range msg {
-			if Clients[i.OwnerID] != nil {
-				err := Clients[i.OwnerID].WriteJSON(i)
+			if models.Clients[i.OwnerID] != nil {
+				err := models.Clients[i.OwnerID].WriteJSON(i)
 				if err != nil {
-					delete(Clients, i.OwnerID)
+					delete(models.Clients, i.OwnerID)
 					return
 				}
 			}

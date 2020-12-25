@@ -55,18 +55,18 @@ func (g *House) GetCollection() *firestore.CollectionRef {
 	return Client.Collection(g.GetCollectionKey())
 }
 
-func (this *House) GetMaxViewHouseInMonth(length int) (response.House, error) {
-	ref := Client.Collection(consts.HOUSE).OrderBy("MonthlyView", firestore.Desc).Limit(length).Documents(Ctx)
-	doc, err := ref.Next()
-	if err != nil {
-		return response.House{}, err
+func (this *House) GetMaxViewHouseInMonth(length int) ([]response.House, error) {
+	res := []response.House{}
+	ref, err := Client.Collection(consts.HOUSE).OrderBy("MonthlyView", firestore.Desc).Limit(length).Documents(Ctx).GetAll()
+	for _, i := range ref {
+		h := response.House{}
+		err = i.DataTo(&h)
+		if err != nil {
+			continue
+		}
+		h.HouseID = i.Ref.ID
+		res = append(res, h)
 	}
-	res := response.House{}
-	err = doc.DataTo(&res)
-	if err != nil {
-		return response.House{}, err
-	}
-	res.HouseID = doc.Ref.ID
 	return res, nil
 }
 

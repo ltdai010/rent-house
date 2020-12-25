@@ -18,8 +18,26 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"] = append(beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"],
         beego.ControllerComments{
+            Method: "GetHouseInLocation",
+            Router: "/number-house-in-location/",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"] = append(beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"],
+        beego.ControllerComments{
             Method: "GetTimelineThisMonth",
             Router: "/timeline-this-month/",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"] = append(beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"],
+        beego.ControllerComments{
+            Method: "GetViewInLocation",
+            Router: "/view-in-location/",
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,

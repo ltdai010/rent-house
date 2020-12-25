@@ -252,6 +252,29 @@ paths:
           description: '{string} success'
         "403":
           description: body is empty
+  /admin/denied-extending-house/:
+    post:
+      tags:
+      - admin
+      description: active house
+      operationId: AdminController.DeniedExtendingHouse
+      parameters:
+      - in: header
+        name: token
+        description: admin key
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: houseID
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeniedComment'
+      responses:
+        "200":
+          description: '{string} success'
+        "403":
+          description: body is empty
   /admin/denied-house/:
     post:
       tags:
@@ -416,6 +439,30 @@ paths:
         description: page length
         type: integer
         format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Owner'
+        "403":
+          description: :ownerID is empty
+    post:
+      tags:
+      - admin
+      description: send msg to owner
+      operationId: AdminController.SendMessageToOwner
+      parameters:
+      - in: header
+        name: token
+        description: token admin
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: admin message
+        required: true
+        schema:
+          $ref: '#/definitions/models.AdminMessage'
       responses:
         "200":
           description: ""
@@ -942,7 +989,7 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/response.Comment'
-  /house/{houseID}/expired-time:
+  /house/{houseID}/extend-house:
     put:
       tags:
       - house
@@ -1631,12 +1678,46 @@ paths:
             $ref: '#/definitions/response.House'
         "403":
           description: :houseID is empty
+  /statistic/number-house-in-location/:
+    get:
+      tags:
+      - statistic
+      description: get view in hour
+      operationId: StatisticController.GetHouseInLocation
+      parameters:
+      - in: header
+        name: key
+        description: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{map} map[string]int64{}'
+        "403":
+          description: ': is empty'
   /statistic/timeline-this-month/:
     get:
       tags:
       - statistic
       description: get view in hour
       operationId: StatisticController.GetTimelineThisMonth
+      parameters:
+      - in: header
+        name: key
+        description: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{map} map[string]int64{}'
+        "403":
+          description: ': is empty'
+  /statistic/view-in-location/:
+    get:
+      tags:
+      - statistic
+      description: get view in hour
+      operationId: StatisticController.GetViewInLocation
       parameters:
       - in: header
         name: key
@@ -1660,6 +1741,16 @@ definitions:
       province:
         type: string
       street:
+        type: string
+  models.AdminMessage:
+    title: AdminMessage
+    type: object
+    properties:
+      image_link:
+        type: string
+      message:
+        type: string
+      owner_id:
         type: string
   models.Comment:
     title: Comment

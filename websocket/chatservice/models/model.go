@@ -2,9 +2,27 @@ package models
 
 import (
 	"cloud.google.com/go/firestore"
+	"github.com/gorilla/websocket"
+	"net/http"
 	"rent-house/models"
 	"rent-house/restapi/response"
 	"rent-house/websocket/chatservice"
+)
+
+var (
+	//connected client
+	Clients  = make(map[string]*websocket.Conn)     // connected Clients
+	//admin receiver
+	Admin    = make(map[string]*websocket.Conn)
+	//broadcast to admin channel
+	BcAdmin = make(map[string]chan BroadCastToAdmin) // broadcastbody channel
+	//broadcast to client channel
+	BcOwner = make(map[string]chan BroadCastToOwner)
+	Upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
 )
 
 type MessageConversation struct {

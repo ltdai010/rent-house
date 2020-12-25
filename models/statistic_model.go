@@ -56,6 +56,36 @@ func (this *Statistic) GetFromKey(key string) error {
 	return err
 }
 
+func (this *Statistic) GetNumberHouseInLocation() (map[string]map[string]int, error) {
+	res := map[string]map[string]int{}
+	listAll, err := Client.Collection(consts.HOUSE).Documents(Ctx).GetAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, i := range listAll {
+		h := House{}
+		err = i.DataTo(&h)
+		if err != nil {
+			continue
+		}
+		c := &Commune{}
+		err = c.GetItem(h.CommuneCode)
+		if err != nil {
+			continue
+		}
+		d := &District{}
+		err = d.GetItem(c.ParentCode)
+		if err != nil {
+			continue
+		}
+		if res[d.ParentCode] == nil {
+			res[d.ParentCode] = map[string]int{}
+		}
+		res[d.ParentCode][c.ParentCode]++
+	}
+	return res, nil
+}
+
 
 func (this *Statistic) GetAll() ([]Statistic, error) {
 	listdoc := Client.Collection(this.GetCollectionKey()).Documents(Ctx)

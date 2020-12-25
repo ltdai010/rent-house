@@ -36,6 +36,7 @@ func (this *BroadCastToOwner) PutItem() error {
 			Message:   this.Message,
 			ImageLink: this.ImageLink,
 		})
+		mc.LatestMsgTime = this.SendTime
 	} else {
 		err = doc.DataTo(mc)
 		if err != nil {
@@ -52,9 +53,6 @@ func (this *BroadCastToOwner) PutItem() error {
 		mc.LatestMsgTime = this.SendTime
 	}
 	_, err = this.GetCollection().Doc(this.OwnerID).Set(models.Ctx, mc)
-	if err != nil {
-		return err
-	}
 	return err
 }
 

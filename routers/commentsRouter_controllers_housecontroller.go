@@ -55,7 +55,7 @@ func init() {
     beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"] = append(beego.GlobalControllerRouter["rent-house/controllers/housecontroller:HouseController"],
         beego.ControllerComments{
             Method: "UpdateExpiredTime",
-            Router: "/:houseID/expired-time",
+            Router: "/:houseID/extend-house",
             AllowHTTPMethods: []string{"put"},
             MethodParams: param.Make(
 				param.New("time", param.IsRequired),

@@ -75,6 +75,15 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
         beego.ControllerComments{
+            Method: "DeniedExtendingHouse",
+            Router: "/denied-extending-house/",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
+        beego.ControllerComments{
             Method: "DeniedHouse",
             Router: "/denied-house/",
             AllowHTTPMethods: []string{"post"},
@@ -141,6 +150,15 @@ func init() {
             Method: "GetMessagingOwner",
             Router: "/messages/owner",
             AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"] = append(beego.GlobalControllerRouter["rent-house/controllers/admincontroler:AdminController"],
+        beego.ControllerComments{
+            Method: "SendMessageToOwner",
+            Router: "/messages/owner",
+            AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
