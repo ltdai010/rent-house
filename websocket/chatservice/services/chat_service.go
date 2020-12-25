@@ -40,8 +40,8 @@ func AdminSendMessage(adminID string, request models.AdminMessage) (error) {
 	if err != nil {
 		return err
 	}
-	if models.BcOwner[request.OwnerID] != nil {
-		models.BcOwner[request.OwnerID] <- *bc
+	if models.BcOwner[adminID] != nil {
+		models.BcOwner[adminID] <- *bc
 	}
 	return nil
 }
