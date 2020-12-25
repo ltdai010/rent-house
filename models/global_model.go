@@ -191,23 +191,23 @@ const (
 func (p PriceRange) ToRange() (int, int) {
 	switch p {
 	case VeryLow:
-		return 0, 500
+		return 0, 500000
 	case DownLow:
-		return 500, 700
+		return 500000, 700000
 	case UpLow:
-		return 700, 1000
+		return 700000, 1000000
 	case DownMedium:
-		return 1000, 1500
+		return 1000000, 1500000
 	case UpMedium:
-		return 1500, 2000
+		return 1500000, 2000000
 	case High:
-		return 2000, 2500
+		return 2000000, 2500000
 	case VeryHigh:
-		return 2500, 3500
+		return 2500000, 3500000
 	case ExHigh:
-		return 3500, 5000
+		return 3500000, 5000000
 	default:
-		return 5000, 99999999
+		return 5000000, 9999999999
 	}
 }
 

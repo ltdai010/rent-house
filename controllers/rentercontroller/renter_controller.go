@@ -126,17 +126,17 @@ func (u *RenterController) AddReport() {
 	u.ServeJSON()
 }
 
-// @Title AddHouseToFavorite
+// @Title AddOrRemoveHouseFromFavorite
 // @Description create comment
 // @Param	token		header	string	true		"The token string"
 // @Param	houseID		path	string			true		"the house id"
 // @Success 200 {string} success
 // @Failure 403 body is empty
 // @router /like/:houseID [put]
-func (u *RenterController) AddHouseToFavorite() {
+func (u *RenterController) AddOrRemoveHouseFromFavorite() {
 	houseID := u.Ctx.Input.Param(":houseID")
 	renterID := u.Ctx.Input.Header("rentername")
-	err := houseservices.AddToFavourite(renterID, houseID)
+	err := houseservices.AddOrRemoveFromFavourite(renterID, houseID)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {

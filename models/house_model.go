@@ -42,10 +42,8 @@ type House struct {
 }
 type HouseSearch struct {
 	ObjectID 	   string 		  `json:"objectID"`
-	OwnerID        string         `json:"owner_id"`
 	NearBy         []string       `json:"near_by"`
 	Header         string         `json:"header"`
-	Content        string         `json:"content"`
 	Price          float64		  `json:"price"`
 }
 
@@ -174,10 +172,8 @@ func (this *House) PutItem() (string, error) {
 	res, _, err := Client.Collection(this.GetCollectionKey()).Add(Ctx, *this)
 	go searchIndex.SaveObject(HouseSearch{
 		ObjectID:       res.ID,
-		OwnerID:        this.OwnerID,
 		NearBy:         this.NearBy,
 		Header:         this.Header,
-		Content:        this.Content,
 		Price: 			this.Price,
 	})
 	if err != nil {
@@ -423,17 +419,15 @@ func (this *House) UpdateItem(id string) error {
 	}
 	go searchIndex.SaveObject(HouseSearch{
 		ObjectID:       id,
-		OwnerID:        this.OwnerID,
 		NearBy:         this.NearBy,
 		Header:         this.Header,
-		Content:        this.Content,
 		Price: 			this.Price,
 	})
 	return nil
 }
 
 func (this *House) SearchAllItem(key string, startPrice, endPrice int) ([]response.House, error) {
-	res, err := searchIndex.Search(key, opt.Filters("price:" + strconv.Itoa(startPrice) + " TO " + strconv.Itoa(endPrice)))
+	res, err := searchIndex.Search(key, opt.NumericFilter("price:" + strconv.Itoa(startPrice) + " TO " + strconv.Itoa(endPrice)))
 	if err != nil {
 		return []response.House{}, err
 	}
@@ -455,34 +449,4 @@ func (this *House) SearchAllItem(key string, startPrice, endPrice int) ([]respon
 		}
 	}
 	return list, nil
-}
-
-func (this *House) SearchPaginateItem(key string, page, count int) ([]response.House, int, error) {
-	r, err := searchIndex.Search(key)
-	if err != nil {
-		return nil, 0, err
-	}
-	total := len(r.Hits)
-	res, err := searchIndex.Search(key, opt.Page(page), opt.HitsPerPage(count))
-	if err != nil {
-		return []response.House{}, 0, err
-	}
-	list := []response.House{}
-	results := []HouseSearch{}
-	err = res.UnmarshalHits(&results)
-	if err != nil {
-		return []response.House{}, 0, err
-	}
-	now := time.Now().Unix()
-	for _, i := range results {
-		h := &House{}
-		resH, err := h.GetResponse(i.ObjectID)
-		if err != nil {
-			return []response.House{}, 0, err
-		}
-		if resH.ExpiredTime > now {
-			list = append(list, resH)
-		}
-	}
-	return list, total, nil
 }

@@ -233,7 +233,7 @@ func GetHouseArrangeByLike(page, count int) ([]response.House, int, error) {
 	return list, len(list), nil
 }
 
-func FilterSearchResult(res []response.House, provinceID, districtID, communeID string) ([]response.House, error) {
+func FilterSearchResult(res []response.House, provinceID, districtID, communeID string, houseType int) ([]response.House, error) {
 	list := []response.House{}
 	if communeID != "" {
 		commune := models.Commune{}
@@ -241,9 +241,12 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 		if err != nil {
 			return []response.House{}, err
 		}
+
 		for _, i := range res {
 			if i.Address.Commune == commune.Name {
-				list = append(list, i)
+				if houseType >= 0 && i.HouseType == response.HouseType(houseType) {
+					list = InsertHouseOrderByPrice(i, list)
+				}
 			}
 		}
 	} else if districtID != "" {
@@ -254,7 +257,9 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 		}
 		for _, i := range res {
 			if i.Address.District == district.Name {
-				list = append(list, i)
+				if houseType >= 0 && i.HouseType == response.HouseType(houseType) {
+					list = InsertHouseOrderByPrice(i, list)
+				}
 			}
 		}
 	} else if provinceID != "" {
@@ -265,13 +270,42 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 		}
 		for _, i := range res {
 			if i.Address.Province == province.Name {
-				list = append(list, i)
+				if houseType >= 0 && i.HouseType == response.HouseType(houseType) {
+					list = InsertHouseOrderByPrice(i, list)
+				}
 			}
 		}
 	} else {
+		if houseType >= 0 {
+			for _, i := range res {
+				if houseType >= 0 && i.HouseType == response.HouseType(houseType) {
+					list = InsertHouseOrderByPrice(i, list)
+				}
+			}
+			return list, nil
+		}
 		return res, nil
 	}
 	return list, nil
+}
+
+func InsertHouseOrderByPrice(house response.House, list []response.House) []response.House {
+	if len(list) == 0 {
+		list = append(list, house)
+		return list
+	}
+	for j := 0; j < len(list); j++ {
+		if list[j].Price >= house.Price {
+			consList := list[j:]
+			list = append(list[0:j], []response.House{house}...)
+			list = append(list, consList...)
+			break
+		}
+		if j == len(list) - 1 {
+			list = append(list, house)
+		}
+	}
+	return list
 }
 
 func ExtendHouseTime(houseID string) error {
@@ -495,40 +529,54 @@ func PutExtendTime(houseID string, extendTime int64) error {
 }
 
 
-func SearchHouse(key, provinceID, districtID, communeID, price string) ([]response.House, error) {
+func SearchHouse(key, provinceID, districtID, communeID, price string, houseType int) ([]response.House, error) {
 	h := &models.House{}
+	res := []response.House{}
 	priceRange := models.PriceRange(price)
 	startPrice, endPrice := priceRange.ToRange()
+	if priceRange == "" {
+		startPrice = 0
+		endPrice = 9999999999
+	}
 	res, err := h.SearchAllItem(key, startPrice, endPrice)
 	if err != nil {
 		return []response.House{}, err
 	}
-	return FilterSearchResult(res, provinceID, districtID, communeID)
+	return FilterSearchResult(res, provinceID, districtID, communeID, houseType)
 }
 
-func SearchPageHouse(key, provinceID, districtID, communeID, price string, page, count int) ([]response.House, int, error) {
+func SearchPageHouse(key, provinceID, districtID, communeID, price string, page, count int, houseType int) ([]response.House, int, error) {
 	h := &models.House{}
 	start := page * count
 	end := start + count
+	resData := []response.House{}
+
 
 	priceRange := models.PriceRange(price)
 	startPrice, endPrice := priceRange.ToRange()
+	if price == "" {
+		startPrice = 0
+		endPrice = 9999999999
+	}
 
 	res, err := h.SearchAllItem(key, startPrice, endPrice)
 	if err != nil {
-		return nil, 0, err
+		return resData, 0, err
 	}
-	r, err := FilterSearchResult(res, provinceID, districtID, communeID)
+	r, err := FilterSearchResult(res, provinceID, districtID, communeID, houseType)
 	if err != nil {
-		return nil, 0, nil
+		return resData, 0, err
 	}
 	if start > len(r) {
-		return nil, 0, response.BadRequest
+		return resData, 0, response.BadRequest
 	}
 	if end > len(r) {
 		end = len(r)
 	}
-	return r[start:end], len(r), nil
+	if len(r[start:end]) != 0 {
+		resData = r[start:end]
+	}
+	return resData, len(r), nil
 }
 
 func DeleteHouse(id string) error {
@@ -550,19 +598,37 @@ func GetAllFavoriteHouse(renterID string) ([]response.House, error) {
 	return house.GetActiveHouseByListID(renter.ListFavourite)
 }
 
-func AddToFavourite(renterID, houseID string) error {
+func AddOrRemoveFromFavourite(renterID, houseID string) error {
 	r := &models.Renter{}
 	err := r.GetFromKey(renterID)
 	if err != nil {
 		return err
 	}
-	//check if already exist
-	for _, i := range r.ListFavourite {
-		if i == houseID {
-			return response.Existed
+	//check if already exist then unlike
+	for i := 0; i < len(r.ListFavourite); i++ {
+		if r.ListFavourite[i] == houseID {
+			if i == len(r.ListFavourite) - 1 {
+				r.ListFavourite = r.ListFavourite[0:len(r.ListFavourite) - 1]
+			} else {
+				r.ListFavourite = append(r.ListFavourite[0:i], r.ListFavourite[(i + 1): len(r.ListFavourite)]...)
+			}
+			//update renter
+			err = r.PutItem()
+			if err != nil {
+				return err
+			}
+			//decrease house like
+			h := &models.House{}
+			err = h.GetFromKey(houseID)
+			if err != nil {
+				return err
+			}
+			h.Like--
+			err = h.UpdateItem(houseID)
+			return err
 		}
 	}
-	//add to list
+	//not exist so like the house
 	r.ListFavourite = append(r.ListFavourite, houseID)
 	err = r.PutItem()
 	if err != nil {
@@ -580,35 +646,4 @@ func AddToFavourite(renterID, houseID string) error {
 		return err
 	}
 	return nil
-}
-
-func RemoveFromFavourite(renterID, houseID string) error {
-	r := &models.Renter{}
-	err := r.GetFromKey(renterID)
-	if err != nil {
-		return err
-	}
-	list := []string{}
-	//check if exist
-	for _, i := range r.ListFavourite {
-		if i == houseID {
-			continue
-		}
-		list = append(list, i)
-	}
-	//add to list
-	r.ListFavourite = list
-	err = r.PutItem()
-	if err != nil {
-		return err
-	}
-	//decrease the number of likes
-	h := &models.House{}
-	err = h.GetFromKey(houseID)
-	if err != nil {
-		return err
-	}
-	h.Like--
-	err = h.UpdateItem(houseID)
-	return err
 }

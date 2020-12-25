@@ -1,7 +1,6 @@
 package searchcontroller
 
 import (
-	"errors"
 	"github.com/astaxie/beego"
 	"rent-house/restapi/response"
 	"rent-house/services/houseservices"
@@ -19,6 +18,7 @@ type SearchController struct {
 // @Param	commune		query	string	false		"commune id"
 // @Param	district	query	string	false		"district id"
 // @Param	price		query	string	false		"price range"
+// @Param   house_type	query	int		false		"house type: 0:single room, 1:mini apartment, 2:full house, 3:apartment"
 // @Param	page		query	int		true		"page"
 // @Param	count		query	int		true		"count"
 // @Success 200 {object} models.House
@@ -31,14 +31,17 @@ func (u *SearchController) GetPageActivateSearchHouse() {
 	districtID := u.GetString("district")
 	commune := u.GetString("commune")
 	price := u.GetString("price")
+	houseType, err := u.GetInt("house_type")
+	if err != nil {
+		houseType = -1
+	}
 	users := []response.House{}
 	total := 0
-	err := errors.New("")
 	if count <= 0 {
-		users, err = houseservices.SearchHouse(key, provinceID, districtID, commune, price)
+		users, err = houseservices.SearchHouse(key, provinceID, districtID, commune, price, houseType)
 		total = len(users)
 	} else {
-		users, total, err = houseservices.SearchPageHouse(key, provinceID, districtID, commune, price, page, count)
+		users, total, err = houseservices.SearchPageHouse(key, provinceID, districtID, commune, price, page, count, houseType)
 
 	}
 	if err != nil {

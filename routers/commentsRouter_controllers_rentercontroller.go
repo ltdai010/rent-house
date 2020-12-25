@@ -63,7 +63,7 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"] = append(beego.GlobalControllerRouter["rent-house/controllers/rentercontroller:RenterController"],
         beego.ControllerComments{
-            Method: "AddHouseToFavorite",
+            Method: "AddOrRemoveHouseFromFavorite",
             Router: "/like/:houseID",
             AllowHTTPMethods: []string{"put"},
             MethodParams: param.Make(),

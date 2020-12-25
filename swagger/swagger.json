@@ -2157,7 +2157,7 @@
                     "renter"
                 ],
                 "description": "create comment",
-                "operationId": "RenterController.AddHouseToFavorite",
+                "operationId": "RenterController.AddOrRemoveHouseFromFavorite",
                 "parameters": [
                     {
                         "in": "header",
@@ -2359,6 +2359,13 @@
                         "name": "price",
                         "description": "price range",
                         "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "house_type",
+                        "description": "house type: 0:single room, 1:mini apartment, 2:full house, 3:apartment",
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
                         "in": "query",
