@@ -10,6 +10,7 @@ import (
 	"rent-house/restapi/response"
 	models2 "rent-house/websocket/notificationservice/models"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -33,18 +34,25 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 	default:
 		return "", response.BadRequest
 	}
+	if house.NearBy == nil {
+		house.NearBy = []string{}
+	}
 	a.Street = house.Street
 	h := &models.House{
 		OwnerID:        ownerID,
 		HouseType:      house.HouseType,
-		Price: 			house.Price/divide,
-		Unit:   		house.Unit,
+		Price:          divide,
+		Unit:           house.Unit,
 		Address:        *a,
 		CommuneCode:    house.CommuneCode,
 		Infrastructure: house.Infrastructure,
 		NearBy:         house.NearBy,
+		PreOrder:       house.PreOrder,
+		Surface:        house.Surface,
 		WithOwner:      house.WithOwner,
 		ImageLink:      house.ImageLink,
+		LastViewed:     time.Now().Unix(),
+		MonthlyView:    0,
 		Header:         house.Header,
 		View:           0,
 		Like:           0,
@@ -55,6 +63,7 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		Review: 		map[string]int{},
 		AppearTime:     house.AppearTime*7*3600*24,
 		ExpiredTime:    0,
+		AdminComment:   "",
 	}
 	return h.PutItem()
 }
@@ -83,14 +92,18 @@ func AdminAddHouse(ownerID string, house *request.HousePost) (string, error) {
 	h := &models.House{
 		OwnerID:        ownerID,
 		HouseType:      house.HouseType,
-		Price: 			house.Price/divide,
-		Unit:   		house.Unit,
+		Price:          divide,
+		Unit:           house.Unit,
 		Address:        *a,
 		CommuneCode:    house.CommuneCode,
 		Infrastructure: house.Infrastructure,
 		NearBy:         house.NearBy,
+		PreOrder:       house.PreOrder,
+		Surface:        house.Surface,
 		WithOwner:      house.WithOwner,
 		ImageLink:      house.ImageLink,
+		LastViewed:     time.Now().Unix(),
+		MonthlyView:    0,
 		Header:         house.Header,
 		View:           0,
 		Like:           0,
@@ -99,8 +112,9 @@ func AdminAddHouse(ownerID string, house *request.HousePost) (string, error) {
 		PostTime:       time.Now().Unix(),
 		Status:         models.Activated,
 		Review: 		map[string]int{},
-		AppearTime:     999999*3600*24,
-		ExpiredTime:    time.Now().Unix() + 999999*3600*24,
+		AppearTime:     house.AppearTime*7*3600*24,
+		ExpiredTime:    time.Now().Unix() + house.AppearTime*7*3600*24,
+		AdminComment:   "",
 	}
 	return h.PutItem()
 }
@@ -243,8 +257,10 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 		}
 
 		for _, i := range res {
-			if i.Address.Commune == commune.Name {
-				if houseType >= 0 && i.HouseType == response.HouseType(houseType) {
+			if strings.Trim(i.Address.Commune, " ") == strings.Trim(commune.Name, " ") {
+				if i.HouseType == response.HouseType(houseType) {
+					list = InsertHouseOrderByPrice(i, list)
+				} else if houseType < 0 {
 					list = InsertHouseOrderByPrice(i, list)
 				}
 			}
@@ -256,8 +272,10 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 			return []response.House{}, err
 		}
 		for _, i := range res {
-			if i.Address.District == district.Name {
+			if strings.Trim(i.Address.District, " ") == strings.Trim(district.Name, " ") {
 				if houseType >= 0 && i.HouseType == response.HouseType(houseType) {
+					list = InsertHouseOrderByPrice(i, list)
+				} else if houseType < 0 {
 					list = InsertHouseOrderByPrice(i, list)
 				}
 			}
@@ -269,8 +287,10 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 			return []response.House{}, err
 		}
 		for _, i := range res {
-			if i.Address.Province == province.Name {
-				if houseType >= 0 && i.HouseType == response.HouseType(houseType) {
+			if strings.Trim(i.Address.Province, " ") == strings.Trim(province.Name, " ") {
+				if i.HouseType == response.HouseType(houseType) {
+					list = InsertHouseOrderByPrice(i, list)
+				} else if houseType < 0 {
 					list = InsertHouseOrderByPrice(i, list)
 				}
 			}
@@ -278,7 +298,9 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 	} else {
 		if houseType >= 0 {
 			for _, i := range res {
-				if houseType >= 0 && i.HouseType == response.HouseType(houseType) {
+				if i.HouseType == response.HouseType(houseType) {
+					list = InsertHouseOrderByPrice(i, list)
+				} else if houseType < 0 {
 					list = InsertHouseOrderByPrice(i, list)
 				}
 			}

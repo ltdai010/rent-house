@@ -42,10 +42,9 @@ func (u *SearchController) GetPageActivateSearchHouse() {
 		total = len(users)
 	} else {
 		users, total, err = houseservices.SearchPageHouse(key, provinceID, districtID, commune, price, page, count, houseType)
-
 	}
 	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
+		u.Data["json"] = response.NewErr(response.NotMore)
 	} else {
 		u.Data["json"] = response.ResponseCommonArray{
 			Data:       users,

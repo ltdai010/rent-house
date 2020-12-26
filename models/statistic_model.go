@@ -68,20 +68,15 @@ func (this *Statistic) GetNumberHouseInLocation() (map[string]map[string]int, er
 		if err != nil {
 			continue
 		}
-		c := &Commune{}
-		err = c.GetItem(h.CommuneCode)
+		a := &Address{}
+		err = a.FindAddress(h.CommuneCode)
 		if err != nil {
 			continue
 		}
-		d := &District{}
-		err = d.GetItem(c.ParentCode)
-		if err != nil {
-			continue
+		if res[a.Province] == nil {
+			res[a.Province] = map[string]int{}
 		}
-		if res[d.ParentCode] == nil {
-			res[d.ParentCode] = map[string]int{}
-		}
-		res[d.ParentCode][c.ParentCode]++
+		res[a.Province][a.District]++
 	}
 	return res, nil
 }
