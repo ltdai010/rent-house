@@ -502,7 +502,6 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	if err != nil {
 		return err
 	}
-	a.Street = ob.Street
 	//calculate price per month
 	var divide float64
 	switch ob.Unit {
@@ -515,6 +514,7 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	default:
 		return response.BadRequest
 	}
+	a.Street = ob.Street
 	h.CommuneCode = ob.CommuneCode
 	h.Content = ob.Content
 	h.Header = ob.Header
@@ -526,6 +526,8 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	h.Price = ob.Price/divide
 	h.Unit = ob.Unit
 	h.HouseType = ob.HouseType
+	h.Surface = ob.Surface
+	h.PreOrder = ob.PreOrder
 	return h.UpdateItem(id)
 }
 
