@@ -48,6 +48,11 @@ func HouseInLocation() (map[string]map[string]int, error) {
 	return statistic.GetNumberHouseInLocation()
 }
 
+func CalculateViewInLocation() {
+	statistic := &models.Statistic{}
+	statistic.CalculateViewInLocation()
+}
+
 func ViewInLocation() (map[string]map[string]int64, error) {
 	statistic := &models.Statistic{}
 	err := statistic.GetFromKey(statistic.GetKeyNow())

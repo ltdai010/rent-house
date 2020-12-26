@@ -81,6 +81,27 @@ func (this *Statistic) GetNumberHouseInLocation() (map[string]map[string]int, er
 	return res, nil
 }
 
+func (this *Statistic) CalculateViewInLocation() {
+	list, _ := Client.Collection(consts.HOUSE).Documents(Ctx).GetAll()
+	makeMap := map[string]map[string]int64{}
+	for _, i := range list {
+		h := House{}
+		err := i.DataTo(&h)
+		if err != nil {
+			continue
+		}
+		a := &Address{}
+		a.FindAddress(h.CommuneCode)
+		if makeMap[a.Province] == nil {
+			makeMap[a.Province] = map[string]int64{}
+		}
+		makeMap[a.Province][a.District]++
+	}
+	stat := &Statistic{}
+	stat.GetFromKey(this.GetKeyNow())
+	stat.ViewLocation = makeMap
+	stat.PutItem()
+}
 
 func (this *Statistic) GetAll() ([]Statistic, error) {
 	listdoc := Client.Collection(this.GetCollectionKey()).Documents(Ctx)

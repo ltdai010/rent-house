@@ -365,13 +365,8 @@ func ViewHouse(id string) (error) {
 	//create new one day//hour//views
 	h, _, _ := time.Now().Clock()
 	//create address
-	c := &models.Commune{}
-	err = c.GetItem(o.CommuneCode)
-	if err != nil {
-		return err
-	}
-	d := &models.District{}
-	err = d.GetItem(c.ParentCode)
+	a := &models.Address{}
+	err = a.FindAddress(o.CommuneCode)
 	if err != nil {
 		return err
 	}
@@ -390,8 +385,8 @@ func ViewHouse(id string) (error) {
 				},
 			},
 			ViewLocation: map[string]map[string]int64{
-				d.ParentCode : {
-					d.Code : 1,
+				a.Province : {
+					a.District : 1,
 				},
 			},
 			ViewPriceRange: map[string]int64{
@@ -401,41 +396,17 @@ func ViewHouse(id string) (error) {
 	} else {
 		//increase view
 		//check if view time existed
-		if v, ok := stat.ViewTime[strconv.Itoa(time.Now().Day())]; ok {
-			//exist day
-			if k, o := v[strconv.Itoa(h)]; o {
-				//exist hour
-				v[strconv.Itoa(h)] = k + 1
-			} else {
-				v[strconv.Itoa(h)] = 1
-			}
-		} else {
-			//not exist day
-			stat.ViewTime[strconv.Itoa(time.Now().Day())] = map[string]int64{
-				strconv.Itoa(h) : 1,
-			}
+		if stat.ViewTime[strconv.Itoa(time.Now().Day())] == nil {
+			stat.ViewTime[strconv.Itoa(time.Now().Day())] = map[string]int64{}
 		}
+		stat.ViewTime[strconv.Itoa(time.Now().Day())][strconv.Itoa(time.Now().Hour())]++
 		//check if view location existed
-		if v, ok := stat.ViewLocation[d.ParentCode]; ok {
-			//exist province
-			if k, o := v[d.Code]; o {
-				//exist district
-				v[d.Code] = k + 1
-			}
-			v[d.Code] = 1
-		} else {
-			//not exist province
-			stat.ViewLocation[d.ParentCode] = map[string]int64{
-				d.Code : 1,
-			}
+		if stat.ViewLocation[a.Province] == nil {
+			stat.ViewLocation[a.Province] = map[string]int64{}
 		}
+		stat.ViewLocation[a.Province][a.District]++
 		//check if view price existed
-		if v, ok := stat.ViewPriceRange[string(pr)]; ok {
-			//exist price range
-			stat.ViewPriceRange[string(pr)] = v + 1
-		} else {
-			stat.ViewPriceRange[string(pr)] = 1
-		}
+		stat.ViewPriceRange[string(pr)]++
 	}
 	//update statistic
 	err = stat.PutItem()
