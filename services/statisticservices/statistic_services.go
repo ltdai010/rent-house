@@ -56,3 +56,12 @@ func ViewInLocation() (map[string]map[string]int64, error) {
 	}
 	return statistic.ViewLocation, nil
 }
+
+func ViewByPrice() (map[string]int64, error) {
+	statistic := &models.Statistic{}
+	err := statistic.GetFromKey(statistic.GetKeyNow())
+	if err != nil {
+		return map[string]int64{}, err
+	}
+	return statistic.ViewPriceRange, nil
+}

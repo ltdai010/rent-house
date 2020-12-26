@@ -12,7 +12,7 @@ type SearchController struct {
 
 
 // @Title GetPageActivateSearchHouse
-// @Description price range: VeryLow = "* - 500" DownLow = "500 - 700" UpLow = "700 - 1000" DownMedium = "1000 - 1500" UpMedium = "1500 - 2000" High = "2000 - 2500" VeryHigh = "2500 - 3500" ExHigh = "3500 - 5000" More = "5000 - *""
+// @Description price range: "* - 1000" "1000 - 2000" "2000 - 3500" "3500 - 5000" "5000 - *"
 // @Param	key			query	string	true		"key for search"
 // @Param	province	query	string 	false		"province id"
 // @Param	commune		query	string	false		"commune id"

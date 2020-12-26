@@ -98,3 +98,25 @@ func (u *StatisticController) GetHouseInLocation() {
 	}
 	u.ServeJSON()
 }
+
+// @Title GetViewByPrice
+// @Description get view in hour
+// @Param	key		header	string	true		"admin key"
+// @Success 200 {map} map[string]int64{}
+// @Failure 403 : is empty
+// @router /view-by-price/ [get]
+func (u *StatisticController) GetViewByPrice() {
+	stat, err := statisticservices.ViewByPrice()
+	if err != nil {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: stat,
+			Err:  response.NewErr(response.NotExisted),
+		}
+	} else {
+		u.Data["json"] = response.ResponseCommonSingle{
+			Data: stat,
+			Err:  response.NewErr(response.Success),
+		}
+	}
+	u.ServeJSON()
+}

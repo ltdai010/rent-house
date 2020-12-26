@@ -36,6 +36,15 @@ func init() {
 
     beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"] = append(beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"],
         beego.ControllerComments{
+            Method: "GetViewByPrice",
+            Router: "/view-by-price/",
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"] = append(beego.GlobalControllerRouter["rent-house/controllers/statisticcontroller:StatisticController"],
+        beego.ControllerComments{
             Method: "GetViewInLocation",
             Router: "/view-in-location/",
             AllowHTTPMethods: []string{"get"},

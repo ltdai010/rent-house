@@ -177,59 +177,41 @@ const (
 type PriceRange string
 
 const (
-	VeryLow = "* - 500"
-	DownLow = "500 - 700"
-	UpLow     = "700 - 1000"
-	DownMedium = "1000 - 1500"
-	UpMedium = "1500 - 2000"
-	High = "2000 - 2500"
-	VeryHigh = "2500 - 3500"
-	ExHigh = "3500 - 5000"
-	More = "5000 - *"
+	Low = "* - 1000"
+	DownMedium = "1000 - 2000"
+	UpMedium = "2000 - 3500"
+	High = "3500 - 5000"
+	VeryHigh = "5000 - *"
 )
 
 func (p PriceRange) ToRange() (int, int) {
 	switch p {
-	case VeryLow:
-		return 0, 500000
-	case DownLow:
-		return 500000, 700000
-	case UpLow:
-		return 700000, 1000000
+	case Low:
+		return 0, 1000000
 	case DownMedium:
-		return 1000000, 1500000
+		return 1000000, 2000000
 	case UpMedium:
-		return 1500000, 2000000
+		return 2000000, 3500000
 	case High:
-		return 2000000, 2500000
-	case VeryHigh:
-		return 2500000, 3500000
-	case ExHigh:
 		return 3500000, 5000000
-	default:
+	case VeryHigh:
 		return 5000000, 9999999999
+	default:
+		return 0, 0
 	}
 }
 
 func PriceRangeFactory(price float64) PriceRange {
-	if price < 500 {
-		return VeryLow
-	} else if price >= 500 && price < 700 {
-		return DownLow
-	} else if price >= 700 && price < 1000 {
-		return UpLow
-	} else if price >= 1000 && price < 1500 {
+	if price < 1000000 {
+		return Low
+	} else if price >= 1000000 && price < 2000000 {
 		return DownMedium
-	} else if price >= 1500 && price < 2000 {
+	} else if price >= 2000000 && price < 3500000 {
 		return UpMedium
-	} else if price >= 2000 && price < 2500 {
-		return High
-	} else if price >= 2500 && price < 3500 {
-		return VeryHigh
-	} else if price >= 3500 && price < 5000 {
-		return ExHigh
+	} else if price >= 3500000 && price < 5000000 {
+		return DownMedium
 	}
-	return More
+	return VeryHigh
 }
 
 type PostTime struct {
