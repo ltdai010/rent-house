@@ -41,7 +41,7 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 	h := &models.House{
 		OwnerID:        ownerID,
 		HouseType:      house.HouseType,
-		Price:          divide,
+		Price:          house.Price/divide,
 		Unit:           house.Unit,
 		Address:        *a,
 		CommuneCode:    house.CommuneCode,
