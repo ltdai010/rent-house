@@ -210,7 +210,7 @@ func (this *House) Delete(id string) error {
 	if err != nil {
 		return err
 	}
-	_, err = searchIndex.Delete(id)
+	_, err = searchIndex.DeleteObject(id)
 	return err
 }
 
@@ -248,6 +248,27 @@ func (this *House) GetResponse(key string) (response.House, error) {
 	err = doc.DataTo(&res)
 	res.HouseID = doc.Ref.ID
 	return res, err
+}
+
+func (this *House) CopyAllToSearch() {
+	list, err := this.GetCollection().Documents(Ctx).GetAll()
+	if err != nil {
+		log.Println(err, "     models/house_model.go:256")
+		return
+	}
+	for _, i := range list {
+		h := House{}
+		err = i.DataTo(&h)
+		if err != nil {
+			continue
+		}
+		searchIndex.SaveObject(HouseSearch{
+			ObjectID: i.Ref.ID,
+			NearBy:   h.NearBy,
+			Header:   h.Header,
+			Price:    h.Price,
+		})
+	}
 }
 
 func (this *House) GetAllActivate() ([]response.House, error) {
