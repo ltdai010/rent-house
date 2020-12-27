@@ -462,6 +462,9 @@ func (this *House) GetByPriceRange(startPrice, endPrice int) ([]response.House, 
 		if err != nil {
 			continue
 		}
+		if h.ExpiredTime < time.Now().Unix() {
+			continue
+		}
 		h.HouseID = i.Ref.ID
 		res = append(res, h)
 	}

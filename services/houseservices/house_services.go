@@ -62,7 +62,7 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		Status:         models.InActivated,
 		Review: 		map[string]int{},
 		AppearTime:     house.AppearTime*7*3600*24,
-		ExpiredTime:    0,
+		ExpiredTime:    time.Now().Unix(),
 		AdminComment:   "",
 	}
 	go IncreaseHouseInDistrict(a.Province, a.District)
