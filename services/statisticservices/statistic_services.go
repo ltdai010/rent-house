@@ -32,6 +32,11 @@ func MakeMonthMapNow() map[string]map[string]int64 {
 	res := map[string]map[string]int64{}
 	y := time.Now().Year()
 	m := time.Now().Month()
+	if m != 12 {
+		m++
+	} else {
+		m = 1
+	}
 	date := time.Date(y, m, 0, 0, 0, 0, 0, time.UTC)
 	maxDay := date.Day()
 	for i := 1; i <= maxDay; i++ {

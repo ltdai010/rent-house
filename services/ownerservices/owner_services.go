@@ -201,6 +201,7 @@ func LoginOwner(login models.Login) (string, error) {
 }
 
 func ChangePassword(ownerID string, password string) error {
+	log.Println(password)
 	owner := &models.Owner{}
 	err := owner.GetFromKey(ownerID)
 	if err != nil {

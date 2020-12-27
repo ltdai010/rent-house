@@ -1478,7 +1478,7 @@
                 "tags": [
                     "house"
                 ],
-                "description": "update the user",
+                "description": "update the house",
                 "operationId": "HouseController.Update",
                 "parameters": [
                     {
@@ -1651,6 +1651,39 @@
                         "schema": {
                             "$ref": "#/definitions/response.Comment"
                         }
+                    }
+                }
+            }
+        },
+        "/house/{houseID}/rented": {
+            "put": {
+                "tags": [
+                    "house"
+                ],
+                "description": "update the house",
+                "operationId": "HouseController.UpdateRented",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "token",
+                        "description": "The token string",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "houseID",
+                        "description": "The uid you want to update",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} success"
+                    },
+                    "403": {
+                        "description": ":houseID is not int"
                     }
                 }
             }

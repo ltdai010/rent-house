@@ -22,6 +22,9 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		log.Println(err)
 		return "", err
 	}
+	if len(house.ImageLink) < 3 {
+		return "", response.BadRequest
+	}
 	//calculate price per month
 	var divide float64
 	switch house.Unit {
@@ -67,6 +70,20 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 	}
 	go IncreaseHouseInDistrict(a.Province, a.District)
 	return h.PutItem()
+}
+
+func UpdateRented(houseID string) error {
+	h := &models.House{}
+	err := h.GetFromKey(houseID)
+	if err != nil {
+		return err
+	}
+	if h.Rented == true {
+		h.Rented = false
+	} else {
+		h.Rented = true
+	}
+	return h.UpdateItem(houseID)
 }
 
 func AdminAddHouse(ownerID string, house *request.HousePost) (string, error) {

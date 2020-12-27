@@ -115,7 +115,7 @@ func (u *HouseController) GetByLike(page, count int) {
 }
 
 // @Title Update
-// @Description update the user
+// @Description update the house
 // @Param	token		header	string	true		"The token string"
 // @Param	houseID		path 	string	true		"The uid you want to update"
 // @Param	body		body 	request.HousePut	true		"body for user content"
@@ -132,6 +132,24 @@ func (u *HouseController) Update() {
 		return
 	}
 	err = houseservices.UpdateHouse(id, &ob)
+	if err != nil {
+		u.Data["json"] = response.NewErr(response.BadRequest)
+	} else {
+		u.Data["json"] = response.NewErr(response.Success)
+	}
+	u.ServeJSON()
+}
+
+// @Title UpdateRented
+// @Description update the house
+// @Param	token		header	string	true		"The token string"
+// @Param	houseID		path 	string	true		"The uid you want to update"
+// @Success 200 {string} success
+// @Failure 403 :houseID is not int
+// @router /:houseID/rented [put]
+func (u *HouseController) UpdateRented() {
+	id := u.Ctx.Input.Param(":houseID")
+	err := houseservices.UpdateRented(id)
 	if err != nil {
 		u.Data["json"] = response.NewErr(response.BadRequest)
 	} else {
