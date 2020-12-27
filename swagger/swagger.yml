@@ -1612,7 +1612,6 @@ paths:
       - in: query
         name: key
         description: key for search
-        required: true
         type: string
       - in: query
         name: province
@@ -1638,13 +1637,11 @@ paths:
       - in: query
         name: page
         description: page
-        required: true
         type: integer
         format: int64
       - in: query
         name: count
         description: count
-        required: true
         type: integer
         format: int64
       responses:

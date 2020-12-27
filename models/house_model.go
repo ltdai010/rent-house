@@ -130,12 +130,21 @@ func (this *House) GetPaginate(page int, count int) ([]response.House, int, erro
 
 func (this *House) GetPaginateByLike(page int, count int) ([]response.House, int, error) {
 	listHouse := []response.House{}
-	listDoc, err := this.GetCollection().Where("ExpiredTime", ">", time.Now().Unix()).OrderBy("ExpiredTime", firestore.Asc).OrderBy("Like", firestore.Desc).Documents(Ctx).GetAll()
+	listDoc, err := this.GetCollection().OrderBy("Like", firestore.Desc).Documents(Ctx).GetAll()
 	if err != nil {
 		log.Println(err)
 		return nil, 0, err
 	}
-	total := len(listDoc)
+	for _, i := range listDoc {
+		var q response.House
+		err = i.DataTo(&q)
+		if q.ExpiredTime < time.Now().Unix() {
+			continue
+		}
+		q.HouseID = i.Ref.ID
+		listHouse = append(listHouse, q)
+	}
+	total := len(listHouse)
 	if page * count > total {
 		return nil, 0, response.BadRequest
 	}
@@ -143,13 +152,7 @@ func (this *House) GetPaginateByLike(page int, count int) ([]response.House, int
 	if end > total {
 		end = total
 	}
-	for _, i := range listDoc[page * count : end] {
-		var q response.House
-		err = i.DataTo(&q)
-		q.HouseID = i.Ref.ID
-		listHouse = append(listHouse, q)
-	}
-	return listHouse, total, nil
+	return listHouse[page * count:end], total, nil
 }
 
 func (this *House) GetAllByLike() ([]response.House, error) {
@@ -424,6 +427,24 @@ func (this *House) UpdateItem(id string) error {
 		Price: 			this.Price,
 	})
 	return nil
+}
+
+func (this *House) GetByPriceRange(startPrice, endPrice int) ([]response.House, error) {
+	res := []response.House{}
+	list, err := this.GetCollection().Where("Price", ">=", startPrice).Where("Price", "<=", endPrice).Documents(Ctx).GetAll()
+	if err != nil {
+		return res, err
+	}
+	for _, i := range list {
+		h := response.House{}
+		err = i.DataTo(&h)
+		if err != nil {
+			continue
+		}
+		h.HouseID = i.Ref.ID
+		res = append(res, h)
+	}
+	return res, nil
 }
 
 func (this *House) SearchAllItem(key string, startPrice, endPrice int) ([]response.House, error) {

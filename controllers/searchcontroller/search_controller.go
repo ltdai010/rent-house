@@ -13,14 +13,14 @@ type SearchController struct {
 
 // @Title GetPageActivateSearchHouse
 // @Description price range: "* - 1000" "1000 - 2000" "2000 - 3500" "3500 - 5000" "5000 - *"
-// @Param	key			query	string	true		"key for search"
+// @Param	key			query	string	false		"key for search"
 // @Param	province	query	string 	false		"province id"
 // @Param	commune		query	string	false		"commune id"
 // @Param	district	query	string	false		"district id"
 // @Param	price		query	string	false		"price range"
 // @Param   house_type	query	int		false		"house type: 0:single room, 1:mini apartment, 2:full house, 3:apartment"
-// @Param	page		query	int		true		"page"
-// @Param	count		query	int		true		"count"
+// @Param	page		query	int		false		"page"
+// @Param	count		query	int		false		"count"
 // @Success 200 {object} models.House
 // @router /page-search-results [get]
 func (u *SearchController) GetPageActivateSearchHouse() {

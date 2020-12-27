@@ -544,6 +544,7 @@ func PutExtendTime(houseID string, extendTime int64) error {
 
 
 func SearchHouse(key, provinceID, districtID, communeID, price string, houseType int) ([]response.House, error) {
+	var err error
 	h := &models.House{}
 	res := []response.House{}
 	priceRange := models.PriceRange(price)
@@ -552,15 +553,23 @@ func SearchHouse(key, provinceID, districtID, communeID, price string, houseType
 		startPrice = 0
 		endPrice = 9999999999
 	}
-	res, err := h.SearchAllItem(key, startPrice, endPrice)
-	if err != nil {
-		return []response.House{}, err
+	if key != "" {
+		res, err = h.SearchAllItem(key, startPrice, endPrice)
+		if err != nil {
+			return []response.House{}, err
+		}
+	} else {
+		res, err = h.GetByPriceRange(startPrice, endPrice)
+		if err != nil {
+			return []response.House{}, err
+		}
 	}
 	return FilterSearchResult(res, provinceID, districtID, communeID, houseType)
 }
 
 func SearchPageHouse(key, provinceID, districtID, communeID, price string, page, count int, houseType int) ([]response.House, int, error) {
 	h := &models.House{}
+	var err error
 	start := page * count
 	end := start + count
 	resData := []response.House{}
@@ -573,11 +582,19 @@ func SearchPageHouse(key, provinceID, districtID, communeID, price string, page,
 		endPrice = 9999999999
 	}
 
-	res, err := h.SearchAllItem(key, startPrice, endPrice)
-	if err != nil {
-		return resData, 0, err
+	result := []response.House{}
+	if key != "" {
+		result, err = h.SearchAllItem(key, startPrice, endPrice)
+		if err != nil {
+			return []response.House{}, 0, err
+		}
+	} else {
+		result, err = h.GetByPriceRange(startPrice, endPrice)
+		if err != nil {
+			return []response.House{}, 0, err
+		}
 	}
-	r, err := FilterSearchResult(res, provinceID, districtID, communeID, houseType)
+	r, err := FilterSearchResult(result, provinceID, districtID, communeID, houseType)
 	if err != nil {
 		return resData, 0, err
 	}
