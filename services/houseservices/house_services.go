@@ -65,6 +65,7 @@ func AddHouse(ownerID string, house *request.HousePost) (string, error) {
 		ExpiredTime:    0,
 		AdminComment:   "",
 	}
+	go IncreaseHouseInDistrict(a.Province, a.District)
 	return h.PutItem()
 }
 
@@ -116,7 +117,18 @@ func AdminAddHouse(ownerID string, house *request.HousePost) (string, error) {
 		ExpiredTime:    time.Now().Unix() + house.AppearTime*7*3600*24,
 		AdminComment:   "",
 	}
+	go IncreaseHouseInDistrict(a.Province, a.District)
 	return h.PutItem()
+}
+
+func DecreaseHouseInDistrict(province, district string) {
+	stat := models.Statistic{}
+	stat.DecreaseHouseInDistrict(province, district)
+}
+
+func IncreaseHouseInDistrict(province, district string) {
+	stat := models.Statistic{}
+	stat.IncreaseHouseInDistrict(province, district)
 }
 
 func DenyHouse(comment request.DeniedComment) error {
@@ -514,6 +526,10 @@ func UpdateHouse(id string, ob *request.HousePut) error {
 	default:
 		return response.BadRequest
 	}
+	if a.District != h.Address.District || a.Province != h.Address.Province {
+		go IncreaseHouseInDistrict(a.Province, a.District)
+		go DecreaseHouseInDistrict(h.Address.Province, h.Address.District)
+	}
 	a.Street = ob.Street
 	h.CommuneCode = ob.CommuneCode
 	h.Content = ob.Content
@@ -616,6 +632,7 @@ func DeleteHouse(id string) error {
 	if err != nil {
 		return err
 	}
+	go DecreaseHouseInDistrict(u.Address.Province, u.Address.District)
 	return u.Delete(id)
 }
 

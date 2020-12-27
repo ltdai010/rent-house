@@ -1686,6 +1686,12 @@ paths:
         description: key
         required: true
         type: string
+      - in: query
+        name: length
+        description: length
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: '{map} map[string]int64{}'
@@ -1737,6 +1743,12 @@ paths:
         description: key
         required: true
         type: string
+      - in: query
+        name: length
+        description: length
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: '{map} map[string]int64{}'

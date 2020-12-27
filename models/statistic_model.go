@@ -3,6 +3,7 @@ package models
 import (
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
+	"log"
 	"rent-house/consts"
 	"strconv"
 	"time"
@@ -12,6 +13,11 @@ type Statistic struct {
 	ViewTime       map[string]map[string]int64 `json:"visit_day"`
 	ViewLocation   map[string]map[string]int64 `json:"view_location"`
 	ViewPriceRange map[string]int64            `json:"view_price_range"`
+}
+
+type InLocation struct {
+	Number	int64	`json:"number"`
+	Location string `json:"location"`
 }
 
 func (g *Statistic) GetKeyNow() string {
@@ -56,12 +62,69 @@ func (this *Statistic) GetFromKey(key string) error {
 	return err
 }
 
-func (this *Statistic) GetNumberHouseInLocation() (map[string]map[string]int, error) {
-	res := map[string]map[string]int{}
-	listAll, err := Client.Collection(consts.HOUSE).Documents(Ctx).GetAll()
+func (this *Statistic) DecreaseHouseInDistrict(province, district string) {
+	res, err := this.GetCollection().Doc("location").Get(Ctx)
+	if err != nil {
+		log.Println(err, "   models/statistic_model.go:68")
+		return
+	}
+	data := map[string]map[string]int64{}
+	err = res.DataTo(&data)
+	if err != nil {
+		log.Println(err, "   models/statistic_model.go:74")
+		return
+	}
+	if data[province] == nil {
+		return
+	}
+	if data[province][district] == 0 {
+		return
+	}
+	data[province][district]--
+	_, err = this.GetCollection().Doc("location").Set(Ctx, data)
+	if err != nil {
+		log.Println(err, "   models/statistic_model.go:85")
+	}
+}
+
+func (this *Statistic) IncreaseHouseInDistrict(province, district string) {
+	res, err := this.GetCollection().Doc("location").Get(Ctx)
+	if err != nil {
+		log.Println(err, "   models/statistic_model.go:93")
+		return
+	}
+	data := map[string]map[string]int64{}
+	err = res.DataTo(&data)
+	if err != nil {
+		log.Println(err, "   models/statistic_model.go:99")
+		return
+	}
+	if data[province] == nil {
+		data[province] = map[string]int64{}
+	}
+	data[province][district]++
+	_, err = this.GetCollection().Doc("location").Set(Ctx, data)
+	if err != nil {
+		log.Println(err, "   models/statistic_model.go:108")
+	}
+}
+
+func (this *Statistic) GetNumberHouseInLocation() (map[string]map[string]int64, error) {
+	res := map[string]map[string]int64{}
+	doc, err := Client.Collection(consts.STATISTIC).Doc("location").Get(Ctx)
 	if err != nil {
 		return nil, err
 	}
+	err = doc.DataTo(&res)
+	if err != nil {
+		return map[string]map[string]int64{}, err
+	}
+	return res, nil
+}
+
+func (this *Statistic) CalculateHouseInLocation() {
+	res := map[string]map[string]int64{}
+	listAll, err := Client.Collection(consts.HOUSE).Documents(Ctx).GetAll()
 	for _, i := range listAll {
 		h := House{}
 		err = i.DataTo(&h)
@@ -74,11 +137,11 @@ func (this *Statistic) GetNumberHouseInLocation() (map[string]map[string]int, er
 			continue
 		}
 		if res[a.Province] == nil {
-			res[a.Province] = map[string]int{}
+			res[a.Province] = map[string]int64{}
 		}
 		res[a.Province][a.District]++
 	}
-	return res, nil
+	this.GetCollection().Doc("location").Set(Ctx, res)
 }
 
 func (this *Statistic) CalculateViewInLocation() {
