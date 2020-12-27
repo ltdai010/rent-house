@@ -330,7 +330,8 @@ func InsertHouseOrderByPrice(house response.House, list []response.House) []resp
 	}
 	for j := 0; j < len(list); j++ {
 		if list[j].Price >= house.Price {
-			consList := list[j:]
+			consList := make([]response.House, len(list[j:]))
+			copy(consList, list[j:])
 			list = append(list[0:j], []response.House{house}...)
 			list = append(list, consList...)
 			break
