@@ -312,8 +312,6 @@ func FilterSearchResult(res []response.House, provinceID, districtID, communeID 
 			for _, i := range res {
 				if i.HouseType == response.HouseType(houseType) {
 					list = InsertHouseOrderByPrice(i, list)
-				} else if houseType < 0 {
-					list = InsertHouseOrderByPrice(i, list)
 				}
 			}
 			return list, nil
@@ -328,7 +326,8 @@ func InsertHouseOrderByPrice(house response.House, list []response.House) []resp
 		list = append(list, house)
 		return list
 	}
-	for j := 0; j < len(list); j++ {
+	j := 0
+	for j = 0; j < len(list); j++ {
 		if list[j].Price >= house.Price {
 			consList := make([]response.House, len(list[j:]))
 			copy(consList, list[j:])
@@ -336,9 +335,9 @@ func InsertHouseOrderByPrice(house response.House, list []response.House) []resp
 			list = append(list, consList...)
 			break
 		}
-		if j == len(list) - 1 {
-			list = append(list, house)
-		}
+	}
+	if j == len(list) {
+		list = append(list, house)
 	}
 	return list
 }
