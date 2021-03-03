@@ -1627,8 +1627,7 @@ paths:
     get:
       tags:
       - search
-      description: 'price range: "* - 1000" "1000 - 2000" "2000 - 3500" "3500 - 5000"
-        "5000 - *"'
+      description: 'price range: "* - 1000" "1000 - 2000" "2000 - 3500" "3500 - 5000" "5000 - *"'
       operationId: SearchController.GetPageActivateSearchHouse
       parameters:
       - in: query

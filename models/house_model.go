@@ -472,7 +472,6 @@ func (this *House) GetByPriceRange(startPrice, endPrice int) ([]response.House, 
 }
 
 func (this *House) SearchAllItem(key string, startPrice, endPrice int) ([]response.House, error) {
-	log.Println(key, startPrice, endPrice, "   models/house_model.go:451")
 	res, err := searchIndex.Search(key, opt.NumericFilter("price:" + strconv.Itoa(startPrice) + " TO " + strconv.Itoa(endPrice)))
 	if err != nil {
 		return []response.House{}, err

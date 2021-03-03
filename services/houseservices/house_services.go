@@ -229,12 +229,12 @@ func ActiveHouse(id string) error {
 		}
 	}
 
-	//mail := &models.Mail{
-	//	To:      o.Profile.Email,
-	//	Subject: "Active house",
-	//	Msg:     "Your house name "+ house.Header + " has been active for everyone to see.\nIt will last since " + time.Unix(house.ExpiredTime, 0).String(),
-	//}
-	//go mail.SendMail(o.Profile.Email)
+	mail := &models.Mail{
+		To:      o.Profile.Email,
+		Subject: "Active house",
+		Msg:     "Your house name "+ house.Header + " has been active for everyone to see.\nIt will last since " + time.Unix(house.ExpiredTime, 0).String(),
+	}
+	go mail.SendMail(o.Profile.Email)
 	return nil
 }
 
