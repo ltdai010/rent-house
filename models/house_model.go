@@ -272,7 +272,8 @@ func (this *House) CopyAllToSearch() {
 }
 
 func (this *House) GetAllActivate() ([]response.House, error) {
-	listdoc := Client.Collection(this.GetCollectionKey()).Where("ExpiredTime", ">", time.Now().Unix()).Documents(Ctx)
+	listdoc := Client.Collection(this.GetCollectionKey()).Where(
+		"ExpiredTime", ">", time.Now().Unix()).Documents(Ctx)
 	listHouse := []response.House{}
 	for {
 		var q response.House

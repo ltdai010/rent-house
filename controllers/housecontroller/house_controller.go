@@ -39,18 +39,11 @@ func (u *HouseController) GetAllActivateHouse() {
 // @Success 200 {object} models.House
 // @router /page [get]
 func (u *HouseController) GetPageActivateHouse() {
-	page, err := u.GetInt("page")
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-		u.ServeJSON()
-		return
-	}
-	count, err := u.GetInt("count")
-	if err != nil {
-		u.Data["json"] = response.NewErr(response.BadRequest)
-		u.ServeJSON()
-		return
-	}
+	page, _ := u.GetInt("page")
+
+	count, _ := u.GetInt("count")
+
+	log.Println(count, " ", page)
 	users, total, err := houseservices.GetPageActiveHouse(page, count)
 	if err != nil {
 		log.Println(err)
